@@ -33,3 +33,6 @@ Genesis infohash is hardcoded to all nodes. Nodes then connect to the DHT networ
 Once heirarchy is figured out, we can then start building additional "modules", like attaching comments, and additional files. This can allow for smart contracts.
 
 At the time of writing, I have created the mechanism for creating wallets, creating transactions, and broadcasting transactions. To finish the proof of concept, I need the other side. Discovering and validating new transactions need to be written.
+
+Sidenote:
+To create inflation/deflation, we can create a difficulty charge for transactions. Basically, force them to find a hash with x leading 0s. We can say, if ur hash has more leading 0s than the average of the last 5 transactions in the branch, you gain tokens, and if its lower, you pay a fee.
