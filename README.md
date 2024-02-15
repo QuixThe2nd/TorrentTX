@@ -25,6 +25,10 @@ I create a genesis transaction:
 I put it in a file called `tx.json`, and put that file in a folder called `tx`. I then create a torrent for the folder.
 I can then broadcast the infohash to bittorent trackers made for the TorrentTX protocol specifically. They keep a record of all blocks. Anyone can create a tracker. The network will have it's own DHT network for distributin blocks too.
 
+For a transaction to be valid, 0 confirmations are required. There are 2 requirements:
+- All transactions up the tree are valid too
+- There are no conflicting transactions already known by the node.
+
 The person I sent it to can now send lesser or equal amounts to others by creating similar transactions. The heirarchy of transactions is determined by peers using an algorithm similar to this:
 ```
 Genesis infohash is hardcoded to all nodes. Nodes then connect to the DHT network and TorrentRX trackers. The node will keep record of all infohashes discovered and how many times seen. Once the first infohash is discovered after genesis, the node will start downloading the contents of the torrent, then move onto the next, in order of how often its been seen. While parsing, the node will be sorting infohashes using "prev" as the reference. Prev is the infohash in-which the money from the transaction came from. This means as we start pulling transactions in a psuedo-random order, we're discovering the direct ancestor to each transaction. In the case of a discrepency, where someone has double-spent, nodes will keep the transaction they received first, creating a hard-fork between good and bad acting peers.
