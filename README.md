@@ -23,7 +23,7 @@ I create a genesis transaction:
 }
 ```
 I put it in a file called `tx.json`, and put that file in a folder called `tx`. I then create a torrent for the folder.
-I can then broadcast the infohash to bittorent trackers made for the TorrentTX protocol specifically. They keep a record of all blocks. Anyone can create a tracker. The network will have it's own DHT network for distributin blocks too.
+I can then broadcast the infohash to bittorent trackers made for the TorrentTX protocol specifically. They keep a record of all blocks. Anyone can create a tracker. The network will have it's own DHT network for distributing blocks too.
 
 For a transaction to be valid, 0 confirmations are required. There are 2 requirements:
 - All transactions up the tree are valid too
