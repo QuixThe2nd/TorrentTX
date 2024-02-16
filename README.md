@@ -29,6 +29,8 @@ For a transaction to be valid, 0 confirmations are required. There are 2 require
 - All transactions up the tree are valid too
 - There are no conflicting transactions already known by the node.
 
+If some transactions up the tree have 0 seeders, the transaction must fail. As the person holding the money, it is YOUR obligation to keep previous transactions up the tree alive. What this means is, if there's many branches, the further up the tree you go, the more people will be seeding it. This means that as time goes on, the strength of each individual transaction will increase, as long as more people up the tree, in any branch diverging from the original transaction keep transacting.
+
 The person I sent it to can now send lesser or equal amounts to others by creating similar transactions. The heirarchy of transactions is determined by peers using an algorithm similar to this:
 
 Genesis infohash is hardcoded to all nodes. Nodes then connect to the DHT network and TorrentRX trackers. The node will keep record of all infohashes discovered and how many times seen. Once the first infohash is discovered after genesis, the node will start downloading the contents of the torrent, then move onto the next, in order of how often its been seen. While parsing, the node will be sorting infohashes using "prev" as the reference. Prev is the infohash in-which the money from the transaction came from. This means as we start pulling transactions in a psuedo-random order, we're discovering the direct ancestor to each transaction. In the case of a discrepency, where someone has double-spent, nodes will keep the transaction they received first, creating a hard-fork between good and bad acting peers.
