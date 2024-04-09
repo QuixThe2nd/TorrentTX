@@ -1,0 +1,12 @@
+{
+  "name": "torrenttx",
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "bip39": "^3.1.0",
+    "ethereumjs-util": "^7.1.5",
+    "ethereumjs-wallet": "^1.0.2",
+    "node-fetch": "^3.3.2",
+    "webtorrent": "^2.2.1"
+  }
+}
