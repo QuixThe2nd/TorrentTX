@@ -130,7 +130,7 @@ export default class Wallet {
         // Get the balance of the address from transactions dir
         const transactions = fs.readdirSync('transactions');
         const balances = {};
-        // const remaining_utxos = {};
+        const remaining_utxos = {};
         for (const i in transactions) {
             const file = transactions[i];
             const path = `transactions/${file}`;
@@ -138,18 +138,18 @@ export default class Wallet {
             const isValid = this.validateTransaction(tx, signature, hash);
 
             if (isValid) {
-                // if (remaining_utxos[hash])
-                //     remaining_utxos[hash] += tx.amount;
-                // else
-                //     remaining_utxos[hash] = tx.amount;
-                // for (const i in tx.prev) {
-                //     const hash = tx.prev[i];
-                //     if (remaining_utxos[hash]) {
-                //         remaining_utxos[hash] -= tx.amount;
-                //     } else {
-                //         remaining_utxos[hash] = -tx.amount;
-                //     }
-                // }
+                if (remaining_utxos[hash])
+                    remaining_utxos[hash] += tx.amount;
+                else
+                    remaining_utxos[hash] = tx.amount;
+                for (const i in tx.prev) {
+                    const hash = tx.prev[i];
+                    if (remaining_utxos[hash]) {
+                        remaining_utxos[hash] -= tx.amount;
+                    } else {
+                        remaining_utxos[hash] = -tx.amount;
+                    }
+                }
 
                 if (balances[tx.to])
                     balances[tx.to] += tx.amount;
@@ -166,6 +166,7 @@ export default class Wallet {
                 console.log("Invalid transaction");
             }
         }
+        console.log(remaining_utxos);
         this.balances = balances;
         return this.balances;
     }
