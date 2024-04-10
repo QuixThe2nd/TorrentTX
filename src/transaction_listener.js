@@ -1,7 +1,7 @@
 import fs from "fs";
 import dgram from "dgram";
 
-const receiveTransaction = (torrentClient, infohash) => {
+const receiveTransaction = (wallet, torrentClient, infohash) => {
     console.log("\nReceived transaction:", infohash);
     
     if (infohash.length !== 40 || !/^[0-9A-Fa-f]+$/.test(infohash)) {
@@ -47,7 +47,7 @@ const receiveTransaction = (torrentClient, infohash) => {
     });
 }
 
-export default function transactionListener(torrentClient, listenPort) {
+export default function transactionListener(wallet, torrentClient, listenPort) {
     const dgramClient = dgram.createSocket('udp4');
 
     setInterval(() => {
@@ -55,7 +55,7 @@ export default function transactionListener(torrentClient, listenPort) {
             const infohashes = data.split('\n');
             for (const i in infohashes) {
                 if (!fs.existsSync(`torrents/${infohashes[i]}.torrent`))
-                    receiveTransaction(torrentClient, infohashes[i]);
+                    receiveTransaction(wallet, torrentClient, infohashes[i]);
             }
         });
     }, 30000);
@@ -90,7 +90,7 @@ export default function transactionListener(torrentClient, listenPort) {
         if(payload['torrents']) {
             for (const i in payload['torrents']) {
                 const infohash = payload['torrents'][i];
-                receiveTransaction(torrentClient, infohash);
+                receiveTransaction(wallet, torrentClient, infohash);
             }
         }
 
