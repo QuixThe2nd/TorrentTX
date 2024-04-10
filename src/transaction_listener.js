@@ -2,24 +2,24 @@ import fs from "fs";
 import dgram from "dgram";
 
 const receiveTransaction = (wallet, torrentClient, infohash) => {
-    console.log("\nReceived transaction:", infohash);
 
     if (fs.existsSync(`torrents/${infohash}.torrent`)) {
-        console.log('Torrent already known');
+        // console.log('Torrent already known');
         return;
     }
     
     if (infohash.length !== 40 || !/^[0-9A-Fa-f]+$/.test(infohash)) {
-        console.log("Invalid infohash");
+        // console.log("Invalid infohash");
         return;
     }
 
     const matchedTorrents = torrentClient.torrents.filter(torrent => torrent.path === `mempool/${infohash}`);
     if (matchedTorrents.length > 0){
-        console.log('Torrent is already downloading');
+        // console.log('Torrent is already downloading');
         return;
     }
 
+    console.log("\nReceived transaction:", infohash);
     console.log('Downloading Metadata', infohash)
     torrentClient.add(infohash, {path: `mempool/${infohash}`, announce: ['udp://tracker.openbittorrent.com:80', 'wss://tracker.openwebtorrent.com/', 'wss://tracker.webtorrent.dev', 'wss://tracker.files.fm:7073/announce', 'ws://tracker.files.fm:7072/announce']}, (torrent) => {
         console.log('Downloading Transaction:', torrent.infoHash);
