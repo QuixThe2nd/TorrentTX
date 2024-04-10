@@ -56,7 +56,7 @@ console.log("Address:", address);
 transactionListener(wallet, torrentClient, listenPort);
 
 const main = async () => {
-    const input = (await userInput("T = Transfer, B = Balance, E = Exit")).toLowerCase();
+    const input = (await userInput("T = Transfer, B = Balance, E = Exit, D = Delete Blockchain")).toLowerCase();
     if (input === 't') {
         console.log("Transfer");
 
@@ -111,6 +111,16 @@ const main = async () => {
         console.log(wallet.balances);
     } else if (input === 'e') {
         return;
+    } else if (input === 'd') {
+        console.log("Deleting Blockchain");
+        fs.rmdirSync('transactions', {recursive: true});
+        fs.rmdirSync('torrents', {recursive: true});
+        fs.rmdirSync('mempool', {recursive: true});
+        fs.mkdirSync('transactions');
+        fs.mkdirSync('torrents');
+        fs.mkdirSync('mempool');
+        wallet.balances = {};
+        console.log("Blockchain Deleted");
     }
     main();
 };
