@@ -54,6 +54,7 @@ There is more todo than what has already been done so far. I'll keep adding thin
 - ttx20 coins (anyone can mint, just like erc20)
 - Liquid Swaps
 - On-chain-bridging - Bridge Bitcoin, Monero, Ethereum, erc20 tokens, and from layer 2s. Swap on-chain for TTX, or receive wXMR, wETH, wBTC, etc.
+- Make block explorer that showcases the states of transactions (mempool, unconfirmed, and confirmed).
 
 ## Initialisation
 ```
