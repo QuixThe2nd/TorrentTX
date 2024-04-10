@@ -55,6 +55,7 @@ There is more todo than what has already been done so far. I'll keep adding thin
 - Liquid Swaps
 - On-chain-bridging - Bridge Bitcoin, Monero, Ethereum, erc20 tokens, and from layer 2s. Swap on-chain for TTX, or receive wXMR, wETH, wBTC, etc.
 - Make block explorer that showcases the states of transactions (mempool, unconfirmed, and confirmed).
+- Create sync confirmations - Some-sort of a block height measure for TorrentTX, to see who's further ahead of who. This way you can tell if you need more blocks
 
 ## Initialisation
 ```
