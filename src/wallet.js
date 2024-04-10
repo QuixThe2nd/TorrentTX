@@ -9,7 +9,7 @@ export default class Wallet {
     constructor(walletFilePath = 'wallet.json') {
         this.balances = {};
         this.walletFilePath = walletFilePath;
-        this.genesisHash = 'a6d501fece933802ec51863c1248c5a29ec834bf392cc5eb919e7801da5d2284';
+        this.genesisHash = '28a11d5eb078b4acd7a6867d7cde86d7dc719e93b76e79d0c5d52681c925267c';
 
         const keys = fs.existsSync(this.walletFilePath) ? this.loadKeys() : this.createKeys();
         for (const key in keys) {
@@ -161,7 +161,7 @@ export default class Wallet {
                 else
                     balances[tx.to] = tx.amount;
 
-                if (hash !== this.genesisHash) { // If not genesis
+                if (hash !== this.genesisHash) {
                     if (balances[tx.from])
                         balances[tx.from] -= tx.amount;
                     else
