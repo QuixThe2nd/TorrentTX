@@ -53,7 +53,7 @@ wallet.generateAddress();
 const address = wallet.wallet.getAddressString();
 console.log("Address:", address);
 
-transactionListener(torrentClient, wallet, listenPort);
+transactionListener(wallet, torrentClient, listenPort);
 
 const transactions = fs.readdirSync('transactions');
 for (const i in transactions) {
