@@ -7,13 +7,16 @@ const hdkey = HDWallet.hdkey;
 
 export default class Wallet {
     constructor(walletFilePath = 'wallet.json') {
+        this.balances = {};
         this.walletFilePath = walletFilePath;
+        this.genesisHash = 'a6d501fece933802ec51863c1248c5a29ec834bf392cc5eb919e7801da5d2284';
 
         const keys = fs.existsSync(this.walletFilePath) ? this.loadKeys() : this.createKeys();
         for (const key in keys) {
             this[key] = keys[key];
         }
-        this.getBalances()
+
+        this.recalculateBalances();
     }
 
     generateAddress(path = "m/44'/60'/0'/0/0") {
@@ -126,7 +129,9 @@ export default class Wallet {
         }
     }
 
-    getBalances() {
+    recalculateBalances() {
+        console.log('Recalculating balances')
+
         // Get the balance of the address from transactions dir
         const transactions = fs.readdirSync('transactions');
         const balances = {};
@@ -156,7 +161,7 @@ export default class Wallet {
                 else
                     balances[tx.to] = tx.amount;
 
-                if (hash !== "a6d501fece933802ec51863c1248c5a29ec834bf392cc5eb919e7801da5d2284") { // If not genesis
+                if (hash !== this.genesisHash) { // If not genesis
                     if (balances[tx.from])
                         balances[tx.from] -= tx.amount;
                     else
@@ -172,6 +177,9 @@ export default class Wallet {
     }
 
     validateTransaction(tx, signature, hash) {
+        console.log("Validating transaction");
+        if(hash !== this.genesisHash && (!this.balances[tx.from] || this.balances[tx.from] < tx.amount))
+            return false;
         return this.verifySignature(hash, signature, tx.from);
     }
 }

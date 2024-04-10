@@ -39,6 +39,7 @@ const receiveTransaction = (wallet, torrentClient, infohash) => {
                             console.log("Valid Transaction");
                             fs.writeFileSync(`transactions/${hash}.json`, data);
                             fs.writeFileSync(`torrents/${infohash}.torrent`, torrent.torrentFile);
+                            wallet.recalculateBalances();
                         }
                     });
                 };

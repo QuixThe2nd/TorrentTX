@@ -79,7 +79,9 @@ const main = async () => {
 
         fs.writeFileSync(txPath, JSON.stringify({ tx, signature, hash }, null, 4));
 
-        console.log("Creating Torrent")
+        wallet.recalculateBalances();
+
+        console.log("Creating Torrent");
         torrentClient.seed(txPath, {announce: ['udp://tracker.openbittorrent.com:80', 'wss://tracker.openwebtorrent.com/', 'wss://tracker.webtorrent.dev', 'wss://tracker.files.fm:7073/announce', 'ws://tracker.files.fm:7072/announce']}, (torrent) => {
             console.log('Seeding:', torrent.infoHash);
             fs.writeFile( `torrents/${torrent.infoHash}.torrent`, torrent.torrentFile, (err) => {
@@ -106,7 +108,7 @@ const main = async () => {
         });
     } else if (input === 'b') {
         console.log("Balances");
-        console.log(wallet.getBalances());
+        console.log(wallet.balances);
     } else if (input === 'e') {
         return;
     }
