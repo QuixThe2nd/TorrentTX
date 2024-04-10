@@ -55,15 +55,6 @@ console.log("Address:", address);
 
 transactionListener(wallet, torrentClient, listenPort);
 
-const transactions = fs.readdirSync('transactions');
-for (const i in transactions) {
-    const transaction = transactions[i];
-    console.log("Seeding", transaction);
-    torrentClient.seed(`transactions/${transaction}`,{announce: ['udp://tracker.openbittorrent.com:80', 'wss://tracker.openwebtorrent.com/', 'wss://tracker.webtorrent.dev', 'wss://tracker.files.fm:7073/announce', 'ws://tracker.files.fm:7072/announce']}, (torrentEl) => {
-        console.log('Seeding Started:', torrentEl.infoHash);
-    });
-}
-
 const main = async () => {
     const input = (await userInput("T = Transfer, B = Balance, E = Exit")).toLowerCase();
     if (input === 't') {

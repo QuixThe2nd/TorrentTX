@@ -3,14 +3,14 @@ import dgram from "dgram";
 
 const receiveTransaction = (wallet, torrentClient, infohash) => {
     console.log("\nReceived transaction:", infohash);
-    
-    if (infohash.length !== 40 || !/^[0-9A-Fa-f]+$/.test(infohash)) {
-        console.log("Invalid infohash");
-        return;
-    }
 
     if (fs.existsSync(`torrents/${infohash}.torrent`)) {
         console.log('Torrent already known');
+        return;
+    }
+    
+    if (infohash.length !== 40 || !/^[0-9A-Fa-f]+$/.test(infohash)) {
+        console.log("Invalid infohash");
         return;
     }
 
@@ -48,14 +48,22 @@ const receiveTransaction = (wallet, torrentClient, infohash) => {
 }
 
 export default function transactionListener(wallet, torrentClient, listenPort) {
+    const transactions = fs.readdirSync('transactions');
+    for (const i in transactions) {
+        const transaction = transactions[i];
+        console.log("Seeding", transaction);
+        torrentClient.seed(`transactions/${transaction}`,{announce: ['udp://tracker.openbittorrent.com:80', 'wss://tracker.openwebtorrent.com/', 'wss://tracker.webtorrent.dev', 'wss://tracker.files.fm:7073/announce', 'ws://tracker.files.fm:7072/announce']}, (torrentEl) => {
+            console.log('Seeding Started:', torrentEl.infoHash);
+        });
+    }
+
     const dgramClient = dgram.createSocket('udp4');
 
     setInterval(() => {
         fetch('https://ttx-dht.starfiles.co/transactions.txt?c=' + Math.random()).then(response => response.text()).then(data => {
             const infohashes = data.split('\n');
             for (const i in infohashes) {
-                if (!fs.existsSync(`torrents/${infohashes[i]}.torrent`))
-                    receiveTransaction(wallet, torrentClient, infohashes[i]);
+                receiveTransaction(wallet, torrentClient, infohashes[i]);
             }
         });
     }, 30000);
