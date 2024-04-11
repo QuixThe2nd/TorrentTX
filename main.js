@@ -6,7 +6,7 @@ import dgram from "dgram";
 import transactionListener from './src/transaction_listener.js';
 import Wallet from './src/wallet.js'
 
-const listenPort = 6901;
+let listenPort = 6901;
 for (; listenPort < 7000; listenPort++){
     try {
         // dgramClient.bind(listenPort);
