@@ -130,7 +130,7 @@ const main = async () => {
         });
     } else if (input === 'b') {
         console.log("Balances");
-        wallet.recalculateBalances();
+        clients.wallet.recalculateBalances();
         console.log(clients.wallet.balances);
     } else if (input === 'r') {
         console.log("Refreshing");
