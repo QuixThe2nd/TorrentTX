@@ -41,12 +41,16 @@ export default function transactionListener(clients) {
         const payload = JSON.parse(msg.toString());
         console.log(`Received payload from ${rinfo.address}:${rinfo.port}`);
 
-        if(payload['peers']) {
+        // insert sender into peers list
+        const uniquePeers = new Set([...fs.readFileSync('./peers.txt').toString().split('\n'), `${rinfo.address}:${rinfo.port}`]);
+        fs.writeFileSync('./peers.txt', Array.from(uniquePeers).join('\n'));
+
+        if (payload['peers']) {
             const uniquePeers = new Set([...fs.readFileSync('./peers.txt').toString().split('\n'), ...payload['peers']]);
             fs.writeFileSync('./peers.txt', Array.from(uniquePeers).join('\n'));
         }
 
-        if(payload['torrents']) {
+        if (payload['torrents']) {
             for (const i in payload['torrents']) {
                 const infohash = payload['torrents'][i];
                 clients.torrents.saveTransactionToMempool(infohash);
