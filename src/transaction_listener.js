@@ -2,7 +2,6 @@ import fs from "fs";
 import dgram from "dgram";
 
 const receiveTransaction = (wallet, torrentClient, infohash) => {
-
     if (fs.existsSync(`torrents/${infohash}.torrent`)) {
         // console.log('Torrent already known');
         return;
