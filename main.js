@@ -151,8 +151,8 @@ const main = async () => {
         // Do nothing cause we refresh every loop
     } else if (input === 'd') {
         console.log("Deleting Transaction Dag");
-        fs.rmdirSync('transactions', {recursive: true});
-        fs.rmdirSync('mempool', {recursive: true});
+        fs.rmSync('transactions', {recursive: true});
+        fs.rmSync('mempool', {recursive: true});
         fs.mkdirSync('transactions');
         fs.mkdirSync('mempool');
         clients.wallet.balances = {};
