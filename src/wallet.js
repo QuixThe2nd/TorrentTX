@@ -193,4 +193,37 @@ export default class Wallet {
             return false;
         return this.verifySignature(hash, signature, tx.from);
     }
+
+    checkMempool(torrentClient) {
+        const mempool = fs.readdirSync('mempool');
+        for (const i in mempool) {
+            const infohash = mempool[i];
+            const files = fs.readdirSync(`mempool/${infohash}`);
+            for (const j in files) {
+                const file = files[j];
+                const data = JSON.parse(fs.readFileSync(`mempool/${infohash}/${file}`));
+                const { tx, signature, hash } = data;
+                if (this.validateTransaction(tx, signature, hash)) {
+                    fs.writeFileSync(`transactions/${hash}.json`, JSON.stringify(data, null, 4));
+                    torrentClient.seed(`transactions/${hash}.json`, {announce: ['udp://tracker.openbittorrent.com:80', 'wss://tracker.openwebtorrent.com/', 'wss://tracker.webtorrent.dev', 'wss://tracker.files.fm:7073/announce', 'ws://tracker.files.fm:7072/announce']}, (torrent) => {
+                        console.log('Seeding:', torrent.infoHash);
+                        fs.writeFile(`torrents/${torrent.infoHash}.torrent`, torrent.torrentFile, (err) => {
+                            if (err)
+                                return console.error('Failed to save the torrent file:', err);
+                            console.log('Torrent file saved successfully.');
+                        });
+                    });
+                    fs.unlink(`mempool/${file}`, (err) => {
+                        if (err) {
+                            console.error(err);
+                            return;
+                        }
+                        console.log('Transaction deleted from mempool');
+                    });
+                    if (fs.readdirSync('mempool').length === 0)
+                        fs.rmdirSync('mempool');
+                }
+            }
+        }
+    }
 }
