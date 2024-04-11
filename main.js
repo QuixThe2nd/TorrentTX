@@ -158,7 +158,7 @@ const main = async () => {
         fs.mkdirSync('transactions');
         fs.mkdirSync('mempool');
         clients.wallet.balances = {};
-        clients.torrents.clearclients.torrents();
+        clients.torrents.clearTorrents();
         console.log("Torrent Transaction Deleted");
     } else if (input === 'a') {
         console.log("Address:", address);
