@@ -1,3 +1,4 @@
+import fs from 'fs';
 import WebTorrent from 'webtorrent';
 import {initClients} from './clients.js';
 
