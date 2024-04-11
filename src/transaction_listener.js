@@ -49,7 +49,7 @@ const receiveTransaction = (wallet, torrentClient, infohash) => {
                                 }
                                 console.log('Transaction deleted from mempool');
                             });
-                            wallet.checkMempool();
+                            wallet.checkMempool(torrentClient);
                         }
                     });
                 };
