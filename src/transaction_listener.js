@@ -144,8 +144,6 @@ export default function transactionListener(wallet, torrentClient, listenPort) {
                 console.error(`Port ${listenPort} is already in use`);
                 listenPort++;
             }
-            console.error(err);
-            dgramClient.close();
         }
     }
 }
