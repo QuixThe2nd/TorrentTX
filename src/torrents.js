@@ -35,7 +35,7 @@ export default class Torrents {
         //     return;
         // }
         
-        if (infohash.length !== 40 || !/^[0-9A-Fa-f]+$/.test(infohash)) {
+        if (!infohash || infohash.length !== 40 || !/^[0-9A-Fa-f]+$/.test(infohash)) {
             // console.log("Invalid infohash");
             return;
         }
