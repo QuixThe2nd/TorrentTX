@@ -73,8 +73,7 @@ export default function transactionListener(clients) {
         }
     });
 
-    const connections = 0;
-
+    let connections = 0;
     clients.dgram.on('connect', () => {
         console.log('Client connected');
         connections++;
