@@ -102,6 +102,20 @@ export default class Wallet {
         }
 
         if (selectedUTXOs.length === 0) {
+            // Sort UTXOs by amount, largest first
+            UTXOs.sort((a, b) => b.tx.amount - a.tx.amount);
+
+            let total = 0;
+            for (const i in UTXOs) {
+                const UTXO = UTXOs[i];
+                selectedUTXOs.push(UTXO.hash);
+                total += UTXO.tx.amount;
+                if (total >= amount)
+                    break;
+            }
+        }
+
+        if (selectedUTXOs.length === 0) {
             console.log("Can't find UTXO");
             throw new Error("Can't find UTXO")
         }
