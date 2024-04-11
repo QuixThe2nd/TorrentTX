@@ -43,13 +43,15 @@ To create inflation/deflation, we can create a difficulty charge for transaction
 ## Current State
 ~~At the time of writing, I have created the mechanism for creating wallets, creating transactions, and broadcasting transactions. To finish the proof of concept, I need the other side. Discovering and validating new transactions need to be written.~~
 
-An initial devnet is live. Existing code is just a proof of concept. `main.js` acts as a node/wallet. Transaction broadcast and discovery is functional, but I haven't been able to get P2P communication working on WAN, only LAN. So, for transaction discovery and broadcasting, we have 2 solutions in place. A UDP layer for clients to directly communicate and transfer blocks and share peers. And, additionally, a TTX tracker hosted at https://ttx-dht.starfiles.co. When creating a transaction, it is broadcasted to all known peers via UDP (if possible), and also sent to the TTX tracker. The TTX tracker is literally just a directory of all known transaction id's, valid and invalid. At the moment, validation to ensure new coins aren't just minted is disabled to allow for easier testing, yes, this means you can just send yourself coins that you don't own. Block's can, will, and have been deleted while in devnet. Please experiment and create an issue with feedback. PR if you like the idea.
+~~An initial devnet is live. Existing code is just a proof of concept. `main.js` acts as a node/wallet. Transaction broadcast and discovery is functional, but I haven't been able to get P2P communication working on WAN, only LAN. So, for transaction discovery and broadcasting, we have 2 solutions in place. A UDP layer for clients to directly communicate and transfer blocks and share peers. And, additionally, a TTX tracker hosted at https://ttx-dht.starfiles.co. When creating a transaction, it is broadcasted to all known peers via UDP (if possible), and also sent to the TTX tracker. The TTX tracker is literally just a directory of all known transaction id's, valid and invalid. At the moment, validation to ensure new coins aren't just minted is disabled to allow for easier testing, yes, this means you can just send yourself coins that you don't own. Block's can, will, and have been deleted while in devnet. Please experiment and create an issue with feedback. PR if you like the idea.~~
+
+P2P communication via UDP is live. Transactions received from the TTX-DHT are treated identically to transactions received via payload transfer P2P using UDP. This means, once there are enough nodes, the Starfiles TTX-DHT can be shut down, as there's no need. By enough nodes, I mean, enough to be confident that there is always at least one other person online. Validation now exists. The validation catches most simple exploits. Though it needs thorough testing.
 
 ### Todo
 There is more todo than what has already been done so far. I'll keep adding things as I remember.
-- FIX P2P COMMUNICATION - atm, i cant get anything working via WAN, firewall? idk.
-- Actual transaction validation, to make sure transactions have funds backing them.
-- Leaving node running overnight results in "Possible EventEmitter memory leak detected" error.
+- ~~FIX P2P COMMUNICATION - atm, i cant get anything working via WAN, firewall? idk.~~
+- ~~Actual transaction validation, to make sure transactions have funds backing them.~~
+- ~~Leaving node running overnight results in "Possible EventEmitter memory leak detected" error.~~
 - Archival Contracts (read todo in main.js)
 - ttx20 coins (anyone can mint, just like erc20)
 - Liquid Swaps
@@ -60,7 +62,7 @@ There is more todo than what has already been done so far. I'll keep adding thin
 ### Rough Plan
 - Keep adding poking holes and adding checks to make it harder to lie
 - Make node more stable and add more QoL features and stuff
-- Improve P2P communication reliability in both torrent seeding/leeching and discovery
+- ~~Improve P2P communication reliability in both torrent seeding/leeching and discovery~~
 - Start building system to handle modules, so new features can be added on by anyone, and nodes can opt in on "mining" each type of module individually
 - Build ttx20 module for custom coins
 - Build native liquidity pools and liquid swaps that remove the need for DEXes
