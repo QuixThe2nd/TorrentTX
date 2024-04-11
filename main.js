@@ -125,6 +125,9 @@ const main = async () => {
         console.log("Balances");
         wallet.recalculateBalances();
         console.log(wallet.balances);
+    } else if (input === 'r') {
+        console.log("Refreshing");
+        // Do nothing cause we refresh every loop
     } else if (input === 'e') {
         return;
     } else if (input === 'd') {
