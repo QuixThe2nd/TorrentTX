@@ -6,13 +6,6 @@ import dgram from "dgram";
 import transactionListener from './src/transaction_listener.js';
 import Wallet from './src/wallet.js'
 
-if (!fs.existsSync('torrents'))
-    fs.mkdirSync('torrents');
-if(!fs.existsSync('transactions'))
-    fs.mkdirSync('transactions');
-if (!fs.existsSync('peers.txt'))
-    fs.writeFileSync('peers.txt', `127.0.0.1:${listenPort}`);
-
 const listenPort = 6901;
 for (; listenPort < 7000; listenPort++){
     try {
@@ -30,6 +23,13 @@ for (; listenPort < 7000; listenPort++){
         }else console.error(err.code);
     }
 }
+
+if (!fs.existsSync('torrents'))
+    fs.mkdirSync('torrents');
+if(!fs.existsSync('transactions'))
+    fs.mkdirSync('transactions');
+if (!fs.existsSync('peers.txt'))
+    fs.writeFileSync('peers.txt', `127.0.0.1:${listenPort}`);
 
 const torrentClient = new WebTorrent();
 const wallet = new Wallet();
