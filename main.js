@@ -62,9 +62,9 @@ const main = async () => {
 
         const amount = await userInput("Amount");
         if (!wallet.balances[address] || amount > wallet.balances[address]) {
-            console.log("Insufficient balance (error de-escalated to warning on devnet)");
-            // main();
-            // return;
+            console.log("Insufficient balance");
+            main();
+            return;
         }
 
         const to = await userInput("To");
@@ -108,6 +108,7 @@ const main = async () => {
         });
     } else if (input === 'b') {
         console.log("Balances");
+        wallet.recalculateBalances();
         console.log(wallet.balances);
     } else if (input === 'e') {
         return;

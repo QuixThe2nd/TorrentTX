@@ -101,9 +101,10 @@ export default class Wallet {
             }
         }
 
-        if (selectedUTXOs.length === 0)
-            console.log("Can't find UTXO  (error de-escalated to warning on devnet)");
-        //     throw new Error("Can't find UTXO")
+        if (selectedUTXOs.length === 0) {
+            console.log("Can't find UTXO");
+            throw new Error("Can't find UTXO")
+        }
 
         return selectedUTXOs;
     }
