@@ -72,4 +72,22 @@ export default function transactionListener(clients) {
             });
         }
     });
+
+    const connections = 0;
+
+    clients.dgram.on('connect', () => {
+        console.log('Client connected');
+        connections++;
+        console.log('Connections:', connections);
+    });
+
+    clients.dgram.on('close', () => {
+        console.log('Client closed');
+        connections--;
+        console.log('Connections:', connections);
+    });
+
+    clients.dgram.on('error', (err) => {
+        console.error(`server error:\n${err.stack}`);
+    });
 }
