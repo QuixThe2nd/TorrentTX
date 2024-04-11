@@ -104,7 +104,7 @@ const main = async () => {
     const balances = clients.wallet.balances;
     console.log("Balances:", balances);
 
-    const input = (await userInput("T = Transfer, B = Balance, R = Refresh, E = Exit, D = Delete Transaction Dag, A = Address")).toLowerCase();
+    const input = (await userInput("T = Transfer, B = Balance, R = Refresh,  A = Address, D = Delete Transaction Dag")).toLowerCase();
     if (input === 't') {
         console.log("Transfer");
 
@@ -149,8 +149,6 @@ const main = async () => {
     } else if (input === 'r') {
         console.log("Refreshing");
         // Do nothing cause we refresh every loop
-    } else if (input === 'e') {
-        return;
     } else if (input === 'd') {
         console.log("Deleting Transaction Dag");
         fs.rmdirSync('transactions', {recursive: true});
