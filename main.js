@@ -11,7 +11,7 @@ import Torrents from './src/torrents.js';
 if(!fs.existsSync('transactions'))
     fs.mkdirSync('transactions');
 if (!fs.existsSync('peers.txt'))
-    fs.writeFileSync('peers.txt', `127.0.0.1:${listenPort}`);
+    fs.writeFileSync('peers.txt', '');
 if (!fs.existsSync('infohashes.txt'))
     fs.writeFileSync('infohashes.txt', "28a11d5eb078b4acd7a6867d7cde86d7dc719e93b76e79d0c5d52681c925267c");
 
