@@ -67,14 +67,16 @@ export default function transactionListener(wallet, torrentClient, dgramClient) 
         });
     }
 
-    setInterval(() => {
+    const pullFromDHT = () => {
         fetch('https://ttx-dht.starfiles.co/transactions.txt?c=' + Math.random()).then(response => response.text()).then(data => {
             const infohashes = data.split('\n');
             for (const i in infohashes) {
                 receiveTransaction(wallet, torrentClient, infohashes[i]);
             }
         });
-    }, 30000);
+        setTimeout(() => pullFromDHT, 5000);
+    };
+    pullFromDHT();
 
     dgramClient.on('listening', () => {
         const address = dgramClient.address();
