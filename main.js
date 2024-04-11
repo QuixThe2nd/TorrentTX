@@ -6,8 +6,6 @@ import dgram from "dgram";
 import transactionListener from './src/transaction_listener.js';
 import Wallet from './src/wallet.js'
 
-const listenPort = 6901;
-
 if (!fs.existsSync('torrents'))
     fs.mkdirSync('torrents');
 if(!fs.existsSync('transactions'))
@@ -15,8 +13,27 @@ if(!fs.existsSync('transactions'))
 if (!fs.existsSync('peers.txt'))
     fs.writeFileSync('peers.txt', `127.0.0.1:${listenPort}`);
 
+const listenPort = 6901;
+for (; listenPort < 7000; listenPort++){
+    try {
+        // dgramClient.bind(listenPort);
+        const peers = fs.readFileSync('./peers.txt').toString().split('\n');
+        if (!peers.includes(`127.0.0.1:${listenPort}`)) {
+            peers.push(`127.0.0.1:${listenPort}`);
+            fs.writeFileSync('./peers.txt', peers.join('\n'));
+        }
+        break
+    } catch(err) {
+        if (err.code === 'EADDRINUSE') {
+            console.error(`Port ${listenPort} is already in use`);
+            listenPort++;
+        }else console.error(err.code);
+    }
+}
+
 const torrentClient = new WebTorrent();
 const wallet = new Wallet();
+const dgramClient = dgram.createSocket('udp4');
 
 /*
 TODO:
@@ -53,7 +70,7 @@ wallet.generateAddress();
 const address = wallet.wallet.getAddressString();
 console.log("Address:", address);
 
-transactionListener(wallet, torrentClient, listenPort);
+transactionListener(wallet, torrentClient, dgramClient);
 
 const main = async () => {
     const transactionCount = fs.readdirSync('transactions').length;
@@ -94,8 +111,6 @@ const main = async () => {
 
         fs.writeFileSync(txPath, JSON.stringify({ tx, signature, hash }, null, 4));
 
-        wallet.recalculateBalances();
-
         console.log("Creating Torrent");
         torrentClient.seed(txPath, {announce: ['udp://tracker.openbittorrent.com:80', 'wss://tracker.openwebtorrent.com/', 'wss://tracker.webtorrent.dev', 'wss://tracker.files.fm:7073/announce', 'ws://tracker.files.fm:7072/announce']}, (torrent) => {
             console.log('Seeding:', torrent.infoHash);
@@ -111,11 +126,9 @@ const main = async () => {
                 for (const i in peers) {
                     console.log('Broadcasting transaction to:', peers[i]);
                     const peer = peers[i].split(':');
-                    const dgramClient = dgram.createSocket('udp4');
                     dgramClient.send(JSON.stringify({torrents: [torrent.infoHash]}), peer[1], peer[0], (err) => {
                         if (err) {
                             console.error(err);
-                            dgramClient.close();
                         }
                     });
                 }

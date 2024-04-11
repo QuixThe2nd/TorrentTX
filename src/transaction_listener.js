@@ -58,7 +58,7 @@ const receiveTransaction = (wallet, torrentClient, infohash) => {
     });
 }
 
-export default function transactionListener(wallet, torrentClient, listenPort) {
+export default function transactionListener(wallet, torrentClient, dgramClient) {
     const transactions = fs.readdirSync('transactions');
     for (const i in transactions) {
         const transaction = transactions[i];
@@ -67,8 +67,6 @@ export default function transactionListener(wallet, torrentClient, listenPort) {
             console.log('Seeding Started:', torrentEl.infoHash);
         });
     }
-
-    const dgramClient = dgram.createSocket('udp4');
 
     setInterval(() => {
         fetch('https://ttx-dht.starfiles.co/transactions.txt?c=' + Math.random()).then(response => response.text()).then(data => {
@@ -128,22 +126,4 @@ export default function transactionListener(wallet, torrentClient, listenPort) {
             });
         }
     });
-
-    for (let listenPort = 6901; listenPort < 7000; listenPort++){
-        try {
-            dgramClient.bind(listenPort);
-            const peers = fs.readFileSync('./peers.txt').toString().split('\n');
-            if (!peers.includes(`127.0.0.1:${listenPort}`)) {
-                peers.push(`127.0.0.1:${listenPort}`);
-                fs.writeFileSync('./peers.txt', peers.join('\n'));
-            }
-            return;
-        } catch(err) {
-            console.log(err.code);
-            if (err.code === 'EADDRINUSE') {
-                console.error(`Port ${listenPort} is already in use`);
-                listenPort++;
-            }
-        }
-    }
 }
