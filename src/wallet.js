@@ -188,9 +188,16 @@ export default class Wallet {
     }
 
     validateTransaction(tx, signature, hash) {
-        console.log("Validating transaction");
         if(hash !== this.genesisHash && (!this.balances[tx.from] || this.balances[tx.from] < tx.amount))
             return false;
+        const prev = tx['prev'];
+        if (prev.length == 0 && hash !== this.genesisHash)
+            return false;
+        for (const i in prev) {
+            const prevTx = prev[i];
+            if (!fs.existsSync(`transactions/${prevTx}.json`))
+                return false;
+        }
         return this.verifySignature(hash, signature, tx.from);
     }
 
