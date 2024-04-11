@@ -1,15 +1,29 @@
 import fetch from 'node-fetch';
 import fs from 'fs';
 import readline from 'readline';
-import WebTorrent from 'webtorrent';
 import dgram from "dgram";
 import transactionListener from './src/transaction_listener.js';
+import {initClients} from './src/clients.js';
 import Wallet from './src/wallet.js'
+import Torrents from './src/torrents.js';
+
+if (!fs.existsSync('torrents'))
+    fs.mkdirSync('torrents');
+if(!fs.existsSync('transactions'))
+    fs.mkdirSync('transactions');
+if (!fs.existsSync('peers.txt'))
+    fs.writeFileSync('peers.txt', `127.0.0.1:${listenPort}`);
+
+const clients = initClients();
+
+clients.wallet = new Wallet;
+clients.dgram = dgram.createSocket('udp4');
+clients.torrents = new Torrents;
 
 let listenPort = 6901;
 for (; listenPort < 7000; listenPort++){
     try {
-        // dgramClient.bind(listenPort);
+        clients.dgram.bind(listenPort);
         const peers = fs.readFileSync('./peers.txt').toString().split('\n');
         if (!peers.includes(`127.0.0.1:${listenPort}`)) {
             peers.push(`127.0.0.1:${listenPort}`);
@@ -23,17 +37,6 @@ for (; listenPort < 7000; listenPort++){
         }else console.error(err.code);
     }
 }
-
-if (!fs.existsSync('torrents'))
-    fs.mkdirSync('torrents');
-if(!fs.existsSync('transactions'))
-    fs.mkdirSync('transactions');
-if (!fs.existsSync('peers.txt'))
-    fs.writeFileSync('peers.txt', `127.0.0.1:${listenPort}`);
-
-const torrentClient = new WebTorrent();
-const wallet = new Wallet();
-const dgramClient = dgram.createSocket('udp4');
 
 /*
 TODO:
@@ -66,36 +69,37 @@ const userInput = async function (prompt){
     });
 }
 
-wallet.generateAddress();
-const address = wallet.wallet.getAddressString();
+clients.wallet.generateAddress();
+const address = clients.wallet.wallet.getAddressString();
 console.log("Address:", address);
 
-transactionListener(wallet, torrentClient, dgramClient);
+transactionListener(clients);
 
 const main = async () => {
+    const torrents = clients.torrents.getTorrents();
     const transactionCount = fs.readdirSync('transactions').length;
     console.log("Transaction Count:", transactionCount);
     const torrentCount = fs.readdirSync('torrents').length;
     console.log("Torrent Count:", torrentCount);
-    const loadedTorrentsCount = torrentClient.torrents.length;
-    console.log("Loaded Torrents Count:", loadedTorrentsCount);
-    const seedingTorrentsCount = torrentClient.torrents.filter(torrent => torrent.done).length;
-    console.log("Seeding Torrents Count:", seedingTorrentsCount);
-    const leechingTorrentsCount = torrentClient.torrents.filter(torrent => !torrent.done).length;
-    console.log("Leeching Torrents Count:", leechingTorrentsCount);
+    const loadedTorrentCount = torrents.length;
+    console.log("Loaded clients.torrents Count:", loadedTorrentCount);
+    const seedingTorrentCount = torrents.filter(torrent => torrent.done).length;
+    console.log("Seeding clients.torrents Count:", seedingTorrentCount);
+    const leechingTorrentCount = torrents.filter(torrent => !torrent.done).length;
+    console.log("Leeching clients.torrents Count:", leechingTorrentCount);
 
-    wallet.recalculateBalances();
-    wallet.checkTransactionDag();
-    wallet.recalculateBalances();
-    const balances = wallet.balances;
+    clients.wallet.recalculateBalances();
+    clients.wallet.checkTransactionDag();
+    clients.wallet.recalculateBalances();
+    const balances = clients.wallet.balances;
     console.log("Balances:", balances);
 
-    const input = (await userInput("T = Transfer, B = Balance, R = Refresh, E = Exit, D = Delete Transaction Dag")).toLowerCase();
+    const input = (await userInput("T = Transfer, B = Balance, R = Refresh, E = Exit, D = Delete Transaction Dag, A = Address")).toLowerCase();
     if (input === 't') {
         console.log("Transfer");
 
         const amount = await userInput("Amount");
-        if (!wallet.balances[address] || amount > wallet.balances[address]) {
+        if (!wallet.balances[address] || amount > clients.wallet.balances[address]) {
             console.log("Insufficient balance");
             main();
             return;
@@ -104,42 +108,34 @@ const main = async () => {
         const to = await userInput("To");
         const message = await userInput("Message");
 
-        const { tx, signature, hash } = wallet.createTransaction(address, to, amount, message);
+        const { tx, signature, hash } = clients.wallet.createTransaction(address, to, amount, message);
         console.log("Transaction:", tx);
         console.log("Transaction Signature:", signature);
         console.log("Transaction Hash:", hash);
 
-        const txPath = `transactions/${hash}.json`;
-
-        fs.writeFileSync(txPath, JSON.stringify({ tx, signature, hash }, null, 4));
+        fs.writeFileSync(`transactions/${hash}.json`, JSON.stringify({ tx, signature, hash }, null, 4));
 
         console.log("Creating Torrent");
-        torrentClient.seed(txPath, {announce: ['udp://tracker.openbittorrent.com:80', 'wss://tracker.openwebtorrent.com/', 'wss://tracker.webtorrent.dev', 'wss://tracker.files.fm:7073/announce', 'ws://tracker.files.fm:7072/announce']}, (torrent) => {
-            console.log('Seeding:', torrent.infoHash);
-            fs.writeFile( `torrents/${torrent.infoHash}.torrent`, torrent.torrentFile, (err) => {
-                if (err)
-                    return console.error('Failed to save the torrent file:', err);
-                console.log('Torrent file saved successfully.');
-
-                const peers = fs.readFileSync('./peers.txt')
-                    .toString().split('\n');
-
-                fetch('https://ttx-dht.starfiles.co/' + torrent.infoHash).then(response => response.text()).then(data => console.log(data));
-                for (const i in peers) {
-                    console.log('Broadcasting transaction to:', peers[i]);
-                    const peer = peers[i].split(':');
-                    dgramClient.send(JSON.stringify({torrents: [torrent.infoHash]}), peer[1], peer[0], (err) => {
-                        if (err) {
-                            console.error(err);
-                        }
-                    });
-                }
-            });
+        clients.torrents.seedTransaction(hash);
+        clients.torrents.getTransactionInfohash(hash).then(infohash => {
+            const peers = fs.readFileSync('./peers.txt').toString().split('\n');
+            fetch('https://ttx-dht.starfiles.co/' + infohash).then(response => response.text()).then(data => console.log(data));
+            for (const i in peers) {
+                console.log('Broadcasting transaction to:', peers[i]);
+                const peer = peers[i].split(':');
+                clients.dgram.send(JSON.stringify({torrents: [infohash]}), peer[1], peer[0], (err) => {
+                    if (err) {
+                        console.error(err);
+                    }
+                });
+            }
+        }).catch(err => {
+            console.error(err);
         });
     } else if (input === 'b') {
         console.log("Balances");
         wallet.recalculateBalances();
-        console.log(wallet.balances);
+        console.log(clients.wallet.balances);
     } else if (input === 'r') {
         console.log("Refreshing");
         // Do nothing cause we refresh every loop
@@ -153,9 +149,11 @@ const main = async () => {
         fs.mkdirSync('transactions');
         fs.mkdirSync('torrents');
         fs.mkdirSync('mempool');
-        wallet.balances = {};
-        torrentClient.torrents = [];
+        clients.wallet.balances = {};
+        clients.torrents.clearclients.torrents();
         console.log("Torrent Transaction Deleted");
+    } else if (input === 'a') {
+        console.log("Address:", address);
     }
     main();
 };

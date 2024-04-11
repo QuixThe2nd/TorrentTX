@@ -2,8 +2,10 @@ import fs from 'fs';
 import ethUtil from 'ethereumjs-util';
 import bip39 from 'bip39';
 import HDWallet from 'ethereumjs-wallet';
+import {initClients} from './clients.js';
 
 const hdkey = HDWallet.hdkey;
+const clients = initClients();
 
 export default class Wallet {
     constructor(walletFilePath = 'wallet.json') {
@@ -218,7 +220,7 @@ export default class Wallet {
         }
     }
 
-    checkMempool(torrentClient) {
+    checkMempool() {
         const mempool = fs.readdirSync('mempool');
         for (const i in mempool) {
             const infohash = mempool[i];
@@ -229,14 +231,7 @@ export default class Wallet {
                 const { tx, signature, hash } = data;
                 if (this.validateTransaction(tx, signature, hash)) {
                     fs.writeFileSync(`transactions/${hash}.json`, JSON.stringify(data, null, 4));
-                    torrentClient.seed(`transactions/${hash}.json`, {announce: ['udp://tracker.openbittorrent.com:80', 'wss://tracker.openwebtorrent.com/', 'wss://tracker.webtorrent.dev', 'wss://tracker.files.fm:7073/announce', 'ws://tracker.files.fm:7072/announce']}, (torrent) => {
-                        console.log('Seeding:', torrent.infoHash);
-                        fs.writeFile(`torrents/${torrent.infoHash}.torrent`, torrent.torrentFile, (err) => {
-                            if (err)
-                                return console.error('Failed to save the torrent file:', err);
-                            console.log('Torrent file saved successfully.');
-                        });
-                    });
+                    clients.torrents.seedTransaction(hash);
                     fs.unlink(`mempool/${file}`, (err) => {
                         if (err) {
                             console.error(err);
