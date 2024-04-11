@@ -56,7 +56,22 @@ console.log("Address:", address);
 transactionListener(wallet, torrentClient, listenPort);
 
 const main = async () => {
-    const input = (await userInput("T = Transfer, B = Balance, E = Exit, D = Delete Transaction Dag")).toLowerCase();
+    const transactionCount = fs.readdirSync('transactions').length;
+    console.log("Transaction Count:", transactionCount);
+    const torrentCount = fs.readdirSync('torrents').length;
+    console.log("Torrent Count:", torrentCount);
+    const loadedTorrentsCount = torrentClient.torrents.length;
+    console.log("Loaded Torrents Count:", loadedTorrentsCount);
+    const seedingTorrentsCount = torrentClient.torrents.filter(torrent => torrent.done).length;
+    console.log("Seeding Torrents Count:", seedingTorrentsCount);
+    const leechingTorrentsCount = torrentClient.torrents.filter(torrent => !torrent.done).length;
+    console.log("Leeching Torrents Count:", leechingTorrentsCount);
+
+    wallet.recalculateBalances();
+    const balances = wallet.balances;
+    console.log("Balances:", balances);
+
+    const input = (await userInput("T = Transfer, B = Balance, R = Refresh, E = Exit, D = Delete Transaction Dag")).toLowerCase();
     if (input === 't') {
         console.log("Transfer");
 
