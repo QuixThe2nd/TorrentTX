@@ -145,8 +145,6 @@ export default class Wallet {
     }
 
     recalculateBalances() {
-        console.log('Recalculating balances')
-
         // Get the balance of the address from transactions dir
         const transactions = fs.readdirSync('transactions');
         const balances = {};
@@ -164,11 +162,10 @@ export default class Wallet {
                     remaining_utxos[hash] = tx.amount;
                 for (const i in tx.prev) {
                     const hash = tx.prev[i];
-                    if (remaining_utxos[hash]) {
+                    if (remaining_utxos[hash])
                         remaining_utxos[hash] -= tx.amount;
-                    } else {
+                    else
                         remaining_utxos[hash] = -tx.amount;
-                    }
                 }
 
                 if (balances[tx.to])
@@ -182,9 +179,8 @@ export default class Wallet {
                     else
                         balances[tx.from] = -tx.amount;
                 }
-            } else {
-                console.log("Invalid transaction");
             }
+                console.log("Invalid transaction:", tx);
         }
         console.log(remaining_utxos);
         this.balances = balances;
