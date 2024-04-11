@@ -2,10 +2,8 @@ peers.txt
 wallet.json
 mempool/
 transactions/
-torrents/
 
 !transactions/28a11d5eb078b4acd7a6867d7cde86d7dc719e93b76e79d0c5d52681c925267c.json
-!torrents/5938626b31dd66fe103c1aceb1011dc73d360ae1.torrent
 
 yarn.lock
 node_modules

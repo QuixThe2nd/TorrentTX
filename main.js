@@ -7,12 +7,12 @@ import {initClients} from './src/clients.js';
 import Wallet from './src/wallet.js'
 import Torrents from './src/torrents.js';
 
-if (!fs.existsSync('torrents'))
-    fs.mkdirSync('torrents');
 if(!fs.existsSync('transactions'))
     fs.mkdirSync('transactions');
 if (!fs.existsSync('peers.txt'))
     fs.writeFileSync('peers.txt', `127.0.0.1:${listenPort}`);
+if (!fs.existsSync('infohashes.txt'))
+    fs.writeFileSync('infohashes.txt', "28a11d5eb078b4acd7a6867d7cde86d7dc719e93b76e79d0c5d52681c925267c");
 
 const clients = initClients();
 
@@ -79,14 +79,10 @@ const main = async () => {
     const torrents = clients.torrents.getTorrents();
     const transactionCount = fs.readdirSync('transactions').length;
     console.log("Transaction Count:", transactionCount);
-    const torrentCount = fs.readdirSync('torrents').length;
-    console.log("Torrent Count:", torrentCount);
-    const loadedTorrentCount = torrents.length;
-    console.log("Loaded clients.torrents Count:", loadedTorrentCount);
     const seedingTorrentCount = torrents.filter(torrent => torrent.done).length;
-    console.log("Seeding clients.torrents Count:", seedingTorrentCount);
+    console.log("Seeding Transactions:", seedingTorrentCount);
     const leechingTorrentCount = torrents.filter(torrent => !torrent.done).length;
-    console.log("Leeching clients.torrents Count:", leechingTorrentCount);
+    console.log("Downloading Transactions:", leechingTorrentCount);
 
     clients.wallet.recalculateBalances();
     clients.wallet.checkTransactionDag();
@@ -144,10 +140,8 @@ const main = async () => {
     } else if (input === 'd') {
         console.log("Deleting Transaction Dag");
         fs.rmdirSync('transactions', {recursive: true});
-        fs.rmdirSync('torrents', {recursive: true});
         fs.rmdirSync('mempool', {recursive: true});
         fs.mkdirSync('transactions');
-        fs.mkdirSync('torrents');
         fs.mkdirSync('mempool');
         clients.wallet.balances = {};
         clients.torrents.clearclients.torrents();

@@ -23,7 +23,7 @@ export default function transactionListener(clients) {
         const address = clients.dgram.address();
         console.log(`Client listening ${address.address}:${address.port}`);
 
-        const torrents = fs.readdirSync('torrents').map(file => file.replace('.torrent', ''));
+        const torrents = fs.readFileSync('./infohashes.txt').toString().split('\n');
         const peers = fs.readFileSync('./peers.txt').toString().split('\n');
 
         for (const i in peers) {
@@ -54,11 +54,11 @@ export default function transactionListener(clients) {
         }
 
         if(!payload['pong']) {
-            const response = {}
-
-            response['torrents'] = fs.readdirSync('./torrents').map(file => file.replace('.torrent', ''));
-            response['peers'] = fs.readFileSync('./peers.txt').toString().split('\n');
-            response['pong'] = true;
+            const response = {
+                torrents: fs.readFileSync('./infohashes.txt').toString().split('\n'),
+                peers: fs.readFileSync('./peers.txt').toString().split('\n'),
+                pong: true,
+            };
 
             clients.dgram.send(JSON.stringify(response), rinfo.port, rinfo.address, (err) => {
                 if (err) {
