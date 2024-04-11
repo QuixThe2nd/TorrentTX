@@ -132,6 +132,11 @@ export default function transactionListener(wallet, torrentClient, listenPort) {
     for (let listenPort = 6901; listenPort < 7000; listenPort++){
         try {
             dgramClient.bind(listenPort);
+            const peers = fs.readFileSync('./peers.txt').toString().split('\n');
+            if (!peers.includes(`127.0.0.1:${listenPort}`)) {
+                peers.push(`127.0.0.1:${listenPort}`);
+                fs.writeFileSync('./peers.txt', peers.join('\n'));
+            }
             return;
         } catch(err) {
             console.log(err.code);
