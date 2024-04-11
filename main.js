@@ -109,7 +109,7 @@ const main = async () => {
         console.log("Transfer");
 
         const amount = await userInput("Amount");
-        if (!wallet.balances[address] || amount > clients.wallet.balances[address]) {
+        if (!clients.wallet.balances[address] || amount > clients.wallet.balances[address]) {
             console.log("Insufficient balance");
             main();
             return;
