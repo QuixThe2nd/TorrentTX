@@ -13,7 +13,7 @@ const receiveTransaction = (wallet, torrentClient, infohash) => {
         return;
     }
 
-    const matchedTorrents = torrentClient.torrents.filter(torrent => torrent.path === `mempool/${infohash}`);
+    const matchedTorrents = torrentClient.torrents.filter(torrent => torrent.path === `mempool/${infohash}` || torrent.infoHash === infohash);
     if (matchedTorrents.length > 0){
         // console.log('Torrent is already downloading');
         return;
