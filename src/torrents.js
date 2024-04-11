@@ -16,6 +16,13 @@ export default class Torrents {
         return new Promise((resolve, reject) => {
             this.torrentClient.seed(txPath, {announce: this.trackers}, (torrent) => {
                 console.log('Seeding:', torrent.infoHash);
+
+                const torrents = fs.readFileSync('./infohashes.txt').toString().split('\n');
+                if (!torrents.includes(torrent.infoHash)) {
+                    torrents.push(torrent.infoHash);
+                    fs.writeFileSync('./infohashes.txt', torrents.join('\n'));
+                }
+
                 resolve(torrent);
                 // fs.writeFile(`torrents/${torrent.infoHash}.torrent`, torrent.torrentFile, (err) => {
                 //     if (err) {
