@@ -129,5 +129,18 @@ export default function transactionListener(wallet, torrentClient, listenPort) {
         }
     });
 
-    dgramClient.bind(listenPort);
+    for (let listenPort = 6901; listenPort < 7000; listenPort++){
+        try {
+            dgramClient.bind(listenPort);
+            return;
+        } catch(err) {
+            console.log(err.code);
+            if (err.code === 'EADDRINUSE') {
+                console.error(`Port ${listenPort} is already in use`);
+                listenPort++;
+            }
+            console.error(err);
+            dgramClient.close();
+        }
+    }
 }
