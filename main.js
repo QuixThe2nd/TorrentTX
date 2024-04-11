@@ -85,6 +85,8 @@ const main = async () => {
     console.log("Leeching Torrents Count:", leechingTorrentsCount);
 
     wallet.recalculateBalances();
+    wallet.checkTransactionDag();
+    wallet.recalculateBalances();
     const balances = wallet.balances;
     console.log("Balances:", balances);
 

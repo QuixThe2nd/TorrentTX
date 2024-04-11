@@ -179,8 +179,7 @@ export default class Wallet {
                     else
                         balances[tx.from] = -tx.amount;
                 }
-            }
-                console.log("Invalid transaction:", tx);
+            } // else console.log("Invalid transaction:", tx);
         }
         console.log(remaining_utxos);
         this.balances = balances;
@@ -199,6 +198,24 @@ export default class Wallet {
                 return false;
         }
         return this.verifySignature(hash, signature, tx.from);
+    }
+
+    checkTransactionDag() {
+        const transactions = fs.readdirSync('transactions');
+        for (const i in transactions) {
+            const transaction = transactions[i];
+            const data = JSON.parse(fs.readFileSync(`transactions/${transaction}`));
+            const { tx, signature, hash } = data;
+            if (!this.validateTransaction(tx, signature, hash)) {
+                fs.unlink(`transactions/${transaction}`, (err) => {
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
+                    console.log('Transaction deleted');
+                });
+            }
+        }
     }
 
     checkMempool(torrentClient) {
