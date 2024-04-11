@@ -40,6 +40,15 @@ const receiveTransaction = (wallet, torrentClient, infohash) => {
                             fs.writeFileSync(`transactions/${hash}.json`, data);
                             fs.writeFileSync(`torrents/${infohash}.torrent`, torrent.torrentFile);
                             wallet.recalculateBalances();
+
+                            // Delete the transaction from the mempool
+                            fs.unlink(`mempool/${infohash}/${file}`, (err) => {
+                                if (err) {
+                                    console.error(err);
+                                    return;
+                                }
+                                console.log('Transaction deleted from mempool');
+                            });
                         }
                     });
                 };
