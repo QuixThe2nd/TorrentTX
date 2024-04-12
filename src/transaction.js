@@ -93,7 +93,7 @@ export default class Transaction {
 
     seed() {
         return new Promise((resolve, reject) => {
-            this.clients.webtorrent.seed(`transactions/${hash}.json`, {announce: this.trackers}, (torrent) => {
+            this.clients.webtorrent.seed(`transactions/${this.hash}.json`, {announce: this.trackers}, (torrent) => {
                 console.log('Seeding:', torrent.infoHash);
                 this.infohash = torrent.infoHash;
 
