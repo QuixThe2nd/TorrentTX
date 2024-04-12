@@ -1,13 +1,10 @@
 peers.txt
+infohashes.txt
 wallet.json
 mempool/
 transactions/
-
-!transactions/28a11d5eb078b4acd7a6867d7cde86d7dc719e93b76e79d0c5d52681c925267c.json
 
 yarn.lock
 node_modules
 .DS_Store
 package-lock.json
-infohashes.txt
-infohashes.txt

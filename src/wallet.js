@@ -2,6 +2,7 @@ import fs from 'fs';
 import ethUtil from 'ethereumjs-util';
 import bip39 from 'bip39';
 import HDWallet from 'ethereumjs-wallet';
+import { sign } from 'crypto';
 
 const hdkey = HDWallet.hdkey;
 
@@ -9,7 +10,7 @@ export default class Wallet {
     constructor(walletFilePath = 'wallet.json') {
         this.balances = {};
         this.walletFilePath = walletFilePath;
-        this.genesisHash = '28a11d5eb078b4acd7a6867d7cde86d7dc719e93b76e79d0c5d52681c925267c';
+        this.genesisHash = fs.readFileSync('genesis.txt').toString().trim();
 
         const keys = fs.existsSync(this.walletFilePath) ? this.loadKeys() : this.createKeys();
         for (const key in keys) {
@@ -123,14 +124,14 @@ export default class Wallet {
         return selectedUTXOs;
     }
 
-    createTransaction(from, to, amount, message) {
+    createTransaction(from, to, amount, message, isGenesis) {
         const tx = {
             nonce: Math.random(),
             from: from,
             to: to,
             amount: amount / 1,
             message: message,
-            prev: this.findUnusedUTXOs(from, amount),
+            prev: isGenesis ? [] : this.findUnusedUTXOs(from, amount),
         }
         const txString = JSON.stringify(tx);
 
@@ -200,10 +201,12 @@ export default class Wallet {
     }
 
     validateTransaction(tx, signature, hash) {
-        if(hash !== this.genesisHash && (!this.balances[tx.from] || this.balances[tx.from] < tx.amount))
+        if(hash === this.genesisHash)
+            return true;
+        if(!this.balances[tx.from] || this.balances[tx.from] < tx.amount)
             return false;
         const prev = tx['prev'];
-        if (prev.length == 0 && hash !== this.genesisHash)
+        if (prev.length == 0)
             return false;
         for (const i in prev) {
             const prevTx = prev[i];

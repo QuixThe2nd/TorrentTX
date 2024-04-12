@@ -12,7 +12,9 @@ if(!fs.existsSync('transactions'))
 if (!fs.existsSync('peers.txt'))
     fs.writeFileSync('peers.txt', '');
 if (!fs.existsSync('infohashes.txt'))
-    fs.writeFileSync('infohashes.txt', "28a11d5eb078b4acd7a6867d7cde86d7dc719e93b76e79d0c5d52681c925267c");
+    fs.writeFileSync('infohashes.txt', "");
+if (!fs.existsSync('genesis.txt'))
+    fs.writeFileSync('genesis.txt', "28a11d5eb078b4acd7a6867d7cde86d7dc719e93b76e79d0c5d52681c925267c");
 
 const clients = initClients();
 
@@ -69,11 +71,9 @@ const main = async () => {
     clients.wallet.recalculateBalances();
     clients.wallet.checkTransactionDag();
     clients.wallet.recalculateBalances();
-    console.log(clients.wallet.calculateBalanceState());
     const balances = clients.wallet.balances;
-    console.log("Balances:", balances);
 
-    const input = (await userInput("T = Transfer, B = Balance, R = Refresh,  A = Address, D = Delete Transaction Dag")).toLowerCase();
+    const input = (await userInput("T = Transfer\nB = Balance\nD = Delete Transaction Dag\nG = Genesis")).toLowerCase();
     if (input === 't') {
         console.log("Transfer");
 
@@ -89,12 +89,10 @@ const main = async () => {
 
         const { tx, signature, hash } = clients.wallet.createTransaction(address, to, amount, message);
         console.log("Transaction:", tx);
-        console.log("Transaction Signature:", signature);
         console.log("Transaction Hash:", hash);
 
         fs.writeFileSync(`transactions/${hash}.json`, JSON.stringify({ tx, signature, hash }, null, 4));
 
-        console.log("Creating Torrent");
         clients.torrents.seedTransaction(hash);
         clients.torrents.getTransactionInfohash(hash).then(infohash => {
             const peers = fs.readFileSync('./peers.txt').toString().split('\n');
@@ -118,19 +116,46 @@ const main = async () => {
     } else if (input === 'b') {
         console.log("Balances");
         clients.wallet.recalculateBalances();
+        console.log(clients.wallet.calculateBalanceState());
         console.log(clients.wallet.balances);
-    } else if (input === 'r') {
-        console.log("Refreshing");
-        // Do nothing cause we refresh every loop
     } else if (input === 'd') {
-        console.log("Deleting Transaction Dag");
         fs.rmSync('transactions', {recursive: true});
         fs.rmSync('mempool', {recursive: true});
         fs.mkdirSync('transactions');
         fs.mkdirSync('mempool');
         clients.wallet.balances = {};
         clients.torrents.clearTorrents();
-        console.log("Torrent Transaction Deleted");
+        console.log("Dag Deleted");
+    } else if (input === 'g') {
+        const input2 = (await userInput("S = Set Genesis\nC = Create Genesis")).toLowerCase();
+        if (input2 === 's') {
+            const genesisHash = await userInput("Transaction Hash");
+            fs.writeFileSync(`genesis.txt`, genesisHash);
+
+            const infohash = await userInput("Infohash");
+            fs.writeFileSync('infohashes.txt', infohash);
+
+            console.log("Genesis Transaction Set");
+            console.log("Please restart the program");
+            process.exit();
+        } else if (input2 === 'c') {
+            const name = await userInput("Name");
+            const supply = await userInput("Supply");
+            
+            const { tx, signature, hash } = clients.wallet.createTransaction("0x", address, supply, `Genesis: ${name}`, true);
+            console.log("Transaction:", tx);
+            console.log("Transaction Hash:", hash);
+            fs.writeFileSync(`transactions/${hash}.json`, JSON.stringify({ tx, signature, hash }, null, 4));
+            fs.writeFileSync(`genesis.txt`, hash);
+
+            const infohash = (await clients.torrents.seedTransaction(hash)).infoHash;
+            console.log("Transaction Infohash:", infohash);
+            fs.writeFileSync('infohashes.txt', infohash);
+
+            console.log("Genesis Transaction Created");
+            console.log("Please restart the program");
+            process.exit();
+        }
     } else if (input === 'a') {
         console.log("Address:", address);
     }

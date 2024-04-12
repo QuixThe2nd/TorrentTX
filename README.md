@@ -72,7 +72,7 @@ Cross chain bridge:
 Through this paragraph, I will say "ethereum" a lot. When I say ethereum, that's just an example.
 The way I think this should work is, nodes will be able to mine bridging blocks. A bridging block is essentially a block that exists on both the ethereum and the TorrentTX blockchain at the same time. Essentially, the bridging blocks will be their own proof of work blockchain. If you find a block first, you then publish it to both the ethereum and the torrenttx blockchains and attach a list of all known balances. If someone disagrees, they can keep mining and find another block that disagrees with you, with the standard TTX consensus mechanism applying to PoW, with miner nodes deciding which block to mine future blocks from. The transaction on the ethereum blockchain also contains a list of requests on the TTX chain to bridge assets over to Eth. This will mean TTX is in a constant mempool states, with finality happening whenever someone decides to bridge an asset out. The reward from mining a bridging block is a 1% fee on bridged assets. Assuming everyone is acting in good faith, a bridging block will be produced whenever someone finds one, and enough assets are pending to be bridged off chain to make the ethereum gas fees worth it. Because of this, if we were to write a smart contract on ethereum that just scans for bridging blocks, and assumes everything is accurate, as long as theres no conflicting information, then everything IS accurate. So then the issue is, what if someone is lying. If a bridging block is mined, payouts wont occur instantly. Instead, the block must be undisputed for 24 hours before ethereum withdrawals happen. This means if there are ANY good faith actors, a bad block wont pass because they'll be disputed. Now, this raises the issue of people raising fake disputes.
 
-## Initialisation
+## Environment
 ```
 git clone https://github.com/QuixThe2nd/TorrentTX
 cd TorrentTX
@@ -83,6 +83,12 @@ yarn
 ```
 node main.js
 ```
+
+## Genesis Transactions Infohashes
+A genesis infohash is the infohash for the first transaction. By changing your genesis infohash, you are essentially participating in a hard-fork.
+### Testnet
+- Transaction Hash: 306c9b4d52186af425fecd4832cccdf37413c41a
+- Infohash: 5938626b31dd66fe103c1aceb1011dc73d360ae1
 
 ## Port Forwarding
 Although optional, port forwarding is recommended. If you don't enable port forwarding, you will only be able to connect to peers that are port forwarding. If you port forward, you can also connect to the peers that don't port forward. When you run `main.js`, the log's will specify the port you are using.
