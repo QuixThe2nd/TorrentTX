@@ -54,7 +54,7 @@ const userInput = async function (prompt){
     });
 
     return new Promise((resolve, reject) => {
-        rl.question(prompt + ': ', (input) => {
+        rl.question(`\n======Manual======\n\n${prompt}\n\n======Manual======\n\n`, (input) => {
             rl.close();
             resolve(input);
         });
