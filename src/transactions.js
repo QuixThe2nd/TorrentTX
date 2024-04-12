@@ -9,13 +9,15 @@ export default class Transactions {
         this.clients = clients;
         this.transactions = {};
         this.balances = {};
+    }
 
+    loadSavedTransactions() {
         let transactionFound = true;
         while (transactionFound) {
             transactionFound = false;
             const files = fs.readdirSync('transactions');
             for (const i in files) {
-                const transaction = new Transaction(clients, {hash:files[i].replace('.json', '')});
+                const transaction = new Transaction(this.clients, {hash:files[i].replace('.json', '')});
                 if (!this.transactions[transaction.hash] && this.addTransaction(transaction)){
                     transactionFound = true;
                 }
@@ -23,7 +25,7 @@ export default class Transactions {
             if (!transactionFound)
                 break;
         }
-    }
+    };
 
     addTransaction(transaction) {
         if (transaction.isValid()) {

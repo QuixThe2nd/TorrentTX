@@ -20,6 +20,7 @@ const clients = initClients();
 clients.wallet = new Wallet(clients);
 clients.dgram = dgram.createSocket('udp4');
 clients.transactions = new Transactions(clients);
+clients.transactions.loadSavedTransactions();
 clients.webtorrent = new WebTorrent();
 
 clients.webtorrent.on('listening', () => {

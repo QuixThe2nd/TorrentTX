@@ -76,9 +76,9 @@ export default class Transaction {
     }
 
     isValid() {
-        if(this.hash === this.genesisHash)
+        if (this.hash === this.genesisHash)
             return true;
-        if(!this.clients.transactions.balances[this.body.from] || this.clients.transactions.balances[this.body.from] < this.body.amount)
+        if (!this.clients.transactions.balances[this.body.from] || this.clients.transactions.balances[this.body.from] < this.body.amount)
             return false;
         if (this.body['prev'].length == 0)
             return false;
