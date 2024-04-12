@@ -2,22 +2,18 @@ import fs from 'fs';
 import ethUtil from 'ethereumjs-util';
 import bip39 from 'bip39';
 import HDWallet from 'ethereumjs-wallet';
-import { sign } from 'crypto';
 
 const hdkey = HDWallet.hdkey;
 
 export default class Wallet {
-    constructor(walletFilePath = 'wallet.json') {
-        this.balances = {};
+    constructor(clients, walletFilePath = 'wallet.json') {
+        this.clients = clients;
         this.walletFilePath = walletFilePath;
-        this.genesisHash = fs.readFileSync('genesis.txt').toString().trim();
 
         const keys = fs.existsSync(this.walletFilePath) ? this.loadKeys() : this.createKeys();
         for (const key in keys) {
             this[key] = keys[key];
         }
-
-        this.recalculateBalances();
     }
 
     generateAddress(path = "m/44'/60'/0'/0/0") {
@@ -44,7 +40,7 @@ export default class Wallet {
         return JSON.parse(fs.readFileSync(this.walletFilePath));
     }
 
-    signMessage(message) {
+    signHash(message) {
         // Ensure the message is a Buffer
         const messageBuffer = Buffer.from(message);
         // Hash the message to get a fixed-length hash
@@ -116,10 +112,8 @@ export default class Wallet {
             }
         }
 
-        if (selectedUTXOs.length === 0) {
-            console.log("Can't find UTXO");
-            throw new Error("Can't find UTXO")
-        }
+        if (selectedUTXOs.length === 0)
+            throw new Error("Can't find UTXO");
 
         return selectedUTXOs;
     }
@@ -137,7 +131,7 @@ export default class Wallet {
 
         const hash = ethUtil.sha256(Buffer.from(txString)).toString('hex');
 
-        const signature = this.signMessage(hash);
+        const signature = this.signHash(hash);
         return {
             tx,
             signature,
@@ -145,93 +139,17 @@ export default class Wallet {
         }
     }
 
-    recalculateBalances() {
-        // Get the balance of the address from transactions dir
-        const transactions = fs.readdirSync('transactions');
-        const balances = {};
-        const remaining_utxos = {};
-        for (const i in transactions) {
-            const file = transactions[i];
-            const path = `transactions/${file}`;
-            const { tx, signature, hash } = JSON.parse(fs.readFileSync(path).toString());
-            const isValid = this.validateTransaction(tx, signature, hash);
-
-            if (isValid) {
-                if (remaining_utxos[hash])
-                    remaining_utxos[hash] += tx.amount;
-                else
-                    remaining_utxos[hash] = tx.amount;
-                for (const i in tx.prev) {
-                    const hash = tx.prev[i];
-                    if (remaining_utxos[hash])
-                        remaining_utxos[hash] -= tx.amount;
-                    else
-                        remaining_utxos[hash] = -tx.amount;
-                }
-
-                if (balances[tx.to])
-                    balances[tx.to] += tx.amount;
-                else
-                    balances[tx.to] = tx.amount;
-
-                if (hash !== this.genesisHash) {
-                    if (balances[tx.from])
-                        balances[tx.from] -= tx.amount;
-                    else
-                        balances[tx.from] = -tx.amount;
-                }
-            } // else console.log("Invalid transaction:", tx);
-        }
-        console.log('Remaining UTXOs', remaining_utxos);
-        this.balances = balances;
-        return this.balances;
-    }
-
     calculateBalanceState() {
-        const supply = Object.values(this.balances).reduce((a, b) => a + b, 0);
-        const usedAddresses = Object.keys(this.balances).length;
+        const supply = Object.values(clients.transactions.balances).reduce((a, b) => a + b, 0);
+        const usedAddresses = Object.keys(clients.transactions.balances).length;
         const transactionCount = fs.readdirSync('transactions').length;
-        const hash = ethUtil.sha256(Buffer.from(JSON.stringify(this.balances, null, 4))).toString('hex');
+        const hash = ethUtil.sha256(Buffer.from(JSON.stringify(clients.transactions.balances, null, 4))).toString('hex');
         console.log('Supply', supply);
         console.log('Used Addresses', usedAddresses);
         console.log('Transaction Count', transactionCount);
         console.log('Hash', hash);
         const state = `${hash}.${supply}.${usedAddresses}.${transactionCount}`;
         return state;
-    }
-
-    validateTransaction(tx, signature, hash) {
-        if(hash === this.genesisHash)
-            return true;
-        if(!this.balances[tx.from] || this.balances[tx.from] < tx.amount)
-            return false;
-        const prev = tx['prev'];
-        if (prev.length == 0)
-            return false;
-        for (const i in prev) {
-            const prevTx = prev[i];
-            if (!fs.existsSync(`transactions/${prevTx}.json`))
-                return false;
-        }
-        return this.verifySignature(hash, signature, tx.from);
-    }
-
-    checkTransactionDag() {
-        const transactions = fs.readdirSync('transactions');
-        for (const i in transactions) {
-            const transaction = transactions[i];
-            const data = JSON.parse(fs.readFileSync(`transactions/${transaction}`));
-            const { tx, signature, hash } = data;
-            if (!this.validateTransaction(tx, signature, hash)) {
-                fs.unlink(`transactions/${transaction}`, (err) => {
-                    if (err) {
-                        console.error(err);
-                        return;
-                    }
-                    console.log('Transaction deleted');
-                });
-            }
-        }
     }
 
     checkMempool(clients) {

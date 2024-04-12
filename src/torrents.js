@@ -30,6 +30,10 @@ export default class Torrents {
                 }
 
                 resolve(torrent);
+
+                torrent.on('error', (err) => {
+                    reject(err);
+                });
                 // fs.writeFile(`torrents/${torrent.infoHash}.torrent`, torrent.torrentFile, (err) => {
                 //     if (err) {
                 //         console.error('Failed to save the torrent file:', err);
@@ -105,7 +109,7 @@ export default class Torrents {
 
     getTransactionInfohash(hash) {
         return new Promise((resolve, reject) => {
-            const torrent = this.torrentClient.get(hash);
+            const torrent = this.torrentClient.get(hash)
             if (torrent) {
                 resolve(torrent.infoHash);
             } else {

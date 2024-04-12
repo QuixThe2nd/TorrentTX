@@ -1,11 +1,12 @@
 import fs from 'fs';
-import fetch from 'node-fetch';
 import readline from 'readline';
 import dgram from "dgram";
 import transactionListener from './src/transaction_listener.js';
 import {initClients} from './src/clients.js';
 import Wallet from './src/wallet.js'
 import Torrents from './src/torrents.js';
+import Transaction from './src/transaction.js';
+import Transactions from './src/transactions.js';
 
 if(!fs.existsSync('transactions'))
     fs.mkdirSync('transactions');
@@ -18,9 +19,10 @@ if (!fs.existsSync('genesis.txt'))
 
 const clients = initClients();
 
-clients.wallet = new Wallet;
+clients.wallet = new Wallet(clients);
 clients.dgram = dgram.createSocket('udp4');
 clients.torrents = new Torrents(clients);
+clients.transactions = new Transactions(clients);
 
 /*
 TODO:
@@ -61,24 +63,18 @@ transactionListener(clients);
 
 const main = async () => {
     const torrents = clients.torrents.getTorrents();
-    const transactionCount = fs.readdirSync('transactions').length;
-    console.log("Transaction Count:", transactionCount);
+    console.log("Transaction Count:", Object.keys(clients.transactions.transactions).length);
     const seedingTorrentCount = torrents.filter(torrent => torrent.done).length;
     console.log("Seeding Transactions:", seedingTorrentCount);
     const leechingTorrentCount = torrents.filter(torrent => !torrent.done).length;
     console.log("Downloading Transactions:", leechingTorrentCount);
 
-    clients.wallet.recalculateBalances();
-    clients.wallet.checkTransactionDag();
-    clients.wallet.recalculateBalances();
-    const balances = clients.wallet.balances;
-
-    const input = (await userInput("T = Transfer\nB = Balance\nD = Delete Transaction Dag\nG = Genesis")).toLowerCase();
+    const input = (await userInput("T = Transfer\nB = Balance\nG = Genesis")).toLowerCase();
     if (input === 't') {
         console.log("Transfer");
 
         const amount = await userInput("Amount");
-        if (!clients.wallet.balances[address] || amount > clients.wallet.balances[address]) {
+        if (!clients.transactions.balances[address] || amount > clients.transactions.balances[address]) {
             console.log("Insufficient balance");
             main();
             return;
@@ -87,45 +83,10 @@ const main = async () => {
         const to = await userInput("To");
         const message = await userInput("Message");
 
-        const { tx, signature, hash } = clients.wallet.createTransaction(address, to, amount, message);
-        console.log("Transaction:", tx);
-        console.log("Transaction Hash:", hash);
-
-        fs.writeFileSync(`transactions/${hash}.json`, JSON.stringify({ tx, signature, hash }, null, 4));
-
-        clients.torrents.seedTransaction(hash);
-        clients.torrents.getTransactionInfohash(hash).then(infohash => {
-            const peers = fs.readFileSync('./peers.txt').toString().split('\n');
-            fetch('https://ttx-dht.starfiles.co/' + infohash).then(response => response.text()).then(data => console.log(data));
-            for (const i in peers) {
-                console.log('Broadcasting transaction to:', peers[i]);
-                const peer = peers[i].split(':');
-                if (!peer[0].match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/))
-                    continue;
-                if (peer[1] < 1024 || peer[1] > 65535)
-                    continue;
-                clients.dgram.send(JSON.stringify({torrents: [infohash]}), peer[1], peer[0], (err) => {
-                    if (err) {
-                        console.error(err);
-                    }
-                });
-            }
-        }).catch(err => {
-            console.error(err);
-        });
-    } else if (input === 'b') {
-        console.log("Balances");
-        clients.wallet.recalculateBalances();
-        console.log(clients.wallet.calculateBalanceState());
-        console.log(clients.wallet.balances);
-    } else if (input === 'd') {
-        fs.rmSync('transactions', {recursive: true});
-        fs.rmSync('mempool', {recursive: true});
-        fs.mkdirSync('transactions');
-        fs.mkdirSync('mempool');
-        clients.wallet.balances = {};
-        clients.torrents.clearTorrents();
-        console.log("Dag Deleted");
+        const transaction = new Transaction(clients, {from: address, to, amount, message});
+        clients.transactions.addTransaction(transaction);
+        console.log("Created Transaction:", transaction.content.hash);
+        transaction.announce();
     } else if (input === 'g') {
         const input2 = (await userInput("S = Set Genesis\nC = Create Genesis")).toLowerCase();
         if (input2 === 's') {
@@ -156,8 +117,6 @@ const main = async () => {
             console.log("Please restart the program");
             process.exit();
         }
-    } else if (input === 'a') {
-        console.log("Address:", address);
     }
     main();
 };
