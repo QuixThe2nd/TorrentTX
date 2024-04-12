@@ -54,16 +54,14 @@ export default function transactionListener(clients) {
         for (const i in peers) {
             const peer = peers[i].split(':');
             clients.dgram.send(JSON.stringify({torrents, peers}), peer[1], peer[0], (err) => {
-                if (err) {
-                    if (err.code === 'ENOTFOUND')
-                        console.warn('Failed to send payload to:', peers[i]);
-                    else if (err.code === 'EHOSTUNREACH')
-                        console.warn('Failed to send payload to:', peers[i]);
-                    else
-                        console.warn(err);
-                } else {
+                if (!err)
                     console.log('Sent payload to:', peers[i]);
-                }
+                else if (err.code === 'ENOTFOUND')
+                    console.warn('Failed to send payload to:', peers[i]);
+                else if (err.code === 'EHOSTUNREACH')
+                    console.warn('Failed to send payload to:', peers[i]);
+                else
+                    console.warn(err);
             });
         }
     });
