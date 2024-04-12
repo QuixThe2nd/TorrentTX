@@ -58,7 +58,8 @@ export default class Transaction {
                         this.clients.transactions.addTransaction(this);
 
                         torrent.destroy();
-                        fs.unlinkSync(`${mempoolPath}/${file}`);
+                        if (fs.existsSync(`${mempoolPath}/${file}`))
+                            fs.unlinkSync(`${mempoolPath}/${file}`);
                     };
                 });
             });
