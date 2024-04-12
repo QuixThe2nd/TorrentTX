@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import ethUtil from 'ethereumjs-util';
 
 export default class Transaction {
-    constructor(clients, {from, to, amount, message, hash, infohash}) {
+    constructor(clients, {from, to, amount, message, hash, infohash, path}) {
         this.clients = clients;
         this.genesisHash = fs.readFileSync('genesis.txt').toString().trim();
         this.trackers = ['udp://tracker.openbittorrent.com:80', 'wss://tracker.openwebtorrent.com/', 'wss://tracker.webtorrent.dev', 'wss://tracker.files.fm:7073/announce', 'ws://tracker.files.fm:7072/announce'];
@@ -11,6 +11,14 @@ export default class Transaction {
         if (hash) {
             this.hash = hash;
             this.txContentString = fs.readFileSync(`transactions/${hash}.json`).toString();
+            this.content = JSON.parse(this.txContentString);
+            this.body = this.content.tx;
+            this.signature = this.content.signature;
+
+            this.validateAndSaveTransaction();
+        } else if (path) {
+            this.hash = hash;
+            this.txContentString = fs.readFileSync(path).toString();
             this.content = JSON.parse(this.txContentString);
             this.body = this.content.tx;
             this.signature = this.content.signature;

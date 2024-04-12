@@ -31,7 +31,7 @@ export default class Transactions {
         if (transaction.isValid()) {
             this.transactions[transaction.hash] = transaction;
             this.updateBalances(transaction);
-            this.revalidateMempool(this.clients);
+            this.revalidateMempool();
             return true;
         }
         return false;
@@ -45,8 +45,8 @@ export default class Transactions {
             for (const j in files) {
                 const file = files[j];
                 const data = JSON.parse(fs.readFileSync(`mempool/${infohash}/${file}`));
-                const transaction = new Transaction(this.clients, {hash: data.hash});
-                if (transaction.isValid()) {
+                const transaction = new Transaction(this.clients, {path: `mempool/${infohash}/${file}`});
+                if (transaction && transaction.isValid()) {
                     const torrent = this.clients.webtorrent.torrents.find(torrent => torrent.path === `mempool/${infohash}`);
                     if(torrent)
                         torrent.destroy();
