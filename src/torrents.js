@@ -44,12 +44,12 @@ export default class Torrents {
         // }
         
         if (!infohash || infohash.length !== 40 || !/^[0-9A-Fa-f]+$/.test(infohash)) {
-            console.log("Invalid infohash");
+            // console.log("Invalid infohash");
             return;
         }
 
-        if (this.torrentClient.torrents.find(torrent => torrent.infoHash === infohash)) {
-            console.log('Torrent is already downloading');
+        if (this.torrentClient.torrents.find(torrent => torrent.infoHash === infohash || torrent.path === `mempool/${infohash}`)) {
+            // console.log('Torrent is already downloading');
             return;
         }
 
