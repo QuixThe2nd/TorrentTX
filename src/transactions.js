@@ -49,7 +49,8 @@ export default class Transactions {
                     const torrent = this.clients.webtorrent.torrents.find(torrent => torrent.path === `mempool/${infohash}`);
                     if(torrent)
                         torrent.destroy();
-                    fs.unlinkSync(`mempool/${infohash}/${file}`);
+                    if (fs.existsSync(`mempool/${infohash}/${file}`))
+                        fs.unlinkSync(`mempool/${infohash}/${file}`);
                     if (fs.readdirSync(`mempool/${infohash}`).length === 0)
                         fs.rmdirSync(`mempool/${infohash}`);
                 }
