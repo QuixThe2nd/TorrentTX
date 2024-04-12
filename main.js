@@ -41,10 +41,10 @@ for (; listenPort < 7000; listenPort++){
         }
         break
     } catch(err) {
-        if (err.code === 'EADDRINUSE') {
-            console.error(`Port ${listenPort} is already in use`);
+        if (err.code === 'EADDRINUSE')
             listenPort++;
-        }else console.error(err.code);
+        else
+            console.error(err.code);
     }
 }
 
