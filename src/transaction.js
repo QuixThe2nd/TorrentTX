@@ -17,10 +17,10 @@ export default class Transaction {
 
             this.validateAndSaveTransaction();
         } else if (path) {
-            this.hash = hash;
             this.txContentString = fs.readFileSync(path).toString();
             this.content = JSON.parse(this.txContentString);
             this.body = this.content.tx;
+            this.hash = this.content.hash;
             this.signature = this.content.signature;
 
             this.validateAndSaveTransaction();

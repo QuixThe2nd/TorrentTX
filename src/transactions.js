@@ -44,7 +44,6 @@ export default class Transactions {
             const files = fs.readdirSync(`mempool/${infohash}`);
             for (const j in files) {
                 const file = files[j];
-                const data = JSON.parse(fs.readFileSync(`mempool/${infohash}/${file}`));
                 const transaction = new Transaction(this.clients, {path: `mempool/${infohash}/${file}`});
                 if (transaction && transaction.isValid()) {
                     const torrent = this.clients.webtorrent.torrents.find(torrent => torrent.path === `mempool/${infohash}`);
