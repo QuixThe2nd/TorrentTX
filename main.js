@@ -69,6 +69,7 @@ const main = async () => {
     clients.wallet.recalculateBalances();
     clients.wallet.checkTransactionDag();
     clients.wallet.recalculateBalances();
+    console.log(clients.wallet.calculateBalanceState());
     const balances = clients.wallet.balances;
     console.log("Balances:", balances);
 

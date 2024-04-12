@@ -183,9 +183,22 @@ export default class Wallet {
                 }
             } // else console.log("Invalid transaction:", tx);
         }
-        console.log(remaining_utxos);
+        console.log('Remaining UTXOs', remaining_utxos);
         this.balances = balances;
         return this.balances;
+    }
+
+    calculateBalanceState() {
+        const supply = Object.values(this.balances).reduce((a, b) => a + b, 0);
+        const usedAddresses = Object.keys(this.balances).length;
+        const transactionCount = fs.readdirSync('transactions').length;
+        const hash = ethUtil.sha256(Buffer.from(JSON.stringify(this.balances, null, 4))).toString('hex');
+        console.log('Supply', supply);
+        console.log('Used Addresses', usedAddresses);
+        console.log('Transaction Count', transactionCount);
+        console.log('Hash', hash);
+        const state = `${hash}.${supply}.${usedAddresses}.${transactionCount}`;
+        return state;
     }
 
     validateTransaction(tx, signature, hash) {
