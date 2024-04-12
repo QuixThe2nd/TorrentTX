@@ -44,6 +44,7 @@ export default class Transaction {
                         this.hash = this.content.hash;
                         this.body = this.content.tx;
                         this.signature = this.content.signature;
+                        this.torrent = torrent;
 
                         this.validateAndSaveTransaction();
 
@@ -53,7 +54,6 @@ export default class Transaction {
                         fs.unlinkSync(`${mempoolPath}/${file}`);
                     };
                 });
-                resolve(torrent);
             });
         } else if (from && to && amount) {
             this.body = {
@@ -92,28 +92,24 @@ export default class Transaction {
     }
 
     seed() {
-        return new Promise((resolve, reject) => {
-            this.clients.webtorrent.seed(`transactions/${this.hash}.json`, {announce: this.trackers}, (torrent) => {
-                console.log('\nSeeding:', torrent.infoHash);
-                this.infohash = torrent.infoHash;
+        this.clients.webtorrent.seed(`transactions/${this.hash}.json`, {announce: this.trackers}, (torrent) => {
+            console.log('\nSeeding:', torrent.infoHash);
 
-                const torrents = fs.readFileSync('./infohashes.txt').toString().split('\n');
-                if (!torrents.includes(torrent.infoHash)) {
-                    torrents.push(torrent.infoHash);
-                    fs.writeFileSync('./infohashes.txt', torrents.join('\n'));
-                }
+            this.torrent = torrent;
+            this.infohash = torrent.infoHash;
 
-                resolve(torrent);
+            const torrents = fs.readFileSync('./infohashes.txt').toString().split('\n');
+            if (!torrents.includes(torrent.infoHash)) {
+                torrents.push(torrent.infoHash);
+                fs.writeFileSync('./infohashes.txt', torrents.join('\n'));
+            }
 
-                torrent.on('error', (err) => reject(err));
-            });
+            torrent.on('error', (err) => console.warn(err));
         });
     }
 
     validateAndSaveTransaction() {
         if (this.isValid()) {
-            console.log("Valid Transaction");
-
             if (!fs.existsSync(`transactions/${this.hash}.json`))
                 fs.writeFileSync(`transactions/${this.hash}.json`, this.txContentString);
             this.seed();

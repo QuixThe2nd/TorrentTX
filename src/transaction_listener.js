@@ -3,6 +3,8 @@ import Transaction from './transaction.js';
 import fetch from 'node-fetch';
 
 export default function transactionListener(clients) {
+    const transactions = fs.readFileSync('./infohashes.txt').toString().split('\n');
+    let leechingInfohashes = [];
     fetch('https://ttx-dht.starfiles.co/peers.txt?c=' + Math.random()).then(response => response.text()).then(data => {
         for (const i in data.split('\n')) {
             const peer = data.split('\n')[i].split(':');
@@ -18,7 +20,10 @@ export default function transactionListener(clients) {
         fetch('https://ttx-dht.starfiles.co/transactions.txt?c=' + Math.random()).then(response => response.text()).then(data => {
             const infohashes = data.split('\n');
             for (const i in infohashes) {
-                new Transaction(clients, {infohash: infohashes[i]});
+                if (!leechingInfohashes.includes(infohashes[i]) && !transactions.includes(infohashes[i])) {
+                    new Transaction(clients, {infohash: infohashes[i]});
+                    leechingInfohashes.push(infohashes[i]);
+                }
             }
         });
         setTimeout(() => pullFromDHT, 5000);
@@ -87,7 +92,10 @@ export default function transactionListener(clients) {
 
         if (payload['torrents']) {
             for (const i in payload['torrents']) {
-                new Transaction(clients, {infohash: payload['torrents'][i]});
+                if (!leechingInfohashes.includes(payload['torrents'][i]) && !transactions.includes(payload['torrents'][i])) {
+                    new Transaction(clients, {infohash: payload['torrents'][i]});
+                    leechingInfohashes.push(payload['torrents'][i]);
+                }
             }
         }
 
