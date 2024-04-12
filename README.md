@@ -49,20 +49,17 @@ P2P communication via UDP is live. Transactions received from the TTX-DHT are tr
 
 ### Todo
 There is more todo than what has already been done so far. I'll keep adding things as I remember.
-- ~~FIX P2P COMMUNICATION - atm, i cant get anything working via WAN, firewall? idk.~~
-- ~~Actual transaction validation, to make sure transactions have funds backing them.~~
-- ~~Leaving node running overnight results in "Possible EventEmitter memory leak detected" error.~~
 - Archival Contracts (read todo in main.js)
 - ttx20 coins (anyone can mint, just like erc20)
 - Liquid Swaps
 - On-chain-bridging - Bridge Bitcoin, Monero, Ethereum, erc20 tokens, and from layer 2s. Swap on-chain for TTX, or receive wXMR, wETH, wBTC, etc.
 - Make block explorer that showcases the states of transactions (mempool, unconfirmed, and confirmed).
 - Create sync confirmations - Some-sort of a block height measure for TorrentTX, to see who's further ahead of who. This way you can tell if you need more blocks
+- Measure number of connected peers and other stats
 
 ### Rough Plan
 - Keep adding poking holes and adding checks to make it harder to lie
 - Make node more stable and add more QoL features and stuff
-- ~~Improve P2P communication reliability in both torrent seeding/leeching and discovery~~
 - Start building system to handle modules, so new features can be added on by anyone, and nodes can opt in on "mining" each type of module individually
 - Build ttx20 module for custom coins
 - Build native liquidity pools and liquid swaps that remove the need for DEXes
