@@ -116,6 +116,7 @@ export default class Transaction {
 
             if (!fs.existsSync(`transactions/${this.hash}.json`))
                 fs.writeFileSync(`transactions/${this.hash}.json`, this.txContentString);
+            this.seed();
         }else
             console.log("Invalid Transaction");
     }
