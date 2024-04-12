@@ -65,12 +65,8 @@ export default function transactionListener(clients) {
             clients.dgram.send(JSON.stringify({torrents, peers}), peer[1], peer[0], (err) => {
                 if (!err)
                     console.log('Sent payload to:', peers[i]);
-                else if (err.code === 'ENOTFOUND')
-                    console.warn('Failed to send payload to:', peers[i]);
-                else if (err.code === 'EHOSTUNREACH')
-                    console.warn('Failed to send payload to:', peers[i]);
                 else
-                    console.warn(err);
+                    console.warn(err.code, 'Failed to send payload to:', peers[i]);
             });
         }
     });
@@ -102,10 +98,10 @@ export default function transactionListener(clients) {
             };
 
             clients.dgram.send(JSON.stringify(response), rinfo.port, rinfo.address, (err) => {
-                if (err) {
-                    console.warn(err);
-                    clients.dgram.close();
-                }
+                if (!err)
+                    console.log('Sent payload to:', rinfo.address);
+                else
+                    console.warn(err.code, 'Failed to send payload to:', rinfo.address);
             });
         }
     });

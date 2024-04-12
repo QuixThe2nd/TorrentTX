@@ -141,12 +141,8 @@ export default class Transaction {
             this.clients.dgram.send(JSON.stringify({torrents: [this.infohash]}), peer[1], peer[0], (err) => {
                 if (!err)
                     console.log('Sent payload to:', peers[i]);
-                else if (err.code === 'ENOTFOUND')
-                    console.warn('Failed to send payload to:', peers[i]);
-                else if (err.code === 'EHOSTUNREACH')
-                    console.warn('Failed to send payload to:', peers[i]);
                 else
-                    console.warn(err);
+                    console.warn(err.code, 'Failed to send payload to:', peers[i]);
             });
         }
     }
