@@ -48,8 +48,7 @@ export default class Torrents {
             return;
         }
 
-        console.log(this.torrentClient.get(infohash));
-        if (this.torrentClient.get(infohash) !== null) {
+        if (this.torrentClient.torrents.find(torrent => torrent.infoHash === infohash)) {
             console.log('Torrent is already downloading');
             return;
         }
