@@ -1,4 +1,3 @@
-import os from 'os';
 import fs from 'fs';
 import fetch from 'node-fetch';
 import readline from 'readline';
@@ -20,38 +19,6 @@ const clients = initClients();
 clients.wallet = new Wallet;
 clients.dgram = dgram.createSocket('udp4');
 clients.torrents = new Torrents;
-
-const interfaces = os.networkInterfaces();
-const ipAddresses = [];
-for (let i in interfaces) {
-    for (let interfaceInfo of interfaces[i]) {
-        if (interfaceInfo.family === 'IPv4' && !interfaceInfo.internal && !interfaceInfo.address.startsWith('192.168.'))
-            ipAddresses.push(interfaceInfo.address);
-    }
-}
-
-let listenPort = 6901;
-for (; listenPort < 7000; listenPort++){
-    try {
-        clients.dgram.bind(listenPort);
-        const peers = fs.readFileSync('./peers.txt').toString().split('\n');
-        if (!peers.includes(`127.0.0.1:${listenPort}`)) {
-            peers.push(`127.0.0.1:${listenPort}`);
-            fs.writeFileSync('./peers.txt', peers.join('\n'));
-        }
-        console.log(`Listening on ${ipAddresses[0]}:${listenPort}`);
-        break;
-    } catch(err) {
-        if (err.code === 'EADDRINUSE')
-            listenPort++;
-        else
-            console.error(err.code);
-    }
-}
-
-// write ip:port to peers.txt if not exists
-const peers = fs.readFileSync('./peers.txt').toString().split('\n');
-fs.writeFileSync('./peers.txt', Array.from(new Set([...peers, `${ipAddresses[0]}:${listenPort}`]).values()).join('\n'));
 
 /*
 TODO:

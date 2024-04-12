@@ -1,6 +1,30 @@
 import fs from "fs";
 
 export default function transactionListener(clients) {
+    let listenPort = 6901;
+    const findPortAndListen = () => {
+        if (listenPort >= 7000) {
+            console.log('Failed to bind to any port in the specified range.');
+            return;
+        }
+
+        console.log(`Trying to listen on 0.0.0.0:${listenPort}`);
+        clients.dgram.bind(listenPort, '0.0.0.0', () => console.log(`Listening on 0.0.0.0:${listenPort}`));
+    };
+
+    clients.dgram.on('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+            console.log(`Port ${listenPort} is already in use, trying next available port.`);
+            listenPort++;
+            findPortAndListen();
+        } else {
+            console.error(`Server error: ${err.code}`);
+            clients.dgram.close();
+        }
+    });
+
+    findPortAndListen();
+
     const transactions = fs.readdirSync('transactions');
     for (const i in transactions) {
         const hash = transactions[i].replace('.json', '');
@@ -84,9 +108,5 @@ export default function transactionListener(clients) {
         console.log('Client closed');
         connections--;
         console.log('Connections:', connections);
-    });
-
-    clients.dgram.on('error', (err) => {
-        console.error(`server error:\n${err.stack}`);
     });
 }
