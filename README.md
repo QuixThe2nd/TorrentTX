@@ -86,3 +86,10 @@ yarn
 ```
 node main.js
 ```
+
+## Port Forwarding
+Although optional, port forwarding is recommended. If you don't enable port forwarding, you will only be able to connect to peers that are port forwarding. If you port forward, you can also connect to the peers that don't port forward. When you run `main.js`, the log's will specify the port you are using.
+
+Default ports to forward:
+- Torrent Protocol: 6969
+- TorrentTX Protocol (UDP): 6901

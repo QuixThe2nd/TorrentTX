@@ -7,6 +7,12 @@ export default class Torrents {
         this.trackers = ['udp://tracker.openbittorrent.com:80', 'wss://tracker.openwebtorrent.com/', 'wss://tracker.webtorrent.dev', 'wss://tracker.files.fm:7073/announce', 'ws://tracker.files.fm:7072/announce'];
         this.torrentClient = new WebTorrent();
 
+        // get torrentClient port
+        this.torrentClient.on('listening', () => {
+            const address = this.torrentClient.address();
+            console.log(`Torrent client listening ${address.address}:${address.port}`);
+        });
+
         this.torrentClient.on('error', console.error);
     }
 

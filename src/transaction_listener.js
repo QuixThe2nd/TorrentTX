@@ -99,7 +99,7 @@ export default function transactionListener(clients) {
 
             clients.dgram.send(JSON.stringify(response), rinfo.port, rinfo.address, (err) => {
                 if (err) {
-                    console.error(err);
+                    console.warn(err);
                     clients.dgram.close();
                 }
             });
