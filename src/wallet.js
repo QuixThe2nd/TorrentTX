@@ -2,10 +2,8 @@ import fs from 'fs';
 import ethUtil from 'ethereumjs-util';
 import bip39 from 'bip39';
 import HDWallet from 'ethereumjs-wallet';
-import {initClients} from './clients.js';
 
 const hdkey = HDWallet.hdkey;
-const clients = initClients();
 
 export default class Wallet {
     constructor(walletFilePath = 'wallet.json') {
@@ -233,7 +231,7 @@ export default class Wallet {
         }
     }
 
-    checkMempool() {
+    checkMempool(clients) {
         const mempool = fs.readdirSync('mempool');
         for (const i in mempool) {
             const infohash = mempool[i];

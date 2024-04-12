@@ -88,7 +88,7 @@ export default class Torrents {
                                         }
                                         console.log('Transaction deleted from mempool');
                                     });
-                                    this.clients.wallet.checkMempool();
+                                    this.clients.wallet.checkMempool(this.clients);
                                 }
                             });
                         };
