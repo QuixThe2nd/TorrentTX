@@ -104,7 +104,7 @@ const main = async () => {
         console.log("Please restart the program");
         process.exit();
     } else if (input === 'b') {
-        console.log("Your Balance:", clients.transactions.balances[address]);
+        console.log("Your Balance:", clients.transactions.balances[address] ?? 0);
         console.log("\n=====Balances=====");
         const balances = clients.transactions.balances;
         for (const address in balances) {
