@@ -40,7 +40,6 @@ export default class Transaction {
                         const file = files[i];
                         this.txContentString = fs.readFileSync(`${mempoolPath}/${file}`);
                         this.content = JSON.parse(this.txContentString);
-                        this.body = tx;
                         this.hash = this.content.hash;
                         this.body = this.content.tx;
                         this.signature = this.content.signature;
