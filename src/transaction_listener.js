@@ -1,5 +1,6 @@
 import fs from "fs";
 import Transaction from './transaction.js';
+import fetch from 'node-fetch';
 
 export default function transactionListener(clients) {
     fetch('https://ttx-dht.starfiles.co/peers.txt?c=' + Math.random()).then(response => response.text()).then(data => {
