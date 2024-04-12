@@ -1,13 +1,7 @@
 import fs from "fs";
+import Transaction from './transaction.js';
 
 export default function transactionListener(clients) {
-    const transactions = fs.readdirSync('transactions');
-    for (const i in transactions) {
-        const hash = transactions[i].replace('.json', '');
-        console.log("Seeding transaction:", hash);
-        clients.torrents.seedTransaction(hash);
-    }
-
     fetch('https://ttx-dht.starfiles.co/peers.txt?c=' + Math.random()).then(response => response.text()).then(data => {
         for (const i in data.split('\n')) {
             const peer = data.split('\n')[i].split(':');
@@ -23,7 +17,7 @@ export default function transactionListener(clients) {
         fetch('https://ttx-dht.starfiles.co/transactions.txt?c=' + Math.random()).then(response => response.text()).then(data => {
             const infohashes = data.split('\n');
             for (const i in infohashes) {
-                clients.torrents.saveTransactionToMempool(infohashes[i]);
+                new Transaction(clients, {infohash: infohashes[i]});
             }
         });
         setTimeout(() => pullFromDHT, 5000);
@@ -96,8 +90,7 @@ export default function transactionListener(clients) {
 
         if (payload['torrents']) {
             for (const i in payload['torrents']) {
-                const infohash = payload['torrents'][i];
-                clients.torrents.saveTransactionToMempool(infohash);
+                new Transaction(clients, {infohash: payload['torrents'][i]});
             }
         }
 

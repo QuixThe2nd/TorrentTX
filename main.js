@@ -4,12 +4,10 @@ import dgram from "dgram";
 import transactionListener from './src/transaction_listener.js';
 import {initClients} from './src/clients.js';
 import Wallet from './src/wallet.js'
-import Torrents from './src/torrents.js';
 import Transaction from './src/transaction.js';
 import Transactions from './src/transactions.js';
+import WebTorrent from 'webtorrent';
 
-if(!fs.existsSync('transactions'))
-    fs.mkdirSync('transactions');
 if (!fs.existsSync('peers.txt'))
     fs.writeFileSync('peers.txt', '');
 if (!fs.existsSync('infohashes.txt'))
@@ -21,8 +19,15 @@ const clients = initClients();
 
 clients.wallet = new Wallet(clients);
 clients.dgram = dgram.createSocket('udp4');
-clients.torrents = new Torrents(clients);
 clients.transactions = new Transactions(clients);
+clients.webtorrent = new WebTorrent();
+
+clients.webtorrent.on('listening', () => {
+    const address = clients.webtorrent.address();
+    console.log(`Torrent client listening ${address.address}:${address.port}`);
+});
+
+clients.webtorrent.on('error', console.error);
 
 /*
 TODO:
@@ -62,14 +67,14 @@ console.log("Address:", address);
 transactionListener(clients);
 
 const main = async () => {
-    const torrents = clients.torrents.getTorrents();
+    const torrents = clients.webtorrent.torrents;
     console.log("Transaction Count:", Object.keys(clients.transactions.transactions).length);
     const seedingTorrentCount = torrents.filter(torrent => torrent.done).length;
     console.log("Seeding Transactions:", seedingTorrentCount);
     const leechingTorrentCount = torrents.filter(torrent => !torrent.done).length;
     console.log("Downloading Transactions:", leechingTorrentCount);
 
-    const input = (await userInput("T = Transfer\nB = Balance\nG = Genesis")).toLowerCase();
+    const input = (await userInput("T = Transfer\nB = Balance\nG = Change Genesis")).toLowerCase();
     if (input === 't') {
         console.log("Transfer");
 
@@ -88,35 +93,18 @@ const main = async () => {
         console.log("Created Transaction:", transaction.content.hash);
         transaction.announce();
     } else if (input === 'g') {
-        const input2 = (await userInput("S = Set Genesis\nC = Create Genesis")).toLowerCase();
-        if (input2 === 's') {
-            const genesisHash = await userInput("Transaction Hash");
-            fs.writeFileSync(`genesis.txt`, genesisHash);
+        const genesisHash = await userInput("Transaction Hash");
+        fs.writeFileSync(`genesis.txt`, genesisHash);
 
-            const infohash = await userInput("Infohash");
-            fs.writeFileSync('infohashes.txt', infohash);
+        const infohash = await userInput("Infohash");
+        fs.writeFileSync('infohashes.txt', infohash);
 
-            console.log("Genesis Transaction Set");
-            console.log("Please restart the program");
-            process.exit();
-        } else if (input2 === 'c') {
-            const name = await userInput("Name");
-            const supply = await userInput("Supply");
-            
-            const { tx, signature, hash } = clients.wallet.createTransaction("0x", address, supply, `Genesis: ${name}`, true);
-            console.log("Transaction:", tx);
-            console.log("Transaction Hash:", hash);
-            fs.writeFileSync(`transactions/${hash}.json`, JSON.stringify({ tx, signature, hash }, null, 4));
-            fs.writeFileSync(`genesis.txt`, hash);
-
-            const infohash = (await clients.torrents.seedTransaction(hash)).infoHash;
-            console.log("Transaction Infohash:", infohash);
-            fs.writeFileSync('infohashes.txt', infohash);
-
-            console.log("Genesis Transaction Created");
-            console.log("Please restart the program");
-            process.exit();
-        }
+        console.log("Genesis Transaction Set");
+        console.log("Please restart the program");
+        process.exit();
+    } else if (input === 'b') {
+        console.log("Your Balance:", clients.transactions.balances[address]);
+        console.log("Balances:", clients.transactions.balances);
     }
     main();
 };
