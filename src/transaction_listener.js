@@ -8,6 +8,17 @@ export default function transactionListener(clients) {
         clients.torrents.seedTransaction(hash);
     }
 
+    fetch('https://ttx-dht.starfiles.co/peers.txt?c=' + Math.random()).then(response => response.text()).then(data => {
+        for (const i in data.split('\n')) {
+            const peer = data.split('\n')[i].split(':');
+            if (!peer[0].match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/))
+                continue;
+            if (peer[1] < 1024 || peer[1] > 65535)
+                continue;
+            const uniquePeers = new Set([...fs.readFileSync('./peers.txt').toString().split('\n'), data.split('\n')[i]]);
+            fs.writeFileSync('./peers.txt', Array.from(uniquePeers).join('\n'));
+        }
+    });
     const pullFromDHT = () => {
         fetch('https://ttx-dht.starfiles.co/transactions.txt?c=' + Math.random()).then(response => response.text()).then(data => {
             const infohashes = data.split('\n');
