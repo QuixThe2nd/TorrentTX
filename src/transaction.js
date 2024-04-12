@@ -94,7 +94,7 @@ export default class Transaction {
     seed() {
         return new Promise((resolve, reject) => {
             this.clients.webtorrent.seed(`transactions/${this.hash}.json`, {announce: this.trackers}, (torrent) => {
-                console.log('Seeding:', torrent.infoHash);
+                console.log('\nSeeding:', torrent.infoHash);
                 this.infohash = torrent.infoHash;
 
                 const torrents = fs.readFileSync('./infohashes.txt').toString().split('\n');

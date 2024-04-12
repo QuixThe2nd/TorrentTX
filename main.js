@@ -54,7 +54,7 @@ const userInput = async function (prompt){
     });
 
     return new Promise((resolve, reject) => {
-        rl.question(`\n======Manual======\n\n${prompt}\n\n======Manual======\n\n`, (input) => {
+        rl.question(`\n======Manual======\n${prompt}\n======Manual======\n\n`, (input) => {
             rl.close();
             resolve(input);
         });
@@ -105,7 +105,13 @@ const main = async () => {
         process.exit();
     } else if (input === 'b') {
         console.log("Your Balance:", clients.transactions.balances[address]);
-        console.log("Balances:", clients.transactions.balances);
+        console.log("\n=====Balances=====");
+        const balances = clients.transactions.balances;
+        for (const address in balances) {
+            const balance = balances[address];
+            console.log(`${address}: ${balance}`);
+        }
+        console.log("=====Balances=====\n");
     }
     main();
 };
