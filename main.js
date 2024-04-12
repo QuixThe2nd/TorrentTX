@@ -102,6 +102,10 @@ const main = async () => {
             for (const i in peers) {
                 console.log('Broadcasting transaction to:', peers[i]);
                 const peer = peers[i].split(':');
+                if (!peer[0].match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/))
+                    continue;
+                if (peer[1] < 1024 || peer[1] > 65535)
+                    continue;
                 clients.dgram.send(JSON.stringify({torrents: [infohash]}), peer[1], peer[0], (err) => {
                     if (err) {
                         console.error(err);
