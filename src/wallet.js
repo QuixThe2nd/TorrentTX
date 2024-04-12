@@ -242,6 +242,9 @@ export default class Wallet {
                 const { tx, signature, hash } = data;
                 if (this.validateTransaction(tx, signature, hash)) {
                     fs.writeFileSync(`transactions/${hash}.json`, JSON.stringify(data, null, 4));
+                    const torrent = clients.torrents.torrentClient.torrents.find(torrent => torrent.path === `mempool/${infohash}`);
+                    if(torrent)
+                        torrent.destroy();
                     clients.torrents.seedTransaction(hash);
                     fs.unlink(`mempool/${file}`, (err) => {
                         if (err) {

@@ -81,6 +81,10 @@ export default class Torrents {
                                     // fs.writeFileSync(`torrents/${infohash}.torrent`, torrent.torrentFile);
                                     this.clients.wallet.recalculateBalances();
 
+                                    // Replace transaction in mempool with transaction in transactions
+                                    this.clients.torrents.torrentClient.torrents.find(torrent => torrent.path === `mempool/${infohash}`).destroy();
+                                    this.seedTransaction(hash);
+
                                     fs.unlink(`${mempoolPath}/${file}`, (err) => {
                                         if (err) {
                                             console.error(err);
