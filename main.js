@@ -25,7 +25,7 @@ const interfaces = os.networkInterfaces();
 const ipAddresses = [];
 for (let i in interfaces) {
     for (let interfaceInfo of interfaces[i]) {
-        if (interfaceInfo.family === 'IPv4' && !interfaceInfo.internal)
+        if (interfaceInfo.family === 'IPv4' && !interfaceInfo.internal && !interfaceInfo.address.startsWith('192.168.'))
             ipAddresses.push(interfaceInfo.address);
     }
 }
