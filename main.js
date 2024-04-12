@@ -39,7 +39,8 @@ for (; listenPort < 7000; listenPort++){
             peers.push(`127.0.0.1:${listenPort}`);
             fs.writeFileSync('./peers.txt', peers.join('\n'));
         }
-        break
+        console.log(`Listening on ${ipAddresses[0]}:${listenPort}`);
+        break;
     } catch(err) {
         if (err.code === 'EADDRINUSE')
             listenPort++;
