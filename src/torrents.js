@@ -1,10 +1,9 @@
 import fs from 'fs';
 import WebTorrent from 'webtorrent';
-import {initClients} from './clients.js';
 
 export default class Torrents {
-    constructor() {
-        this.clients = initClients();
+    constructor(clients) {
+        this.clients = clients;
         this.trackers = ['udp://tracker.openbittorrent.com:80', 'wss://tracker.openwebtorrent.com/', 'wss://tracker.webtorrent.dev', 'wss://tracker.files.fm:7073/announce', 'ws://tracker.files.fm:7072/announce'];
         this.torrentClient = new WebTorrent();
 

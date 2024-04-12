@@ -18,7 +18,7 @@ const clients = initClients();
 
 clients.wallet = new Wallet;
 clients.dgram = dgram.createSocket('udp4');
-clients.torrents = new Torrents;
+clients.torrents = new Torrents(clients);
 
 /*
 TODO:
