@@ -42,7 +42,6 @@ export default function transactionListener(clients) {
     };
 
     clients.dgram.on('error', (err) => {
-        console.log('test');
         if (err.code === 'EADDRINUSE') {
             console.log(`Port ${listenPort} is already in use, trying next available port.`);
             listenPort++;
@@ -57,7 +56,7 @@ export default function transactionListener(clients) {
 
     clients.dgram.on('listening', () => {
         const address = clients.dgram.address();
-        console.log(`Client listening ${address.address}:${address.port}`);
+        console.info(`Client listening ${address.address}:${address.port}`);
 
         const torrents = fs.readFileSync('./infohashes.txt').toString().split('\n');
         const peers = fs.readFileSync('./peers.txt').toString().split('\n');

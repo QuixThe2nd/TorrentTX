@@ -52,7 +52,7 @@ clients.transactions.loadSavedTransactions();
 
 clients.webtorrent.on('listening', () => {
     const address = clients.webtorrent.address();
-    console.log(`Torrent client listening ${address.address}:${address.port}`);
+    console.info(`Torrent client listening ${address.address}:${address.port}`);
 });
 
 clients.webtorrent.on('error', console.error);
@@ -90,17 +90,17 @@ const userInput = async function (prompt){
 
 clients.wallet.generateAddress();
 const address = clients.wallet.wallet.getAddressString();
-console.log("Address:", address);
+console.info("Address:", address);
 
 transactionListener(clients);
 
 const main = async () => {
     const torrents = clients.webtorrent.torrents;
-    console.log("Transaction Count:", Object.keys(clients.transactions.transactions).length);
+    console.info("Transaction Count:", Object.keys(clients.transactions.transactions).length);
     const seedingTorrentCount = torrents.filter(torrent => torrent.done).length;
-    console.log("Seeding Transactions:", seedingTorrentCount);
+    console.info("Seeding Transactions:", seedingTorrentCount);
     const leechingTorrentCount = torrents.filter(torrent => !torrent.done).length;
-    console.log("Downloading Transactions:", leechingTorrentCount);
+    console.info("Downloading Transactions:", leechingTorrentCount);
 
     const input = (await userInput("T = Transfer\nB = Balance\nG = Change Genesis\nS = Search")).toLowerCase();
     if (input === 't') {
@@ -131,17 +131,17 @@ const main = async () => {
         console.log("Please restart the program");
         process.exit();
     } else if (input === 'b') {
-        console.log("Your Balance:", clients.transactions.balances[address] ?? 0);
-        console.log("\n=====Balances=====");
+        console.info("=====Balances=====");
+        console.info("You:", clients.transactions.balances[address] ?? 0, "\n");
         const balances = clients.transactions.balances;
         for (const address in balances) {
             const balance = balances[address];
-            console.log(`${address}: ${balance}`);
+            console.info(`${address}: ${balance}`);
         }
-        console.log("=====Balances=====\n");
+        console.info("=====Balances=====");
     } else if (input === 's') {
         const query = await userInput("Search");
-        console.log(clients.transactions.search(clients, {query}));
+        console.info(clients.transactions.search(clients, {query}));
     }
     main();
 };
