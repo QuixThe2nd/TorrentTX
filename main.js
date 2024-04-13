@@ -75,7 +75,7 @@ const main = async () => {
     const leechingTorrentCount = torrents.filter(torrent => !torrent.done).length;
     console.log("Downloading Transactions:", leechingTorrentCount);
 
-    const input = (await userInput("T = Transfer\nB = Balance\nG = Change Genesis")).toLowerCase();
+    const input = (await userInput("T = Transfer\nB = Balance\nG = Change Genesis\nS = Search")).toLowerCase();
     if (input === 't') {
         console.log("Transfer");
 
@@ -112,6 +112,9 @@ const main = async () => {
             console.log(`${address}: ${balance}`);
         }
         console.log("=====Balances=====\n");
+    } else if (input === 's') {
+        const query = await userInput("Search");
+        console.log(clients.transactions.search(clients, {query}));
     }
     main();
 };

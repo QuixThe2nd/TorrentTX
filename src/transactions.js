@@ -141,7 +141,25 @@ export default class Transactions {
         return selectedUTXOs;
     }
 
-    getTorrents() {
-        return 
+    search(clients, {query}) {
+        const results = {
+            transactions: [],
+            balances: {},
+        };
+
+        if (query.startsWith('0x')) {
+            for (const hash in clients.transactions.transactions) {
+                const transaction = clients.transactions.transactions[hash];
+                if (transaction.body.from === query || transaction.body.to === query)
+                    results.transactions.push(transaction);
+            }
+            results.balances[query] = clients.transactions.balances[query];
+        }
+
+        for (const hash in clients.transactions.transactions) {
+            results.transactions = clients.transactions.transactions[hash];
+            
+        }
+        return results;
     }
 }
