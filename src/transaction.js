@@ -35,7 +35,7 @@ export default class Transaction {
                 return false;
             }
 
-            console.log("\nReceived transaction:", infohash);
+            console.log("Received transaction:", infohash);
             console.log('Downloading Metadata', infohash)
             const mempoolPath = `mempool/${infohash}`;
             
@@ -101,7 +101,7 @@ export default class Transaction {
 
     seed() {
         this.clients.webtorrent.seed(`transactions/${this.hash}.json`, {announce: this.trackers}, (torrent) => {
-            console.log('\nSeeding:', torrent.infoHash);
+            console.log('Seeding:', torrent.infoHash);
 
             this.torrent = torrent;
             this.infohash = torrent.infoHash;
