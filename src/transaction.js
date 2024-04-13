@@ -38,7 +38,7 @@ export default class Transaction {
             console.log(infohash, "Received");
             const mempoolPath = `mempool/${infohash}`;
             
-            clients.webtorrent.add(`magnet:?xt=urn:btih:${infohash}`, {path: mempoolPath, announce: this.trackers}, (torrent) => {
+            clients.webtorrent.add(`magnet:?xt=urn:btih:${infohash}`, {path: mempoolPath, announce: this.trackers, strategy: 'rarest'}, (torrent) => {
                 console.log(torrent.infoHash, 'Added');
                 torrent.on('metadata', () => {
                     console.log(torrent.infoHash, 'Metadata received');
@@ -123,7 +123,7 @@ export default class Transaction {
     }
 
     seed() {
-        this.clients.webtorrent.seed(`transactions/${this.hash}.json`, {announce: this.trackers}, (torrent) => {
+        this.clients.webtorrent.seed(`transactions/${this.hash}.json`, {announce: this.trackers, strategy: 'rarest'}, (torrent) => {
             console.log(torrent.infoHash, 'Seeding');
 
             torrent.on('metadata', () => {
