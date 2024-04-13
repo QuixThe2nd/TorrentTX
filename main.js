@@ -15,8 +15,6 @@ if (!fs.existsSync('infohashes.txt'))
 if (!fs.existsSync('genesis.txt'))
     fs.writeFileSync('genesis.txt', "28a11d5eb078b4acd7a6867d7cde86d7dc719e93b76e79d0c5d52681c925267c");
 
-
-
 var colorSet = {
     error: "\x1b[31m",
     info: "\x1b[32m",
@@ -35,12 +33,10 @@ for (const type in colorSet) {
 }
 
 if (WebTorrent.WEBRTC_SUPPORT) {
-    console.log("WebRTC Supported", "a");
+    console.log("WebRTC Supported");
 } else {
     console.warn("WebRTC Not Supported");
-    // process.exit();
 }
-
 
 const clients = initClients();
 
