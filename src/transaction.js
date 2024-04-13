@@ -6,7 +6,7 @@ export default class Transaction {
     constructor(clients, {from, to, amount, message, hash, infohash, path}) {
         this.clients = clients;
         this.genesisHash = fs.readFileSync('genesis.txt').toString().trim();
-        this.trackers = ['udp://tracker.openbittorrent.com:80', 'wss://tracker.openwebtorrent.com/', 'wss://tracker.webtorrent.dev', 'wss://tracker.files.fm:7073/announce', 'ws://tracker.files.fm:7072/announce'];
+        this.getTrackers();
 
         if (hash) {
             this.hash = hash;
@@ -149,5 +149,18 @@ export default class Transaction {
                     console.warn(peers[i], err.code, 'Failed to send payload');
             });
         }
+    }
+
+    async getTrackers() {
+        // fetch fromu url https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ws.txt
+        const wsResponse = await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ws.txt');
+        const wsTrackers = await wsResponse.text();
+
+        const bestResponse = await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt');
+        const bestTrackers = await bestResponse.text();
+
+        this.trackers = (wsTrackers + '\n' + bestTrackers).split('\n').filter(Boolean);
+
+        return this.trackers;
     }
 }
