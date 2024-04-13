@@ -107,9 +107,9 @@ export default function transactionListener(clients) {
 
             clients.dgram.send(JSON.stringify(response), rinfo.port, rinfo.address, (err) => {
                 if (!err)
-                    console.log(rinfo.address, 'Sent payload');
+                    console.log(rinfo.address + ':' + rinfo.port, 'Sent payload');
                 else
-                    console.warn(rinfo.address, err.code, 'Failed to send payload');
+                    console.warn(rinfo.address + ':' + rinfo.port, err.code, 'Failed to send payload');
             });
         }
     });

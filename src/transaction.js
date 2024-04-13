@@ -52,12 +52,12 @@ export default class Transaction {
                 torrent.on('error', (err) => {
                     console.warn(torrent.infoHash, "FATAL", err);
                 });
-                torrent.on('download', (bytes) => {
-                    console.log(torrent.infoHash, 'Downloaded:', bytes);
-                });
-                torrent.on('upload', (bytes) => {
-                    console.log(torrent.infoHash, 'Uploaded:', bytes);
-                });
+                // torrent.on('download', (bytes) => {
+                //     console.log(torrent.infoHash, 'Downloaded:', bytes);
+                // });
+                // torrent.on('upload', (bytes) => {
+                //     console.log(torrent.infoHash, 'Uploaded:', bytes);
+                // });
                 torrent.on('wire', function (wire, addr) {
                     console.info(torrent.infoHash, 'Connected to torrent peer: ' + addr, wire.remoteAddress, wire.remotePort);
                 });
@@ -142,12 +142,12 @@ export default class Transaction {
             torrent.on('error', (err) => {
                 console.warn(torrent.infoHash, "FATAL", err);
             });
-            torrent.on('download', (bytes) => {
-                console.log(torrent.infoHash, 'Downloaded:', bytes);
-            });
-            torrent.on('upload', (bytes) => {
-                console.log(torrent.infoHash, 'Uploaded:', bytes);
-            });
+            // torrent.on('download', (bytes) => {
+            //     console.log(torrent.infoHash, 'Downloaded:', bytes);
+            // });
+            // torrent.on('upload', (bytes) => {
+            //     console.log(torrent.infoHash, 'Uploaded:', bytes);
+            // });
             torrent.on('wire', function (wire, addr) {
                 console.info(torrent.infoHash, 'Connected to torrent peer: ' + addr, wire.remoteAddress, wire.remotePort);
             });
