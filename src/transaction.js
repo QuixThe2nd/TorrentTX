@@ -109,6 +109,8 @@ export default class Transaction {
     isValid() {
         if (this.hash === this.genesisHash)
             return true;
+        if (isNaN(this.body.amount))
+            return false;
         if (this.body.amount < 0)
             return false;
         if (!this.clients.transactions.balances[this.body.from] || this.clients.transactions.balances[this.body.from] < this.body.amount)
