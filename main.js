@@ -102,6 +102,11 @@ const main = async () => {
     const leechingTorrentCount = torrents.filter(torrent => !torrent.done).length;
     console.info("Downloading Transactions:", leechingTorrentCount);
 
+    console.info("Ratio:", clients.webtorrent.ratio);
+    console.info("Download Speed:", clients.webtorrent.downloadSpeed);
+    console.info("Upload Speed:", clients.webtorrent.uploadSpeed);
+    console.info("Progress:", clients.webtorrent.progress);
+
     const input = (await userInput("T = Transfer\nB = Balance\nG = Change Genesis\nS = Search")).toLowerCase();
     if (input === 't') {
         console.log("Transfer");

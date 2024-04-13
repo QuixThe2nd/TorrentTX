@@ -40,6 +40,30 @@ export default class Transaction {
             
             clients.webtorrent.add(`magnet:?xt=urn:btih:${infohash}`, {path: mempoolPath, announce: this.trackers}, (torrent) => {
                 console.log(torrent.infoHash, 'Added');
+                torrent.on('metadata', () => {
+                    console.log(torrent.infoHash, 'Metadata received');
+                });
+                torrent.on('ready', () => {
+                    console.log(torrent.infoHash, 'Download ready');
+                });
+                torrent.on('warning', (err) => {
+                    console.warn(torrent.infoHash, err);
+                });
+                torrent.on('error', (err) => {
+                    console.warn(torrent.infoHash, "FATAL", err);
+                });
+                torrent.on('download', (bytes) => {
+                    console.log(torrent.infoHash, 'Downloaded:', bytes);
+                });
+                torrent.on('upload', (bytes) => {
+                    console.log(torrent.infoHash, 'Uploaded:', bytes);
+                });
+                torrent.on('wire', function (wire, addr) {
+                    console.info(torrent.infoHash, 'Connected to torrent peer: ' + addr, wire.remoteAddress, wire.remotePort);
+                });
+                torrent.on('noPeers', function (announceType) {
+                    console.warn(torrent.infoHash, 'No peers found for', announceType);
+                });
                 torrent.on('done', () => {
                     console.log(torrent.infoHash, 'Download complete');
                     const files = fs.readdirSync(mempoolPath);
@@ -102,6 +126,31 @@ export default class Transaction {
         this.clients.webtorrent.seed(`transactions/${this.hash}.json`, {announce: this.trackers}, (torrent) => {
             console.log(torrent.infoHash, 'Seeding');
 
+            torrent.on('metadata', () => {
+                console.log(torrent.infoHash, 'Metadata received');
+            });
+            torrent.on('ready', () => {
+                console.log(torrent.infoHash, 'Download ready');
+            });
+            torrent.on('warning', (err) => {
+                console.warn(torrent.infoHash, err);
+            });
+            torrent.on('error', (err) => {
+                console.warn(torrent.infoHash, "FATAL", err);
+            });
+            torrent.on('download', (bytes) => {
+                console.log(torrent.infoHash, 'Downloaded:', bytes);
+            });
+            torrent.on('upload', (bytes) => {
+                console.log(torrent.infoHash, 'Uploaded:', bytes);
+            });
+            torrent.on('wire', function (wire, addr) {
+                console.info(torrent.infoHash, 'Connected to torrent peer: ' + addr, wire.remoteAddress, wire.remotePort);
+            });
+            torrent.on('noPeers', function (announceType) {
+                console.warn(torrent.infoHash, 'No peers found for', announceType);
+            });
+            
             this.torrent = torrent;
             this.infohash = torrent.infoHash;
 
