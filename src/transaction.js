@@ -46,9 +46,9 @@ export default class Transaction {
                 torrent.on('ready', () => {
                     console.log(torrent.infoHash, 'Download ready');
                 });
-                torrent.on('warning', (err) => {
-                    console.warn(torrent.infoHash, err);
-                });
+                // torrent.on('warning', (err) => {
+                //     console.warn(torrent.infoHash, err);
+                // });
                 torrent.on('error', (err) => {
                     console.warn(torrent.infoHash, "FATAL", err);
                 });
@@ -61,9 +61,9 @@ export default class Transaction {
                 torrent.on('wire', function (wire, addr) {
                     console.info(torrent.infoHash, 'Connected to torrent peer: ' + addr, wire.remoteAddress, wire.remotePort);
                 });
-                torrent.on('noPeers', function (announceType) {
-                    console.warn(torrent.infoHash, 'No peers found for', announceType);
-                });
+                // torrent.on('noPeers', function (announceType) {
+                //     console.warn(torrent.infoHash, 'No peers found for', announceType);
+                // });
                 torrent.on('done', () => {
                     console.log(torrent.infoHash, 'Download complete');
                     const files = fs.readdirSync(mempoolPath);
@@ -134,9 +134,9 @@ export default class Transaction {
             torrent.on('ready', () => {
                 console.log(torrent.infoHash, 'Download ready');
             });
-            torrent.on('warning', (err) => {
-                console.warn(torrent.infoHash, err);
-            });
+            // torrent.on('warning', (err) => {
+            //     console.warn(torrent.infoHash, err);
+            // });
             torrent.on('error', (err) => {
                 console.warn(torrent.infoHash, "FATAL", err);
             });
@@ -149,9 +149,9 @@ export default class Transaction {
             torrent.on('wire', function (wire, addr) {
                 console.info(torrent.infoHash, 'Connected to torrent peer: ' + addr, wire.remoteAddress, wire.remotePort);
             });
-            torrent.on('noPeers', function (announceType) {
-                console.warn(torrent.infoHash, 'No peers found for', announceType);
-            });
+            // torrent.on('noPeers', function (announceType) {
+            //     console.warn(torrent.infoHash, 'No peers found for', announceType);
+            // });
             
             this.torrent = torrent;
             this.infohash = torrent.infoHash;
