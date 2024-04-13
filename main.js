@@ -77,7 +77,7 @@ const userInput = async function (prompt){
     });
 
     return new Promise((resolve, reject) => {
-        rl.question(`\n======Manual======\n${prompt}\n======Manual======\n\n`, (input) => {
+        rl.question(`\n============\n${prompt}\n============\n\n`, (input) => {
             rl.close();
             resolve(input);
         });
