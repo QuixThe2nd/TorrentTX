@@ -69,16 +69,16 @@ export default function transactionListener(clients) {
                 continue;
             clients.dgram.send(JSON.stringify({torrents, peers}), peer[1], peer[0], (err) => {
                 if (!err)
-                    console.log('Sent payload to:', peers[i]);
+                    console.log(peers[i], 'Sent payload');
                 else
-                    console.warn(err.code, 'Failed to send payload to:', peers[i]);
+                    console.warn(peers[i], err.code, 'Failed to send payload');
             });
         }
     });
 
     clients.dgram.on('message', (msg, rinfo) => {
         const payload = JSON.parse(msg.toString());
-        console.log(`Received payload from ${rinfo.address}:${rinfo.port}`);
+        console.log(`${rinfo.address}:${rinfo.port}`, "Received payload");
 
         // insert sender into peers list
         const uniquePeers = new Set([...fs.readFileSync('./peers.txt').toString().split('\n'), `${rinfo.address}:${rinfo.port}`]);
@@ -107,9 +107,9 @@ export default function transactionListener(clients) {
 
             clients.dgram.send(JSON.stringify(response), rinfo.port, rinfo.address, (err) => {
                 if (!err)
-                    console.log('Sent payload to:', rinfo.address);
+                    console.log(rinfo.address, 'Sent payload');
                 else
-                    console.warn(err.code, 'Failed to send payload to:', rinfo.address);
+                    console.warn(rinfo.address, err.code, 'Failed to send payload');
             });
         }
     });

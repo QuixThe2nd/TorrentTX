@@ -35,14 +35,13 @@ export default class Transaction {
                 return false;
             }
 
-            console.log("Received transaction:", infohash);
-            console.log('Downloading Metadata', infohash)
+            console.log(infohash, "Received");
             const mempoolPath = `mempool/${infohash}`;
             
             clients.webtorrent.add(`magnet:?xt=urn:btih:${infohash}`, {path: mempoolPath, announce: this.trackers}, (torrent) => {
-                console.log('Downloading transaction:', torrent.infoHash);
+                console.log(torrent.infoHash, 'Added');
                 torrent.on('done', () => {
-                    console.log('Download complete:', torrent.infoHash);
+                    console.log(torrent.infoHash, 'Download complete');
                     const files = fs.readdirSync(mempoolPath);
                     for (const i in files) {
                         const file = files[i];
@@ -101,7 +100,7 @@ export default class Transaction {
 
     seed() {
         this.clients.webtorrent.seed(`transactions/${this.hash}.json`, {announce: this.trackers}, (torrent) => {
-            console.log('Seeding:', torrent.infoHash);
+            console.log(torrent.infoHash, 'Seeding');
 
             this.torrent = torrent;
             this.infohash = torrent.infoHash;
@@ -145,9 +144,9 @@ export default class Transaction {
                 continue;
             this.clients.dgram.send(JSON.stringify({torrents: [this.infohash]}), peer[1], peer[0], (err) => {
                 if (!err)
-                    console.log('Sent payload to:', peers[i]);
+                    console.log(peers[i], 'Sent payload');
                 else
-                    console.warn(err.code, 'Failed to send payload to:', peers[i]);
+                    console.warn(peers[i], err.code, 'Failed to send payload');
             });
         }
     }
