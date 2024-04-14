@@ -12,8 +12,6 @@ if (!fs.existsSync('peers.txt'))
     fs.writeFileSync('peers.txt', '');
 if (!fs.existsSync('infohashes.txt'))
     fs.writeFileSync('infohashes.txt', "");
-if (!fs.existsSync('genesis.txt'))
-    fs.writeFileSync('genesis.txt', "28a11d5eb078b4acd7a6867d7cde86d7dc719e93b76e79d0c5d52681c925267c");
 
 var colorSet = {
     error: "\x1b[31m",
