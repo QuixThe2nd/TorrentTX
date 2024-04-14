@@ -58,12 +58,12 @@ console.info("Address:", address);
 
 // transactionListener(clients);
 
-const proofs = fs.readdirSync('proofs');
-if (proofs.length > 0) {
-    for (const i in proofs) {
-        new Transaction(clients, {torrentPath: `proofs/${proofs[i]}`});
-    }
-}
+// const proofs = fs.readdirSync('proofs');
+// if (proofs.length > 0) {
+//     for (const i in proofs) {
+//         new Transaction(clients, {torrentPath: `proofs/${proofs[i]}`});
+//     }
+// }
 
 /*
 TODO:
@@ -151,7 +151,7 @@ const main = async () => {
         console.info(clients.transactions.search(clients, {query}));
     } else if (input === 'p') {
         const query = await userInput("Transaction Hash");
-        const torrent = await clients.transactions.search(clients, {query})['transactions'].getTorrent();
+        const torrent = await clients.transactions.search(clients, {query})['transactions'].torrent;
         console.info("Proof:", torrent.infoHash);
         fs.writeFileSync(`proofs/${query}.torrent`, torrent.torrentFile);
     }

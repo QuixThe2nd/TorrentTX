@@ -1,7 +1,6 @@
 peers.txt
 infohashes.txt
 wallet.json
-mempool/
 transactions/
 
 yarn.lock

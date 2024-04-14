@@ -5,8 +5,6 @@ export default class Transactions {
     constructor(clients) {
         if(!fs.existsSync('transactions'))
             fs.mkdirSync('transactions');
-        if(!fs.existsSync('mempool'))
-            fs.mkdirSync('mempool');
 
         this.clients = clients;
         this.transactions = {};
@@ -30,34 +28,13 @@ export default class Transactions {
     };
 
     addTransaction(transaction) {
-        if (transaction.isValid()) {
+        if (transaction.isValid() && !this.transactions[transaction.hash]) {
             this.transactions[transaction.hash] = transaction;
             this.updateBalances(transaction);
-            this.revalidateMempool();
+            this.loadSavedTransactions();
             return true;
         }
         return false;
-    }
-    
-    revalidateMempool() {
-        const mempool = fs.readdirSync('mempool');
-        for (const i in mempool) {
-            const infohash = mempool[i];
-            const files = fs.readdirSync(`mempool/${infohash}`);
-            for (const j in files) {
-                const file = files[j];
-                const transaction = new Transaction(this.clients, {path: `mempool/${infohash}/${file}`});
-                if (transaction && transaction.isValid()) {
-                    const torrent = this.clients.webtorrent.torrents.find(torrent => torrent.path === `mempool/${infohash}`);
-                    if(torrent)
-                        torrent.destroy();
-                    if (fs.existsSync(`mempool/${infohash}/${file}`))
-                        fs.unlinkSync(`mempool/${infohash}/${file}`);
-                    if (fs.readdirSync(`mempool/${infohash}`).length === 0)
-                        fs.rmdirSync(`mempool/${infohash}`);
-                }
-            }
-        }
     }
 
     updateBalances(transaction) {
