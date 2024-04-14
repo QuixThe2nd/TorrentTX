@@ -5,6 +5,8 @@ export default class Transactions {
     constructor(clients) {
         if(!fs.existsSync('transactions'))
             fs.mkdirSync('transactions');
+        if(!fs.existsSync('mempool'))
+            fs.mkdirSync('mempool');
 
         this.clients = clients;
         this.transactions = {};
