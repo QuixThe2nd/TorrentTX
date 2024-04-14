@@ -68,7 +68,7 @@ export default (clients) => {
 			if (dict.torrents) {
 				const transactions = fs.readFileSync('infohashes.txt').toString().split('\n');
 				for (const i in dict.torrents) {
-					console.log('Checking:', dict.torrents[i]);
+					console.verbose('Checking:', dict.torrents[i]);
 					if (!transactions.includes(dict.torrents[i])) {
 						const createTX = (clients, infohash) => {
 							if (!clients)
