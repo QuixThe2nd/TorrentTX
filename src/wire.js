@@ -8,7 +8,6 @@ export default (clients) => {
   	class torrentTx extends EventEmitter {
   	  	constructor(wire) {
   	  	  	super()
-
   	  	  	this.wire = wire
   	  	}
 
@@ -71,9 +70,10 @@ export default (clients) => {
 				for (const i in dict.torrents) {
 					if (!transactions.includes(dict.torrents[i])) {
 						const createTX = (clients, infohash) => {
-							if (!clients.webtorrent) {
+							if (!clients)
+								return;
+							if (!clients.webtorrent)
 								return setTimeout(() => createTX(clients, infohash), 1000);
-							}
 							new Transaction(clients, {infohash});
 						};
 						createTX(clients, dict.torrents[i]);
