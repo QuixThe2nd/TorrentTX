@@ -37,13 +37,12 @@ export default function transactionListener(clients) {
             return;
         }
 
-        console.log(`Trying to listen on port ${listenPort}`);
         clients.dgram.bind(listenPort);
     };
 
     clients.dgram.on('error', (err) => {
         if (err.code === 'EADDRINUSE') {
-            console.log(`Port ${listenPort} is already in use, trying next available port.`);
+            console.warn(`Port ${listenPort} is already in use, trying next available port.`);
             listenPort++;
             findPortAndBind();
         } else {
@@ -69,7 +68,7 @@ export default function transactionListener(clients) {
                 continue;
             clients.dgram.send(JSON.stringify({torrents, peers}), peer[1], peer[0], (err) => {
                 if (!err)
-                    console.log(peers[i], 'Sent payload');
+                    console.verbose(peers[i], 'Sent payload');
                 else
                     console.warn(peers[i], err.code, 'Failed to send payload');
             });
@@ -78,7 +77,7 @@ export default function transactionListener(clients) {
 
     clients.dgram.on('message', (msg, rinfo) => {
         const payload = JSON.parse(msg.toString());
-        console.log(`${rinfo.address}:${rinfo.port}`, "Received payload");
+        console.verbose(`${rinfo.address}:${rinfo.port}`, "Received payload");
 
         // insert sender into peers list
         const uniquePeers = new Set([...fs.readFileSync('./peers.txt').toString().split('\n'), `${rinfo.address}:${rinfo.port}`]);
@@ -107,7 +106,7 @@ export default function transactionListener(clients) {
 
             clients.dgram.send(JSON.stringify(response), rinfo.port, rinfo.address, (err) => {
                 if (!err)
-                    console.log(rinfo.address + ':' + rinfo.port, 'Sent payload');
+                    console.verbose(rinfo.address + ':' + rinfo.port, 'Sent payload');
                 else
                     console.warn(rinfo.address + ':' + rinfo.port, err.code, 'Failed to send payload');
             });

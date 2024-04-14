@@ -46,24 +46,24 @@ export default class Transaction {
                 torrent.on('ready', () => {
                     console.log(torrent.infoHash, 'Download ready');
                 });
-                // torrent.on('warning', (err) => {
-                //     console.warn(torrent.infoHash, err);
-                // });
+                torrent.on('warning', (err) => {
+                    console.verbose(torrent.infoHash, err.message);
+                });
                 torrent.on('error', (err) => {
                     console.warn(torrent.infoHash, "FATAL", err);
                 });
-                // torrent.on('download', (bytes) => {
-                //     console.log(torrent.infoHash, 'Downloaded:', bytes);
-                // });
-                // torrent.on('upload', (bytes) => {
-                //     console.log(torrent.infoHash, 'Uploaded:', bytes);
-                // });
-                torrent.on('wire', function (wire, addr) {
-                    console.info(torrent.infoHash, 'Connected to torrent peer: ' + addr, wire.remoteAddress, wire.remotePort);
+                torrent.on('download', (bytes) => {
+                    console.verbose(torrent.infoHash, 'Downloaded:', bytes);
                 });
-                // torrent.on('noPeers', function (announceType) {
-                //     console.warn(torrent.infoHash, 'No peers found for', announceType);
-                // });
+                torrent.on('upload', (bytes) => {
+                    console.verbose(torrent.infoHash, 'Uploaded:', bytes);
+                });
+                torrent.on('wire', function (wire, addr) {
+                    console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr, wire);
+                });
+                torrent.on('noPeers', function (announceType) {
+                    console.verbose(torrent.infoHash, 'No peers found for', announceType);
+                });
                 torrent.on('done', () => {
                     console.log(torrent.infoHash, 'Download complete');
                     const files = fs.readdirSync(mempoolPath);
@@ -136,24 +136,24 @@ export default class Transaction {
             torrent.on('ready', () => {
                 console.log(torrent.infoHash, 'Download ready');
             });
-            // torrent.on('warning', (err) => {
-            //     console.warn(torrent.infoHash, err);
-            // });
+            torrent.on('warning', (err) => {
+                console.verbose(torrent.infoHash, err.message);
+            });
             torrent.on('error', (err) => {
                 console.warn(torrent.infoHash, "FATAL", err);
             });
-            // torrent.on('download', (bytes) => {
-            //     console.log(torrent.infoHash, 'Downloaded:', bytes);
-            // });
-            // torrent.on('upload', (bytes) => {
-            //     console.log(torrent.infoHash, 'Uploaded:', bytes);
-            // });
-            torrent.on('wire', function (wire, addr) {
-                console.info(torrent.infoHash, 'Connected to torrent peer: ' + addr, wire.remoteAddress, wire.remotePort);
+            torrent.on('download', (bytes) => {
+                console.verbose(torrent.infoHash, 'Downloaded:', bytes);
             });
-            // torrent.on('noPeers', function (announceType) {
-            //     console.warn(torrent.infoHash, 'No peers found for', announceType);
-            // });
+            torrent.on('upload', (bytes) => {
+                console.verbose(torrent.infoHash, 'Uploaded:', bytes);
+            });
+            torrent.on('wire', function (wire, addr) {
+                console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr, wire);
+            });
+            torrent.on('noPeers', function (announceType) {
+                console.verbose(torrent.infoHash, 'No peers found for', announceType);
+            });
             
             this.torrent = torrent;
             this.infohash = torrent.infoHash;
@@ -174,7 +174,7 @@ export default class Transaction {
                 fs.writeFileSync(`transactions/${this.hash}.json`, this.txContentString);
             this.seed();
         }else
-            console.log("Invalid Transaction");
+            console.verbose("Invalid Transaction");
     }
 
     infohash() { // TODO: THIS WONT WORK
@@ -205,7 +205,6 @@ export default class Transaction {
     }
 
     async getTrackers() {
-        // fetch fromu url https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ws.txt
         const wsResponse = await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ws.txt');
         const wsTrackers = await wsResponse.text();
 

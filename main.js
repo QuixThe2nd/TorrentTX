@@ -20,7 +20,10 @@ var colorSet = {
     info: "\x1b[32m",
     warn: "\x1b[33m",
     log: "\x1b[34m",
+    verbose: "\x1b[90m",
 };
+
+console.verbose = console.log;
 
 for (const type in colorSet) {
     const old = console[type];
@@ -32,9 +35,7 @@ for (const type in colorSet) {
     };
 }
 
-if (WebTorrent.WEBRTC_SUPPORT) {
-    console.log("WebRTC Supported");
-} else {
+if (!WebTorrent.WEBRTC_SUPPORT) {
     console.warn("WebRTC Not Supported");
 }
 
@@ -48,7 +49,7 @@ clients.transactions.loadSavedTransactions();
 
 clients.webtorrent.on('listening', () => {
     const address = clients.webtorrent.address();
-    console.info(`Torrent client listening ${address.address}:${address.port}`);
+    console.info(`Torrent client listening 0.0.0.0:${address.port}`);
 });
 
 clients.webtorrent.on('error', console.error);
