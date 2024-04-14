@@ -29,8 +29,8 @@ export default (clients) => {
   	  	}
 
 		sendPayload(type='ping') {
-			const transactions = fs.readFileSync('./infohashes.txt').toString().split('\n');
-			const peers = fs.readFileSync('./peers.txt').toString().split('\n');
+			const transactions = fs.readFileSync('../infohashes.txt').toString().split('\n');
+			const peers = fs.readFileSync('../peers.txt').toString().split('\n');
 
 			const payload = {
 				torrents: transactions,
@@ -60,13 +60,13 @@ export default (clients) => {
 
 			// Save peers
 			if (dict.peers) {
-				const uniquePeers = new Set([...fs.readFileSync('./peers.txt').toString().split('\n'), ...dict.peers]);
-				fs.writeFileSync('./peers.txt', Array.from(uniquePeers).join('\n'));
+				const uniquePeers = new Set([...fs.readFileSync('../peers.txt').toString().split('\n'), ...dict.peers]);
+				fs.writeFileSync('../peers.txt', Array.from(uniquePeers).join('\n'));
 			}
 
 			// Save transactions
 			if (dict.torrents) {
-				const transactions = fs.readFileSync('./infohashes.txt').toString().split('\n');
+				const transactions = fs.readFileSync('../infohashes.txt').toString().split('\n');
 				for (const i in dict.torrents) {
 					console.log('Checking:', dict.torrents[i]);
 					if (!transactions.includes(dict.torrents[i])) {
