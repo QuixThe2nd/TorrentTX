@@ -34,7 +34,7 @@ for (const type in colorSet) {
 }
 
 if (!WebTorrent.WEBRTC_SUPPORT) {
-    console.warn("WebRTC Not Supported");
+    console.error("WebRTC Not Supported");
 }
 
 const clients = initClients();
