@@ -2,7 +2,6 @@ import fs from 'fs'
 import { EventEmitter } from 'events'
 import bencode from 'bencode'
 import { arr2text } from 'uint8-util'
-import { type } from 'os'
 import Transaction from './transaction.js'
 
 export default (clients) => {
@@ -70,8 +69,15 @@ export default (clients) => {
 			if (dict.torrents) {
 				const transactions = fs.readFileSync('./infohashes.txt').toString().split('\n');
 				for (const i in dict.torrents) {
-					if (!transactions.includes(dict.torrents[i]))
-						new Transaction(clients, {infohash: dict.torrents[i]});
+					if (!transactions.includes(dict.torrents[i])) {
+						const createTX = (clients, infohash) => {
+							if (!clients.webtorrent) {
+								return setTimeout(() => createTX(clients, infohash), 1000);
+							}
+							new Transaction(clients, {infohash});
+						};
+						createTX(clients, dict.torrents[i]);
+					}
 				}
 			}
 
