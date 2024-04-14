@@ -121,24 +121,24 @@ export default class Transaction {
                 });
                 torrent.on('done', () => {
                     console.log(torrent.infoHash, 'Download complete');
-                    const files = fs.readdirSync(mempoolPath);
-                    for (const i in files) {
-                        const file = files[i];
-                        this.txContentString = fs.readFileSync(`${mempoolPath}/${file}`);
-                        this.content = JSON.parse(this.txContentString);
-                        this.hash = this.content.hash;
-                        this.body = this.content.tx;
-                        this.signature = this.content.signature;
-                        this.torrent = torrent;
+                    // const files = fs.readdirSync(mempoolPath);
+                    // for (const i in files) {
+                    //     const file = files[i];
+                    //     this.txContentString = fs.readFileSync(`${mempoolPath}/${file}`);
+                    //     this.content = JSON.parse(this.txContentString);
+                    //     this.hash = this.content.hash;
+                    //     this.body = this.content.tx;
+                    //     this.signature = this.content.signature;
+                    //     this.torrent = torrent;
 
-                        this.validateAndSaveTransaction();
+                    //     this.validateAndSaveTransaction();
 
-                        this.clients.transactions.addTransaction(this);
+                    //     this.clients.transactions.addTransaction(this);
 
-                        torrent.destroy();
-                        if (fs.existsSync(`${mempoolPath}/${file}`))
-                            fs.unlinkSync(`${mempoolPath}/${file}`);
-                    };
+                    //     torrent.destroy();
+                    //     if (fs.existsSync(`${mempoolPath}/${file}`))
+                    //         fs.unlinkSync(`${mempoolPath}/${file}`);
+                    // };
                 });
             });
         } else if (from && to && amount) {

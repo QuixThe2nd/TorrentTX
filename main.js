@@ -60,14 +60,14 @@ console.info("Address:", address);
 
 // transactionListener(clients);
 
-// const proofs = fs.readdirSync('proofs');
-// if (proofs.length > 0) {
-//     console.info("Proofs:");
-//     for (const i in proofs) {
-//         console.info(proofs[i]);
-//         new Transaction(clients, {torrentPath: `proofs/${proofs[i]}`});
-//     }
-// }
+const proofs = fs.readdirSync('proofs');
+if (proofs.length > 0) {
+    console.info("Proofs:");
+    for (const i in proofs) {
+        console.info(proofs[i]);
+        new Transaction(clients, {torrentPath: `proofs/${proofs[i]}`});
+    }
+}
 
 /*
 TODO:
