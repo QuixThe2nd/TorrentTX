@@ -47,15 +47,15 @@ export default (clients) => {
 		}
 
   	  	onMessage(buf) {
-  	  	  	let dict
-  	  	  	let trailer
+  	  	  	let dict, trailer;
   	  	  	try {
-  	  	  	  	const str = arr2text(buf)
-  	  	  	  	const trailerIndex = str.indexOf('ee') + 2
-  	  	  	  	dict = bencode.decode(str.substring(0, trailerIndex))
-  	  	  	  	trailer = buf.slice(trailerIndex)
+  	  	  	  	const str = arr2text(buf);
+  	  	  	  	const trailerIndex = str.indexOf('ee') + 2;
+  	  	  	  	dict = bencode.decode(str.substring(0, trailerIndex));
+  	  	  	  	trailer = buf.slice(trailerIndex);
   	  	  	} catch (err) {
-  	  	  	  	return
+				console.error('Error decoding message:', err);
+  	  	  	  	return;
   	  	  	}
 
 			console.log('Received payload:', dict);
