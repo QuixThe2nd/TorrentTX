@@ -43,13 +43,10 @@ export default class Transaction {
                     console.warn(torrent.infoHash, "FATAL", err);
                 });
                 torrent.on('download', (bytes) => {
-                    console.verbose(torrent.infoHash, 'Downloaded:', bytes);
+                    console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes');
                 });
                 torrent.on('upload', (bytes) => {
-                    console.verbose(torrent.infoHash, 'Uploaded:', bytes);
-                    torrent.wires.forEach(wire => {
-                        console.log(torrent.infoHash, 'Peer IP:', wire.remoteAddress);
-                    });
+                    console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes');
                 });
                 torrent.on('wire', function (wire, addr) {
                     console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr);
@@ -57,10 +54,6 @@ export default class Transaction {
                 });
                 torrent.on('noPeers', function (announceType) {
                     console.verbose(torrent.infoHash, 'No peers found for', announceType);
-                    console.log(torrent.wires);
-                    torrent.wires.forEach(wire => {
-                        console.log(torrent.infoHash, 'Peer IP:', wire.remoteAddress, wire.type);
-                    });
                 });
                 torrent.on('done', () => {
                     console.log(torrent.infoHash, 'Download complete');
@@ -114,13 +107,10 @@ export default class Transaction {
                     console.warn(torrent.infoHash, "FATAL", err);
                 });
                 torrent.on('download', (bytes) => {
-                    console.verbose(torrent.infoHash, 'Downloaded:', bytes);
+                    console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes');
                 });
                 torrent.on('upload', (bytes) => {
-                    console.verbose(torrent.infoHash, 'Uploaded:', bytes);
-                    torrent.wires.forEach(wire => {
-                        console.log(torrent.infoHash, 'Peer IP:', wire.remoteAddress);
-                    });
+                    console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes');
                 });
                 torrent.on('wire', function (wire, addr) {
                     console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr);
@@ -128,10 +118,6 @@ export default class Transaction {
                 });
                 torrent.on('noPeers', function (announceType) {
                     console.verbose(torrent.infoHash, 'No peers found for', announceType);
-                    console.log(torrent.wires);
-                    torrent.wires.forEach(wire => {
-                        console.log(torrent.infoHash, 'Peer IP:', wire.remoteAddress, wire.type);
-                    });
                 });
                 torrent.on('done', () => {
                     console.log(torrent.infoHash, 'Download complete');
@@ -213,13 +199,10 @@ export default class Transaction {
                 console.warn(torrent.infoHash, "FATAL", err);
             });
             torrent.on('download', (bytes) => {
-                console.verbose(torrent.infoHash, 'Downloaded:', bytes);
+                console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes');
             });
             torrent.on('upload', (bytes) => {
-                console.verbose(torrent.infoHash, 'Uploaded:', bytes);
-                torrent.wires.forEach(wire => {
-                    console.log(torrent.infoHash, 'Peer IP:', wire.remoteAddress);
-                });
+                console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes');
             });
             torrent.on('wire', function (wire, addr) {
                 console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr);
@@ -227,10 +210,6 @@ export default class Transaction {
             });
             torrent.on('noPeers', function (announceType) {
                 console.verbose(torrent.infoHash, 'No peers found for', announceType);
-                console.log(torrent.wires);
-                torrent.wires.forEach(wire => {
-                    console.log(torrent.infoHash, 'Peer IP:', wire.remoteAddress);
-                });
             });
             
             this.torrent = torrent;
