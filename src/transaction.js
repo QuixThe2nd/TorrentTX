@@ -130,14 +130,6 @@ export default class Transaction {
                         this.signature = this.content.signature;
                         this.torrent = torrent;
 
-                        const prev = this.body.prev;
-                        for (const i in prev) {
-                            const hash = prev[i];
-                            if (!this.clients.transactions.transactions[hash]) {
-                                this.clients.transactions.addTransaction(new Transaction(this.clients, {hash}));
-                            }
-                        }
-
                         this.validateAndSaveTransaction();
 
                         this.clients.transactions.addTransaction(this);
@@ -197,6 +189,14 @@ export default class Transaction {
 
     validateAndSaveTransaction() {
         if (this.isValid()) {
+            const prev = this.body.prev;
+            for (const i in prev) {
+                const hash = prev[i];
+                if (!this.clients.transactions.transactions[hash]) {
+                    this.clients.transactions.addTransaction(new Transaction(this.clients, {hash}));
+                }
+            }
+
             if (!fs.existsSync(`transactions/${this.hash}.json`))
                 fs.writeFileSync(`transactions/${this.hash}.json`, this.txContentString);
             this.seed();
