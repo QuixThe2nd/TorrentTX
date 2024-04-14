@@ -117,13 +117,6 @@ export default class Transaction {
                 torrent.on('done', () => {
                     console.log(torrent.infoHash, 'Download complete');
 
-                    const prev = this.body.prev;
-                    for (const i in prev) {
-                        const hash = prev[i];
-                        if (!this.clients.transactions.transactions[hash]) {
-                            this.clients.transactions.addTransaction(new Transaction(this.clients, {hash}));
-                        }
-                    }
                     const files = torrent.files;
                     for (const i in files) {
                         const file = files[i];
@@ -136,6 +129,14 @@ export default class Transaction {
                         this.body = this.content.tx;
                         this.signature = this.content.signature;
                         this.torrent = torrent;
+
+                        const prev = this.body.prev;
+                        for (const i in prev) {
+                            const hash = prev[i];
+                            if (!this.clients.transactions.transactions[hash]) {
+                                this.clients.transactions.addTransaction(new Transaction(this.clients, {hash}));
+                            }
+                        }
 
                         this.validateAndSaveTransaction();
 
