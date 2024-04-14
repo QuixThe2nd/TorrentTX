@@ -123,6 +123,7 @@ export default class Transaction {
 
                         this.txContentString =  fs.readFileSync(torrent.path + '/' + file.path).toString();
                         this.content = JSON.parse(this.txContentString);
+                        console.log(this.content)
                         this.hash = this.content.hash;
                         this.body = this.content.tx;
                         this.signature = this.content.signature;
