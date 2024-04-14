@@ -25,9 +25,21 @@ export default class Transaction {
             this.signature = this.content.signature;
 
             this.validateAndSaveTransaction();
-        } else if (torrentPath) {
-            console.info("Bootstrapping transaction from torrent file", torrentPath);
-            clients.webtorrent.add(torrentPath, {path: 'mempool/', addUID: true, announce: this.trackers, strategy: 'rarest'}, (torrent) => {
+        } else if (infohash) {
+            if (!infohash || infohash.length !== 40 || !/^[0-9A-Fa-f]+$/.test(infohash)) {
+                // console.log("Invalid infohash");
+                return false;
+            }
+
+            if (clients.webtorrent.torrents.find(torrent => torrent.infoHash === infohash || torrent.path === `mempool/${infohash}`)) {
+                // console.log('Torrent is already downloading');
+                return false;
+            }
+
+            console.log(infohash, "Received");
+            const mempoolPath = `mempool/${infohash}`;
+            
+            clients.webtorrent.add(`magnet:?xt=urn:btih:${infohash}`, {path: mempoolPath, announce: this.trackers, strategy: 'rarest'}, (torrent) => {
                 this.torrent = torrent;
                 console.log(torrent.infoHash, 'Added');
                 torrent.on('metadata', () => {
@@ -77,21 +89,9 @@ export default class Transaction {
                     };
                 });
             });
-        } else if (infohash) {
-            if (!infohash || infohash.length !== 40 || !/^[0-9A-Fa-f]+$/.test(infohash)) {
-                // console.log("Invalid infohash");
-                return false;
-            }
-
-            if (clients.webtorrent.torrents.find(torrent => torrent.infoHash === infohash || torrent.path === `mempool/${infohash}`)) {
-                // console.log('Torrent is already downloading');
-                return false;
-            }
-
-            console.log(infohash, "Received");
-            const mempoolPath = `mempool/${infohash}`;
-            
-            clients.webtorrent.add(`magnet:?xt=urn:btih:${infohash}`, {path: mempoolPath, announce: this.trackers, strategy: 'rarest'}, (torrent) => {
+        } else if (torrentPath) {
+            console.info("Bootstrapping transaction from torrent file", torrentPath);
+            clients.webtorrent.add(torrentPath, {path: 'transactions', announce: this.trackers, strategy: 'rarest'}, (torrent) => {
                 this.torrent = torrent;
                 console.log(torrent.infoHash, 'Added');
                 torrent.on('metadata', () => {
