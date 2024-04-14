@@ -144,7 +144,7 @@ export default class Transaction {
         if (!await this.clients.webtorrent.get(this.hash)) {
             this.clients.webtorrent.seed(`transactions/${this.hash}.json`, {announce: this.trackers, strategy: 'rarest'}, (torrent) => {
                 this.torrent = torrent;
-                console.log(torrent.infoHash, 'Seeding');
+                console.log(torrent.infoHash, 'Seeding', torrent.files[0].path);
 
                 torrent.on('metadata', () => {
                     console.log(torrent.infoHash, 'Metadata received');
