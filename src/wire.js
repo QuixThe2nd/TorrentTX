@@ -17,8 +17,9 @@ export default (clients) => {
   	  	}
 
   	  	onExtendedHandshake(handshake) {
-  	  	  	// if (!handshake.m || !handshake.m.torrenttx)
-  	  	  	//   	return this.emit('warning', new Error('Peer does not support torrenttx'))
+			console.log("Extended handshake with:", handshake.m.name);
+  	  	  	if (!handshake.m || !handshake.m.torrenttx)
+  	  	  	  	return this.emit('warning', new Error('Peer does not support torrenttx'))
 
   	  	  	this.sendPayload();
   	  	}
