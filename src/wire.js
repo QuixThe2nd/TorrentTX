@@ -1,10 +1,11 @@
+import fs from 'fs'
 import { EventEmitter } from 'events'
 import bencode from 'bencode'
 import { arr2text, concat } from 'uint8-util'
 import { type } from 'os'
 
-export default () => {
-  	class utMetadata extends EventEmitter {
+export default (clients) => {
+  	class torrentTx extends EventEmitter {
   	  	constructor(wire) {
   	  	  	super()
 
@@ -12,7 +13,7 @@ export default () => {
   	  	}
 
   	  	onHandshake(infoHash, peerId, extensions) {
-	  		console.log(infoHash, peerId, extensions);
+	  		console.log(infoHash, "New handshake with:", peerId, extensions);
   	  	}
 
   	  	onExtendedHandshake(handshake) {
@@ -62,12 +63,19 @@ export default () => {
 			}
 
 			// Save transactions
-
+			if (dict.torrents) {
+				for (const i in dict.torrents) {
+					if (!leechingInfohashes.includes(dict.torrents[i]) && !transactions.includes(dict.torrents[i])) {
+						new Transaction(clients, {infohash: dict.torrents[i]});
+						leechingInfohashes.push(dict.torrents[i]);
+					}
+				}
+			}
 
 			if (dict.msg_type === 0)
 				this.sendPayload(type='pong')
   	  	}
   	}
-  	utMetadata.prototype.name = 'torrenttx'
-  	return utMetadata
+  	torrentTx.prototype.name = 'torrenttx'
+  	return torrentTx
 }

@@ -53,7 +53,7 @@ export default class Transaction {
                 });
                 torrent.on('wire', function (wire, addr) {
                     console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr);
-                    wire.use(Wire);
+                    wire.use(Wire(this.clients));
                 });
                 torrent.on('noPeers', function (announceType) {
                     console.verbose(torrent.infoHash, 'No peers found for', announceType);
@@ -124,7 +124,7 @@ export default class Transaction {
                 });
                 torrent.on('wire', function (wire, addr) {
                     console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr);
-                    wire.use(Wire);
+                    wire.use(Wire(this.clients));
                 });
                 torrent.on('noPeers', function (announceType) {
                     console.verbose(torrent.infoHash, 'No peers found for', announceType);
@@ -223,7 +223,7 @@ export default class Transaction {
             });
             torrent.on('wire', function (wire, addr) {
                 console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr);
-                wire.use(Wire);
+                wire.use(Wire(this.clients));
             });
             torrent.on('noPeers', function (announceType) {
                 console.verbose(torrent.infoHash, 'No peers found for', announceType);

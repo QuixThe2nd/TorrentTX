@@ -1,7 +1,7 @@
 import fs from 'fs';
 import readline from 'readline';
 import dgram from "dgram";
-import transactionListener from './src/transaction_listener.js';
+// import transactionListener from './src/transaction_listener.js';
 import {initClients} from './src/clients.js';
 import Wallet from './src/wallet.js'
 import Transaction from './src/transaction.js';
@@ -58,7 +58,7 @@ clients.wallet.generateAddress();
 const address = clients.wallet.wallet.getAddressString();
 console.info("Address:", address);
 
-transactionListener(clients);
+// transactionListener(clients);
 
 const proofs = fs.readdirSync('proofs');
 if (proofs.length > 0) {
