@@ -60,6 +60,15 @@ console.info("Address:", address);
 
 transactionListener(clients);
 
+const proofs = fs.readdirSync('proofs');
+if (proofs.length > 0) {
+    console.info("Proofs:");
+    for (const i in proofs) {
+        console.info(proofs[i]);
+        new Transaction(clients, {torrentPath: `proofs/${proofs[i]}`});
+    }
+}
+
 /*
 TODO:
 Instead of staking, users can create "bonds" with other users.
@@ -148,7 +157,7 @@ const main = async () => {
         const query = await userInput("Transaction Hash");
         const torrent = await clients.transactions.search(clients, {query})['transactions'].getTorrent();
         console.info("Proof:", torrent.infoHash);
-        fs.writeFileSync(`${torrent.infoHash}.torrent`, torrent.torrentFile);
+        fs.writeFileSync(`proofs/${query}.torrent`, torrent.torrentFile);
     }
     main();
 };

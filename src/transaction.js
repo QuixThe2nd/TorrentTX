@@ -4,7 +4,7 @@ import ethUtil from 'ethereumjs-util';
 import Wire from './wire.js';
 
 export default class Transaction {
-    constructor(clients, {from, to, amount, message, hash, infohash, path}) {
+    constructor(clients, {from, to, amount, message, hash, infohash, torrentPath, path}) {
         this.clients = clients;
         this.genesisHash = fs.readFileSync('genesis.txt').toString().trim();
         this.getTrackers();
@@ -25,6 +25,65 @@ export default class Transaction {
             this.signature = this.content.signature;
 
             this.validateAndSaveTransaction();
+        } else if (torrentPath) {
+            console.info("Bootstrapping transaction from torrent file", torrentPath);
+            clients.webtorrent.add(torrentPath, {announce: this.trackers, strategy: 'rarest'}, (torrent) => {
+                this.torrent = torrent;
+                console.log(torrent.infoHash, 'Added');
+                torrent.on('metadata', () => {
+                    console.log(torrent.infoHash, 'Metadata received');
+                });
+                torrent.on('ready', () => {
+                    console.log(torrent.infoHash, 'Download ready');
+                });
+                torrent.on('warning', (err) => {
+                    console.verbose(torrent.infoHash, err.message);
+                });
+                torrent.on('error', (err) => {
+                    console.warn(torrent.infoHash, "FATAL", err);
+                });
+                torrent.on('download', (bytes) => {
+                    console.verbose(torrent.infoHash, 'Downloaded:', bytes);
+                });
+                torrent.on('upload', (bytes) => {
+                    console.verbose(torrent.infoHash, 'Uploaded:', bytes);
+                    torrent.wires.forEach(wire => {
+                        console.log(torrent.infoHash, 'Peer IP:', wire.remoteAddress);
+                    });
+                });
+                torrent.on('wire', function (wire, addr) {
+                    console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr);
+                    wire.use(Wire);
+                });
+                torrent.on('noPeers', function (announceType) {
+                    console.verbose(torrent.infoHash, 'No peers found for', announceType);
+                    console.log(torrent.wires);
+                    torrent.wires.forEach(wire => {
+                        console.log(torrent.infoHash, 'Peer IP:', wire.remoteAddress, wire.type);
+                    });
+                });
+                torrent.on('done', () => {
+                    console.log(torrent.infoHash, 'Download complete');
+                    const files = fs.readdirSync(mempoolPath);
+                    for (const i in files) {
+                        const file = files[i];
+                        this.txContentString = fs.readFileSync(`${mempoolPath}/${file}`);
+                        this.content = JSON.parse(this.txContentString);
+                        this.hash = this.content.hash;
+                        this.body = this.content.tx;
+                        this.signature = this.content.signature;
+                        this.torrent = torrent;
+
+                        this.validateAndSaveTransaction();
+
+                        this.clients.transactions.addTransaction(this);
+
+                        torrent.destroy();
+                        if (fs.existsSync(`${mempoolPath}/${file}`))
+                            fs.unlinkSync(`${mempoolPath}/${file}`);
+                    };
+                });
+            });
         } else if (infohash) {
             if (!infohash || infohash.length !== 40 || !/^[0-9A-Fa-f]+$/.test(infohash)) {
                 // console.log("Invalid infohash");
@@ -64,7 +123,6 @@ export default class Transaction {
                     });
                 });
                 torrent.on('wire', function (wire, addr) {
-                    console.info(wire);
                     console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr);
                     wire.use(Wire);
                 });
@@ -164,7 +222,6 @@ export default class Transaction {
                 });
             });
             torrent.on('wire', function (wire, addr) {
-                console.info(wire);
                 console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr);
                 wire.use(Wire);
             });
