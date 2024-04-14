@@ -58,12 +58,12 @@ console.info("Address:", address);
 
 // transactionListener(clients);
 
-// const proofs = fs.readdirSync('proofs');
-// if (proofs.length > 0) {
-//     for (const i in proofs) {
-//         new Transaction(clients, {torrentPath: `proofs/${proofs[i]}`});
-//     }
-// }
+const proofs = fs.readdirSync('proofs');
+if (proofs.length > 0) {
+    for (const i in proofs) {
+        new Transaction(clients, {torrentPath: `proofs/${proofs[i]}`});
+    }
+}
 
 /*
 TODO:
