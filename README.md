@@ -1,4 +1,4 @@
-# TorrentTX
+# TorrentTX - The world's first Bittorrent Layer 2 - Turning the Bittorrent protocol into a blockchains
 An experiment aiming to extend the capabilities of the torrent standard.
 
 TorrentTX aims to build on-top of the torrent protocol by adding a new consensus-layer. The idea is, torrents are the perfect store of information. They are immutable, and stay online as long as ONE person cares to keep them online. Torrents allow for bitcoin-style certainty, with infinite scaling.
@@ -49,6 +49,7 @@ P2P communication via UDP is live. Transactions received from the TTX-DHT are tr
 
 ### Todo
 There is more todo than what has already been done so far. I'll keep adding things as I remember.
+- Fully migrate P2P communication to Bittorrent native as an extension
 - Archival Contracts (read todo in main.js)
 - ttx20 coins (anyone can mint, just like erc20)
 - Liquid Swaps

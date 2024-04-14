@@ -1,6 +1,7 @@
 import fs from 'fs';
 import fetch from 'node-fetch';
 import ethUtil from 'ethereumjs-util';
+import Wire from './wire.js';
 
 export default class Transaction {
     constructor(clients, {from, to, amount, message, hash, infohash, path}) {
@@ -39,6 +40,7 @@ export default class Transaction {
             const mempoolPath = `mempool/${infohash}`;
             
             clients.webtorrent.add(`magnet:?xt=urn:btih:${infohash}`, {path: mempoolPath, announce: this.trackers, strategy: 'rarest'}, (torrent) => {
+                this.torrent = torrent;
                 console.log(torrent.infoHash, 'Added');
                 torrent.on('metadata', () => {
                     console.log(torrent.infoHash, 'Metadata received');
@@ -57,13 +59,21 @@ export default class Transaction {
                 });
                 torrent.on('upload', (bytes) => {
                     console.verbose(torrent.infoHash, 'Uploaded:', bytes);
+                    torrent.wires.forEach(wire => {
+                        console.log(torrent.infoHash, 'Peer IP:', wire.remoteAddress);
+                    });
                 });
                 torrent.on('wire', function (wire, addr) {
                     console.info(wire);
                     console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr);
+                    wire.use(Wire);
                 });
                 torrent.on('noPeers', function (announceType) {
                     console.verbose(torrent.infoHash, 'No peers found for', announceType);
+                    console.log(torrent.wires);
+                    torrent.wires.forEach(wire => {
+                        console.log(torrent.infoHash, 'Peer IP:', wire.remoteAddress, wire.type);
+                    });
                 });
                 torrent.on('done', () => {
                     console.log(torrent.infoHash, 'Download complete');
@@ -129,6 +139,7 @@ export default class Transaction {
 
     seed() {
         this.clients.webtorrent.seed(`transactions/${this.hash}.json`, {announce: this.trackers, strategy: 'rarest'}, (torrent) => {
+            this.torrent = torrent;
             console.log(torrent.infoHash, 'Seeding');
 
             torrent.on('metadata', () => {
@@ -148,13 +159,21 @@ export default class Transaction {
             });
             torrent.on('upload', (bytes) => {
                 console.verbose(torrent.infoHash, 'Uploaded:', bytes);
+                torrent.wires.forEach(wire => {
+                    console.log(torrent.infoHash, 'Peer IP:', wire.remoteAddress);
+                });
             });
             torrent.on('wire', function (wire, addr) {
                 console.info(wire);
-                console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr, wire);
+                console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr);
+                wire.use(Wire);
             });
             torrent.on('noPeers', function (announceType) {
                 console.verbose(torrent.infoHash, 'No peers found for', announceType);
+                console.log(torrent.wires);
+                torrent.wires.forEach(wire => {
+                    console.log(torrent.infoHash, 'Peer IP:', wire.remoteAddress);
+                });
             });
             
             this.torrent = torrent;
@@ -216,5 +235,18 @@ export default class Transaction {
         this.trackers = (wsTrackers + '\n' + bestTrackers).split('\n').filter(Boolean);
 
         return this.trackers;
+    }
+
+    async getTorrent() {
+        if(this.torrent)
+            return this.torrent;
+        else {
+            // this.clients.webtorrent.add() torrent and await the ready event
+            return await new Promise((resolve, reject) => {
+                this.clients.webtorrent.add(`magnet:?xt=urn:btih:${this.infohash}`, {path: `mempool/${this.infohash}`, announce: this.trackers, strategy: 'rarest'}, (torrent) => {
+                    resolve(torrent);
+                });
+            });
+        }
     }
 }
