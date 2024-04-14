@@ -1,8 +1,9 @@
 import fs from 'fs'
 import { EventEmitter } from 'events'
 import bencode from 'bencode'
-import { arr2text, concat } from 'uint8-util'
+import { arr2text } from 'uint8-util'
 import { type } from 'os'
+import Transaction from './transaction.js'
 
 export default (clients) => {
   	class torrentTx extends EventEmitter {
@@ -13,7 +14,7 @@ export default (clients) => {
   	  	}
 
   	  	onHandshake(infoHash, peerId, extensions) {
-	  		console.log(infoHash, "New handshake with:", peerId, extensions);
+	  		console.log(infoHash, "New handshake with:", peerId);
   	  	}
 
   	  	onExtendedHandshake(handshake) {
@@ -38,7 +39,7 @@ export default (clients) => {
 				peers,
 				msg_type: type === 'ping' ? 0 : 1
 			};
-			console.log('Sending payload:', payload);
+			console.log('Sending payload');
 
 			this.send(payload);
 		}
@@ -46,15 +47,18 @@ export default (clients) => {
   	  	onMessage(buf) {
   	  	  	let dict;
   	  	  	try {
-  	  	  	  	const str = arr2text(buf);
-				console.log(str);
-				dict = JSON.parse(str);
+  	  	  	  	let str = arr2text(buf);
+
+				const first = str.indexOf('{');
+				const last = str.lastIndexOf('}');
+
+				dict = JSON.parse(str.slice(first, last + 1));
   	  	  	} catch (err) {
 				console.error('Error decoding message:', err);
   	  	  	  	return;
   	  	  	}
 
-			console.log('Received payload:', dict);
+			console.log('Received payload');
 
 			// Save peers
 			if (dict.peers) {
@@ -64,16 +68,15 @@ export default (clients) => {
 
 			// Save transactions
 			if (dict.torrents) {
+				const transactions = fs.readFileSync('./infohashes.txt').toString().split('\n');
 				for (const i in dict.torrents) {
-					if (!leechingInfohashes.includes(dict.torrents[i]) && !transactions.includes(dict.torrents[i])) {
+					if (!transactions.includes(dict.torrents[i]))
 						new Transaction(clients, {infohash: dict.torrents[i]});
-						leechingInfohashes.push(dict.torrents[i]);
-					}
 				}
 			}
 
 			if (dict.msg_type == 0)
-				this.sendPayload(type='pong')
+				this.sendPayload('pong')
   	  	}
   	}
   	torrentTx.prototype.name = 'torrenttx'
