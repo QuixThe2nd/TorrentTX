@@ -117,9 +117,8 @@ const main = async () => {
 
         const amount = await userInput("Amount");
         if (!clients.transactions.balances[address] || amount > clients.transactions.balances[address]) {
-            console.log("Insufficient balance");
-            main();
-            return;
+            console.error("Insufficient balance");
+            return main();
         }
 
         const to = await userInput("To");
