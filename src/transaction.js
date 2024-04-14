@@ -262,8 +262,11 @@ export default class Transaction {
     }
 
     async getTrackers() {
-        const wsResponse = await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ws.txt');
-        const wsTrackers = await wsResponse.text();
+        let wsTrackers = '';
+        if (this.clients.webtorrent.WEBRTC_SUPPORT) {
+            const wsResponse = await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ws.txt');
+            wsTrackers = await wsResponse.text();
+        }
 
         const bestResponse = await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt');
         const bestTrackers = await bestResponse.text();
