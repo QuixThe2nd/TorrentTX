@@ -116,6 +116,14 @@ export default class Transaction {
                 });
                 torrent.on('done', () => {
                     console.log(torrent.infoHash, 'Download complete');
+
+                    const prev = this.body.prev;
+                    for (const i in prev) {
+                        const hash = prev[i];
+                        if (!this.clients.transactions.transactions[hash]) {
+                            this.clients.transactions.addTransaction(new Transaction(this.clients, {hash}));
+                        }
+                    }
                     const files = torrent.files;
                     for (const i in files) {
                         const file = files[i];
@@ -188,14 +196,6 @@ export default class Transaction {
 
     validateAndSaveTransaction() {
         if (this.isValid()) {
-            const prev = this.body.prev;
-            for (const i in prev) {
-                const hash = prev[i];
-                if (!this.clients.transactions.transactions[hash]) {
-                    this.clients.transactions.addTransaction(new Transaction(this.clients, {hash}));
-                }
-            }
-
             if (!fs.existsSync(`transactions/${this.hash}.json`))
                 fs.writeFileSync(`transactions/${this.hash}.json`, this.txContentString);
             this.seed();
