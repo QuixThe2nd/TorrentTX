@@ -54,6 +54,12 @@ clients.webtorrent.on('listening', () => {
 
 clients.webtorrent.on('error', console.error);
 
+clients.wallet.generateAddress();
+const address = clients.wallet.wallet.getAddressString();
+console.info("Address:", address);
+
+transactionListener(clients);
+
 /*
 TODO:
 Instead of staking, users can create "bonds" with other users.
@@ -85,12 +91,6 @@ const userInput = async function (prompt){
     });
 }
 
-clients.wallet.generateAddress();
-const address = clients.wallet.wallet.getAddressString();
-console.info("Address:", address);
-
-transactionListener(clients);
-
 const main = async () => {
     const torrents = clients.webtorrent.torrents;
     console.info("Transaction Count:", Object.keys(clients.transactions.transactions).length);
@@ -104,7 +104,7 @@ const main = async () => {
     console.info("Upload Speed:", clients.webtorrent.uploadSpeed);
     console.info("Progress:", clients.webtorrent.progress);
 
-    const input = (await userInput("T = Transfer\nB = Balance\nG = Change Genesis\nS = Search")).toLowerCase();
+    const input = (await userInput("T = Transfer\nB = Balance\nG = Change Genesis\nS = Search\nP = Proof")).toLowerCase();
     if (input === 't') {
         console.log("Transfer");
 
@@ -144,6 +144,11 @@ const main = async () => {
     } else if (input === 's') {
         const query = await userInput("Search");
         console.info(clients.transactions.search(clients, {query}));
+    } else if (input === 'p') {
+        const query = await userInput("Transaction Hash");
+        const torrent = await clients.transactions.search(clients, {query})['transactions'].getTorrent();
+        console.info("Proof:", torrent.infoHash);
+        fs.writeFileSync(`${torrent.infoHash}.torrent`, torrent.torrentFile);
     }
     main();
 };
