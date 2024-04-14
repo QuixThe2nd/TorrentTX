@@ -41,6 +41,7 @@ export default (clients) => {
 				peers,
 				msg_type: type === 'ping' ? 0 : 1
 			};
+			console.log('Sending payload:', payload);
 
 			this.send(payload);
 		}
@@ -56,6 +57,8 @@ export default (clients) => {
   	  	  	} catch (err) {
   	  	  	  	return
   	  	  	}
+
+			console.log('Received payload:', dict);
 
 			// Save peers
 			if (dict.peers) {
@@ -73,7 +76,7 @@ export default (clients) => {
 				}
 			}
 
-			if (dict.msg_type === 0)
+			if (dict.msg_type == 0)
 				this.sendPayload(type='pong')
   	  	}
   	}
