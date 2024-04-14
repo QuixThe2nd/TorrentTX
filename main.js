@@ -58,13 +58,6 @@ console.info("Address:", address);
 
 // transactionListener(clients);
 
-const proofs = fs.readdirSync('proofs');
-if (proofs.length > 0) {
-    for (const i in proofs) {
-        new Transaction(clients, {torrentPath: `proofs/${proofs[i]}`});
-    }
-}
-
 /*
 TODO:
 Instead of staking, users can create "bonds" with other users.
@@ -81,6 +74,15 @@ If a transaction is "lost". Someone can issue a request for the block, and someo
 The request can have a signed transfer attached, with the previous block marked as a UTXO.
 This will mean your money is only valid if you can broadcast the original transaction.
 */
+
+const proofs = fs.readdirSync('proofs');
+if (proofs.length > 0) {
+    for (const i in proofs) {
+        const hash = proofs[i].split('.')[0];
+        if (!fs.existsSync(`transactions/${hash}.json`))
+        new Transaction(clients, {torrentPath: `proofs/${proofs[i]}`});
+    }
+}
 
 const userInput = async function (prompt){
     const rl = readline.createInterface({
