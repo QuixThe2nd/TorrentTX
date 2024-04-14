@@ -24,11 +24,8 @@ export default (clients) => {
   	  	  	this.sendPayload();
   	  	}
 
-  	  	send(dict, trailer) {
-  	  	  	let buf = bencode.encode(dict)
-  	  	  	if (ArrayBuffer.isView(trailer)) {
-  	  	  	  	buf = concat([buf, trailer])
-  	  	  	}
+  	  	send(dict) {
+  	  	  	let buf = bencode.encode(JSON.stringify(dict))
   	  	  	this.wire.extended('torrenttx', buf)
   	  	}
 
@@ -47,12 +44,11 @@ export default (clients) => {
 		}
 
   	  	onMessage(buf) {
-  	  	  	let dict, trailer;
+  	  	  	let dict;
   	  	  	try {
   	  	  	  	const str = arr2text(buf);
-  	  	  	  	const trailerIndex = str.indexOf('ee') + 2;
-  	  	  	  	dict = bencode.decode(str.substring(0, trailerIndex));
-  	  	  	  	trailer = buf.slice(trailerIndex);
+				console.log(str);
+				dict = JSON.parse(str);
   	  	  	} catch (err) {
 				console.error('Error decoding message:', err);
   	  	  	  	return;
