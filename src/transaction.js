@@ -27,7 +27,7 @@ export default class Transaction {
             this.validateAndSaveTransaction();
         } else if (torrentPath) {
             console.info("Bootstrapping transaction from torrent file", torrentPath);
-            clients.webtorrent.add(torrentPath, {announce: this.trackers, strategy: 'rarest'}, (torrent) => {
+            clients.webtorrent.add(torrentPath, {path: 'mempool/', addUID: true, announce: this.trackers, strategy: 'rarest'}, (torrent) => {
                 this.torrent = torrent;
                 console.log(torrent.infoHash, 'Added');
                 torrent.on('metadata', () => {
