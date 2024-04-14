@@ -119,6 +119,7 @@ export default class Transaction {
                     const files = torrent.files;
                     for (const i in files) {
                         const file = files[i];
+                        console.log(torrent.infoHash, 'File:', file.path);
 
                         this.txContentString =  fs.readFileSync(torrent.path + '/' + file.path).toString();
                         this.content = JSON.parse(this.txContentString);
