@@ -31,7 +31,6 @@ export default class Transactions {
         if (transaction.isValid() && !this.transactions[transaction.hash]) {
             this.transactions[transaction.hash] = transaction;
             this.updateBalances(transaction);
-            this.loadSavedTransactions();
             return true;
         }
         return false;
