@@ -112,7 +112,8 @@ export default class Transaction {
                     wire.use(Wire(this.clients));
                 });
                 torrent.on('noPeers', function (announceType) {
-                    console.verbose(torrent.infoHash, 'No peers found for', announceType);
+                    if (!torrent.done)
+                        console.verbose(torrent.infoHash, 'No peers found for', announceType);
                 });
                 torrent.on('done', () => {
                     console.log(torrent.infoHash, 'Download complete');
@@ -170,7 +171,8 @@ export default class Transaction {
                     wire.use(Wire(this.clients));
                 });
                 torrent.on('noPeers', function (announceType) {
-                    console.verbose(torrent.infoHash, 'No peers found for', announceType);
+                    if (!torrent.done)
+                        console.verbose(torrent.infoHash, 'No peers found for', announceType);
                 });
                 
                 this.torrent = torrent;
