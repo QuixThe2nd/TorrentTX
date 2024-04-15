@@ -4,11 +4,12 @@ import bencode from 'bencode'
 import { arr2text } from 'uint8-util'
 import Transaction from './transaction.js'
 
-export default (clients) => {
+export default () => {
   	class torrentTx extends EventEmitter {
   	  	constructor(wire) {
   	  	  	super()
   	  	  	this.wire = wire
+			this.clients = wire.clients;
   	  	}
 
   	  	onHandshake(infoHash, peerId, extensions) {
@@ -70,19 +71,16 @@ export default (clients) => {
 				for (const i in dict.torrents) {
 					console.verbose('Checking:', dict.torrents[i]);
 					if (!transactions.includes(dict.torrents[i])) {
-						console.log('a');
-						const createTX = (clients, infohash) => {
+						const createTX = (infohash) => {
 							console.log('b');
-							if (!clients)
-								return;
 							console.log('c');
-							if (!clients.webtorrent)
-								return setTimeout(() => createTX(clients, infohash), 1000);
+							if (!this.clients.webtorrent)
+								return setTimeout(() => createTX(this.clients, infohash), 1000);
 							console.log('d');
-							new Transaction(clients, {infohash});
+							new Transaction(this.clients, {infohash});
 							console.log('e');
 						};
-						createTX(clients, dict.torrents[i]);
+						createTX(dict.torrents[i]);
 					}
 				}
 			}
