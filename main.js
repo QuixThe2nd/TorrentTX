@@ -14,6 +14,14 @@ if (!fs.existsSync('peers.txt'))
 if (!fs.existsSync('infohashes.txt'))
     fs.writeFileSync('infohashes.txt', "");
 
+// Remove invalid peers
+const peers = fs.readFileSync('peers.txt').toString().split('\n');
+for (const i in peers) {
+    if (!peers[i].match(/^[0-9a-fA-F:\.]+$/))
+        peers.splice(i, 1);
+}
+fs.writeFileSync('peers.txt', peers.join('\n'));
+
 var colorSet = {
     error: "\x1b[31m",
     info: "\x1b[32m",
