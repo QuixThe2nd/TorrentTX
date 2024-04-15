@@ -74,17 +74,8 @@ export default () => {
 				const transactions = fs.readFileSync('infohashes.txt').toString().split('\n');
 				for (const i in dict.torrents) {
 					console.verbose('Checking:', dict.torrents[i]);
-					if (!transactions.includes(dict.torrents[i])) {
-						const createTX = (infohash) => {
-							console.log('a');
-							if (!this.clients.webtorrent)
-								return setTimeout(() => createTX(infohash), 1000);
-							console.log('b');
-							new Transaction(this.clients, {infohash});
-							console.log('c');
-						};
-						createTX(dict.torrents[i]);
-					}
+					if (!transactions.includes(dict.torrents[i]))
+						new Transaction(this.clients, {infohash: dict.torrents[i]});
 				}
 			}
 
