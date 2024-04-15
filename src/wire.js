@@ -73,8 +73,11 @@ export default clients => {
 					if (!transactions.includes(dict.torrents[i])) {
 						const createTX = (infohash) => {
 							console.log('a');
-							new Transaction(this.clients, {infohash});
+							if (!this.clients['webtorrent'])
+								return setTimeout(() => createTX(infohash), 1000);
 							console.log('b');
+							new Transaction(this.clients, {infohash});
+							console.log('c');
 						};
 						createTX(dict.torrents[i]);
 					}
