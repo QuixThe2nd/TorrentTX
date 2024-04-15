@@ -46,7 +46,7 @@ export default (clients) => {
   	  	  	let dict;
   	  	  	try {
   	  	  	  	let str = arr2text(buf);
-				console.log(str);
+
 				const first = str.indexOf('{');
 				const last = str.lastIndexOf('}');
 
@@ -56,7 +56,7 @@ export default (clients) => {
   	  	  	  	return;
   	  	  	}
 
-			console.log('Received payload');
+			console.log('Received payload', dict);
 
 			// Save peers
 			if (dict.peers) {
