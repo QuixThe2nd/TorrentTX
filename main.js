@@ -129,6 +129,7 @@ const sendLatestData = () => {
         })),
         infohashes: fs.readFileSync('infohashes.txt').toString().split('\n'),
         peers: fs.readFileSync('peers.txt').toString().split('\n'),
+        connections: clients.webtorrent.torrents.map(torrent => torrent.numPeers).reduce((a, b) => a + b, 0),
         seeding: clients.webtorrent.torrents.filter(torrent => torrent.done).map(torrent => torrent.infoHash),
         leeching: clients.webtorrent.torrents.filter(torrent => !torrent.done).map(torrent => torrent.infoHash),
         ratio: clients.webtorrent.ratio,
