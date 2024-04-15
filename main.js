@@ -1,12 +1,10 @@
 import fs from 'fs';
 import readline from 'readline';
 import dgram from "dgram";
-// import transactionListener from './src/transaction_listener.js';
 import {initClients} from './src/clients.js';
 import Wallet from './src/wallet.js'
 import Transaction from './src/transaction.js';
 import Transactions from './src/transactions.js';
-import Wire from './src/wire.js';
 import WebTorrent from 'webtorrent';
 
 if (!fs.existsSync('peers.txt'))
