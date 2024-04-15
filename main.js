@@ -6,6 +6,7 @@ import {initClients} from './src/clients.js';
 import Wallet from './src/wallet.js'
 import Transaction from './src/transaction.js';
 import Transactions from './src/transactions.js';
+import Wire from './src/wire.js';
 import WebTorrent from 'webtorrent';
 
 if (!fs.existsSync('peers.txt'))
@@ -44,6 +45,7 @@ clients.wallet = new Wallet(clients);
 clients.dgram = dgram.createSocket('udp4');
 clients.transactions = new Transactions(clients);
 clients.transactions.loadSavedTransactions();
+clients.wire = new Wire(clients);
 
 clients.webtorrent.on('listening', () => {
     const address = clients.webtorrent.address();
