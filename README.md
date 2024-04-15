@@ -85,12 +85,6 @@ yarn
 node main.js
 ```
 
-## Genesis Transactions Infohashes
-A genesis infohash is the infohash for the first transaction. By changing your genesis infohash, you are essentially participating in a hard-fork.
-### Testnet
-- Transaction Hash: 306c9b4d52186af425fecd4832cccdf37413c41a
-- Infohash: 5938626b31dd66fe103c1aceb1011dc73d360ae1
-
 ## Port Forwarding
 Although optional, port forwarding is recommended. If you don't enable port forwarding, you will only be able to connect to peers that are port forwarding. If you port forward, you can also connect to the peers that don't port forward. When you run `main.js`, the log's will specify the port you are using.
 
