@@ -1,6 +1,7 @@
 import fs from 'fs';
 import fetch from 'node-fetch';
 import ethUtil from 'ethereumjs-util';
+import Wire from './wire.js';
 
 export default class Transaction {
     constructor(clients, {from, to, amount, message, hash, infohash, torrentPath, path}) {
@@ -110,8 +111,8 @@ export default class Transaction {
                 });
                 torrent.on('wire', function (wire, addr) {
                     console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr);
-                    console.log(this.clients);
-                    wire.use(this.clients.wire());
+                    wire.clients = this.clients;
+                    wire.use(Wire());
                 });
                 torrent.on('noPeers', function (announceType) {
                     if (!torrent.done)
@@ -169,9 +170,9 @@ export default class Transaction {
                     console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes');
                 });
                 torrent.on('wire', function (wire, addr) {
-                    console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr);
-                    console.log(this.clients);
-                    wire.use(this.clients.wire());
+                    console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr);
+                    wire.clients = this.clients;
+                    wire.use(Wire());
                 });
                 torrent.on('noPeers', function (announceType) {
                     if (!torrent.done)
