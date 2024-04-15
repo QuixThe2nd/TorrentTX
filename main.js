@@ -39,9 +39,9 @@ if (!WebTorrent.WEBRTC_SUPPORT) {
 
 const clients = initClients();
 
+clients.webtorrent = new WebTorrent({maxConns: 250});
 clients.wallet = new Wallet(clients);
 clients.dgram = dgram.createSocket('udp4');
-clients.webtorrent = new WebTorrent({maxConns: 250});
 clients.transactions = new Transactions(clients);
 clients.transactions.loadSavedTransactions();
 
