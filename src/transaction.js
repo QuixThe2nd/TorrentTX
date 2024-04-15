@@ -30,7 +30,7 @@ export default class Transaction {
                 return false;
             }
 
-            if (clients.webtorrent.torrents.find(torrent => torrent.infoHash === infohash)) {
+            if (this.clients.webtorrent.torrents.find(torrent => torrent.infoHash === infohash)) {
                 // console.log('Torrent is already downloading');
                 return false;
             }
@@ -110,7 +110,7 @@ export default class Transaction {
                 });
                 torrent.on('wire', function (wire, addr) {
                     console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr);
-                    wire.use(clients.wire());
+                    wire.use(this.clients.wire());
                 });
                 torrent.on('noPeers', function (announceType) {
                     if (!torrent.done)
@@ -169,7 +169,7 @@ export default class Transaction {
                 });
                 torrent.on('wire', function (wire, addr) {
                     console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr);
-                    wire.use(clients.wire());
+                    wire.use(this.clients.wire());
                 });
                 torrent.on('noPeers', function (announceType) {
                     if (!torrent.done)
