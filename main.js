@@ -6,7 +6,7 @@ import Wallet from './src/wallet.js'
 import Transaction from './src/transaction.js';
 import Transactions from './src/transactions.js';
 import WebTorrent from 'webtorrent';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 
 const currentDir = path.dirname(new URL(import.meta.url).pathname);
@@ -24,6 +24,8 @@ for (const i in peers) {
 }
 fs.writeFileSync('peers.txt', peers.join('\n'));
 
+const clients = initClients();
+
 var colorSet = {
     error: "\x1b[31m",
     info: "\x1b[32m",
@@ -37,6 +39,11 @@ console.verbose = console.log;
 for (const type in colorSet) {
     const old = console[type];
     console[type] = function () {
+        // if all args are strings
+        if (clients.browserWindow && (arguments.length === 0 || Array.from(arguments).every(arg => typeof arg === 'string'))) {
+            clients.browserWindow.webContents.send('log', base64encode(Array.from(arguments).join(' ')));
+            return;
+        }
         const args = Array.from(arguments);
         args.unshift(colorSet[type]);
         args.push("\x1b[0m");
@@ -47,8 +54,6 @@ for (const type in colorSet) {
 if (!WebTorrent.WEBRTC_SUPPORT) {
     console.error("WebRTC Not Supported");
 }
-
-const clients = initClients();
 
 clients.webtorrent = new WebTorrent({maxConns: 250});
 clients.wallet = new Wallet(clients);
@@ -116,7 +121,12 @@ const sendLatestData = () => {
     clients.browserWindow.webContents.send('message', base64encode(JSON.stringify({
         address,
         balances: clients.transactions.balances,
-        transactions: JSON.stringify(Object.values(clients.transactions.transactions).map(tx => tx.content)),
+        transactions: JSON.stringify(Object.values(clients.transactions.transactions).map(tx => {
+            return {
+                ...tx.content,
+                infohash: tx.torrent ? tx.torrent.infoHash || "" : "",
+            }
+        })),
         infohashes: fs.readFileSync('infohashes.txt').toString().split('\n'),
         peers: fs.readFileSync('peers.txt').toString().split('\n'),
         seeding: clients.webtorrent.torrents.filter(torrent => torrent.done).map(torrent => torrent.infoHash),
@@ -130,12 +140,26 @@ const sendLatestData = () => {
 
 function createWindow() {
     clients.browserWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
-        webPreferences: { preload: `${currentDir}/ui/preload.js` }
+        width: 1200,
+        height: 800,
+        webPreferences: { preload: `${currentDir}/ui/preload.js` },
     });
 
     clients.browserWindow.loadFile('ui/index.html');
+
+    ipcMain.on('message-from-renderer', (event, message) => {
+        const data = JSON.parse(message);
+        if (data.type === 'getTransaction') {
+            const transaction = clients.transactions.transactions[data.hash];
+            if (transaction)
+                clients.browserWindow.webContents.send('message', base64encode(JSON.stringify({...transaction.content, infohash: transaction.torrent ? transaction.torrent.infoHash : ""})));
+        } else if (data.type === 'transfer') {
+            const transaction = new Transaction(clients, {from: address, to: data.to, amount: data.amount, message: data.message});
+            clients.transactions.addTransaction(transaction);
+            console.log("Created Transaction:", transaction.content.hash);
+            transaction.announce();
+        }
+    });
 
     setInterval(sendLatestData, 1000);
 }
@@ -154,43 +178,8 @@ app.on('window-all-closed', () => {
 });
 
 const main = async () => {
-    const input = (await userInput("T = Transfer\nB = Balance\nG = Change Genesis\nS = Search\nP = Proof\nD = Delete Transactions")).toLowerCase();
-    if (input === 't') {
-        console.log("Transfer");
-
-        const amount = await userInput("Amount");
-        if (!clients.transactions.balances[address] || amount > clients.transactions.balances[address]) {
-            console.error("Insufficient balance");
-            return main();
-        }
-
-        const to = await userInput("To");
-        const message = await userInput("Message");
-
-        const transaction = new Transaction(clients, {from: address, to, amount, message});
-        clients.transactions.addTransaction(transaction);
-        console.log("Created Transaction:", transaction.content.hash);
-        transaction.announce();
-    } else if (input === 'g') {
-        const genesisHash = await userInput("Transaction Hash");
-        fs.writeFileSync(`genesis.txt`, genesisHash);
-
-        const infohash = await userInput("Infohash");
-        fs.writeFileSync('infohashes.txt', infohash);
-
-        console.log("Genesis Transaction Set");
-        console.log("Please restart the program");
-        process.exit();
-    } else if (input === 'b') {
-        console.info("=====Balances=====");
-        console.info("You:", clients.transactions.balances[address] ?? 0, "\n");
-        const balances = clients.transactions.balances;
-        for (const address in balances) {
-            const balance = balances[address];
-            console.info(`${address}: ${balance}`);
-        }
-        console.info("=====Balances=====");
-    } else if (input === 's') {
+    const input = (await userInput("S = Search\nP = Proof\nD = Delete Transactions")).toLowerCase();
+    if (input === 's') {
         const query = await userInput("Search");
         console.info(clients.transactions.search(clients, {query}));
     } else if (input === 'p') {

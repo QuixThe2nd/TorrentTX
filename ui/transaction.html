@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Transaction Viewer</title>
+</head>
+<body>
+    <h1>Transaction Viewer</h1>
+    <a href="index.html">Back</a>
+    <div id="transaction"></div>
+    <script>
+        const hash = document.location.hash.replace('#', '');
+
+        window.electronAPI.sendMessageToMain(JSON.stringify({
+            type: 'getTransaction',
+            hash: hash
+        }));
+
+        window.electronAPI.handleMessage((event, message) => {
+            const payload = JSON.parse(atob(message));
+            if (payload.hash === hash) {
+                document.getElementById('transaction').textContent = JSON.stringify(payload, null, 2);
+            }
+        });
+    </script>
+</body>
+</html>

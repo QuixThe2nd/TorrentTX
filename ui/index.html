@@ -1,12 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Electron Communication Example</title>
+    <title>TorrentTX Wallet</title>
 </head>
 <body>
     <h1>TorrentTX Wallet</h1>
     <h2>Balance: <span id="balance">0</span></h2>
     <h2>Address: <span id="address">0x</span></h2>
+
+    <div>
+        <input type="number" id="transferAmount" placeholder="Amount" min="0">
+        <input type="text" id="transferTo" placeholder="To">
+        <input type="text" id="transferMessage" placeholder="Message">
+        <button onclick="window.electronAPI.sendMessageToMain(JSON.stringify({
+            type: 'transfer',
+            amount: document.getElementById('transferAmount').value,
+            to: document.getElementById('transferTo').value,
+            message: document.getElementById('transferMessage').value
+        }))">Transfer</button>
+    </div>
 
     <div style="display: flex; gap: 1rem">
         <p>Ratio: <span id="ratio">0</span></p>
@@ -19,6 +31,7 @@
         <thead>
             <tr>
                 <th>Transaction ID</th>
+                <th>Infohash</th>
                 <th>From</th>
                 <th>To</th>
                 <th>Amount</th>
@@ -48,22 +61,28 @@
             <h3>Leeching <span id="leechingCount" style="font-size: 0.8rem">(Loading)</span></h3>
             <div id="leeching" style="list-style: none; padding: 0"></div>
         </div>
+
+        <div>
+            <h3>Balances <span id="balancesCount" style="font-size: 0.8rem">(Loading)</span></h3>
+            <div id="balances" style="list-style: none; padding: 0"></div>
+        </div>
     </div>
 
     <div>
-        <h3>Log</h3>
+        <h3>Logs</h3>
         <pre id="log"></pre>
     </div>
 
     <script>
-        const log = (message) => {
+        const infohashTable = {};
+
+        window.electronAPI.handleLog((event, message) => {
             const messageElement = document.createElement('p');
-            messageElement.textContent = message;
+            messageElement.textContent = atob(message);
             document.getElementById('log').appendChild(messageElement);
-        };
+        });
 
         window.electronAPI.handleMessage((event, message) => {
-            document.getElementById('log').textContent = '';
             const payload = JSON.parse(atob(message));
 
             document.getElementById('address').textContent = payload.address;
@@ -83,7 +102,12 @@
             mempoolElement.innerHTML = '';
             for (const infohash of payload.infohashes) {
                 const infohashElement = document.createElement('li');
-                infohashElement.textContent = infohash;
+                if (infohashTable[infohash]) {
+                    const txIdLink = document.createElement('a');
+                    txIdLink.textContent = infohash;
+                    txIdLink.href = 'transaction.html#' + infohashTable[infohash];
+                    infohashElement.appendChild(txIdLink);
+                } else infohashElement.textContent = infohash;
                 mempoolElement.appendChild(infohashElement);
             }
 
@@ -92,7 +116,12 @@
             seedingElement.innerHTML = '';
             for (const infohash of payload.seeding) {
                 const infohashElement = document.createElement('li');
-                infohashElement.textContent = infohash;
+                if (infohashTable[infohash]) {
+                    const txIdLink = document.createElement('a');
+                    txIdLink.textContent = infohash;
+                    txIdLink.href = 'transaction.html#' + infohashTable[infohash];
+                    infohashElement.appendChild(txIdLink);
+                } else infohashElement.textContent = infohash;
                 seedingElement.appendChild(infohashElement);
             }
 
@@ -105,29 +134,51 @@
                 leechingElement.appendChild(infohashElement);
             }
 
+            document.getElementById('balancesCount').textContent = '(' + Object.keys(payload.balances).length + ')';
+            const balancesElement = document.getElementById('balances');
+            balancesElement.innerHTML = '';
+            for (const address in payload.balances) {
+                const balanceElement = document.createElement('p');
+                balanceElement.textContent = address + ': ' + payload.balances[address];
+                balancesElement.appendChild(balanceElement);
+            }
+
             document.getElementById('transactions').innerHTML = '';
             const transactions = JSON.parse(payload.transactions);
             for (const transaction of transactions) {
                 const transactionElement = document.createElement('tr');
                 const txIdElement = document.createElement('td');
+                const infohashElement = document.createElement('td');
                 const fromElement = document.createElement('td');
                 const toElement = document.createElement('td');
                 const amountElement = document.createElement('td');
                 const messageElement = document.createElement('td');
 
-                txIdElement.textContent = transaction.hash;
+                txIdLink = document.createElement('a');
+                txIdLink.textContent = transaction.hash;
+                txIdLink.href = 'transaction.html#' + transaction.hash;
+                txIdElement.appendChild(txIdLink);
+
+                if (transaction.infohash) {
+                    if (!infohashTable[transaction.infohash])
+                        infohashTable[transaction.infohash] = transaction.hash;
+                    const infohashLink = document.createElement('a');
+                    infohashLink.textContent = transaction.infohash;
+                    infohashLink.href = 'transaction.html#' + transaction.infohash;
+                    infohashElement.appendChild(infohashLink);
+                } else infohashElement.textContent = 'N/A';
                 fromElement.textContent = transaction.tx.from;
                 toElement.textContent = transaction.tx.to;
                 amountElement.textContent = transaction.tx.amount;
                 messageElement.textContent = transaction.tx.message;
 
-                if (transaction.tx.from === payload.address) {
+                if (transaction.tx.from === payload.address)
                     fromElement.style.backgroundColor = 'lightgreen';
-                } else if (transaction.tx.to === payload.address) {
+                else if (transaction.tx.to === payload.address)
                     toElement.style.backgroundColor = 'lightgreen';
-                }
 
                 transactionElement.appendChild(txIdElement);
+                transactionElement.appendChild(infohashElement);
                 transactionElement.appendChild(fromElement);
                 transactionElement.appendChild(toElement);
                 transactionElement.appendChild(amountElement);
