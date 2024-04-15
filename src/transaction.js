@@ -95,7 +95,9 @@ export default class Transaction {
                 const peers = [...new Set([...torrent.wires.map(wire => wire.remoteAddress), ...fs.readFileSync('peers.txt').toString().split('\n')])].join('\n');
                 fs.writeFileSync('peers.txt', peers);
 
-                torremt.addPeer(peers);
+                for (const peer of peers) {
+                    torrent.addPeer(peer);
+                }
 
                 torrent.on('metadata', () => {
                     console.log(torrent.infoHash, 'Metadata received');
