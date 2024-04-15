@@ -22,9 +22,17 @@
     </style>
 </head>
 <body>
-    <h1>TorrentTX Wallet</h1>
-    <h2>Balance: <span id="balance">0</span></h2>
-    <h2>Address: <span id="address">0x</span></h2>
+    <div style="display: flex; justify-content: space-between;">
+        <div>
+            <h1>TorrentTX Wallet</h1>
+            <h2>Balance: <span id="balance">0</span></h2>
+            <h2>Address: <span id="address">0x</span></h2>
+        </div>
+        <div style="display: flex; justify-content: center; flex-direction: column;">
+            <h3 style="text-align: center; margin: 0">Deposit</h3>
+            <img id="address_qrcode" src="#" style="margin: 1rem">
+        </div>
+    </div>
 
     <div>
         <input type="number" id="transferAmount" placeholder="Amount" min="0">
@@ -105,6 +113,7 @@
             const payload = JSON.parse(atob(message));
 
             document.getElementById('address').textContent = payload.address;
+            document.getElementById('address_qrcode').src = payload.address + '.webp';
             document.getElementById('balance').textContent = payload.balances[payload.address] || 0;
             document.getElementById('connections').textContent = payload.connections;
 

@@ -8,6 +8,7 @@ import Transactions from './src/transactions.js';
 import WebTorrent from 'webtorrent';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
+import QRCode from 'qrcode';
 
 const currentDir = path.dirname(new URL(import.meta.url).pathname);
 
@@ -72,6 +73,18 @@ clients.webtorrent.on('error', console.error);
 clients.wallet.generateAddress();
 const address = clients.wallet.wallet.getAddressString();
 console.info("Address:", address);
+
+QRCode.toFile(`ui/${address}.webp`, address, {
+    color: {
+        dark: '#000',
+        light: '#fff'
+    },
+    width: 200,
+    type: 'image/webp'
+}, function (err) {
+    if (err) throw err
+    console.log('done')
+});
 
 // transactionListener(clients);
 
@@ -165,18 +178,22 @@ function createWindow() {
     setInterval(sendLatestData, 1000);
 }
 
-app.whenReady().then(() => {
-    createWindow();
+try {
+    app.whenReady().then(() => {
+        createWindow();
 
-    app.on('activate', () => {
-        if (BrowserWindow.getAllWindows().length === 0)
-            createWindow();
+        app.on('activate', () => {
+            if (BrowserWindow.getAllWindows().length === 0)
+                createWindow();
+        });
     });
-});
 
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit();
-});
+    app.on('window-all-closed', () => {
+        if (process.platform !== 'darwin') app.quit();
+    });
+} catch (e) {
+    console.error(e);
+}
 
 const main = async () => {
     const input = (await userInput("S = Search\nP = Proof\nD = Delete Transactions")).toLowerCase();
