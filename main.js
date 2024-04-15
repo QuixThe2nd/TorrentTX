@@ -110,6 +110,7 @@ const main = async () => {
     console.info("Download Speed:", clients.webtorrent.downloadSpeed);
     console.info("Upload Speed:", clients.webtorrent.uploadSpeed);
     console.info("Progress:", clients.webtorrent.progress);
+    console.info("Peers:", clients.webtorrent.torrents.reduce((a, b) => a + b.numPeers, 0));
 
     const input = (await userInput("T = Transfer\nB = Balance\nG = Change Genesis\nS = Search\nP = Proof\nD = Delete Temp Dir")).toLowerCase();
     if (input === 't') {
