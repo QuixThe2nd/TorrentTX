@@ -51,6 +51,7 @@ TorrentTX is now fully built on the Bittorrent protocol. It is a "Bittorrent Lay
 
 ### Todo
 There is more todo than what has already been done so far. I'll keep adding things as I remember.
+- Allow for broadcasting transactions - Currently connections with peers are automatically closed once one side is done downloading, so if I want to broadcast a transaction, I can only send it when someone retreived a different torrent or I retreive a different torrent.
 - Ethereum/Metamask compatible RPCs
 - Archival Contracts (read todo in main.js)
 - ttx20 coins (anyone can mint, just like erc20)
@@ -58,7 +59,6 @@ There is more todo than what has already been done so far. I'll keep adding thin
 - On-chain-bridging - Bridge Bitcoin, Monero, Ethereum, erc20 tokens, and from layer 2s. Swap on-chain for TTX, or receive wXMR, wETH, wBTC, etc.
 - Make block explorer that showcases the states of transactions (mempool, unconfirmed, and confirmed).
 - Create sync confirmations - Some-sort of a block height measure for TorrentTX, to see who's further ahead of who. This way you can tell if you need more blocks
-- Measure number of connected peers and other stats
 
 ### Rough Plan
 - Keep adding poking holes and adding checks to make it harder to lie
@@ -85,4 +85,10 @@ yarn
 ## Usage
 ```
 node main.js
+```
+
+## Shortcuts
+Reset client and start over (first run `d` in node):
+```
+cd .. && rm -rf TorrentTX && git clone https://github.com/QuixThe2nd/TorrentTX && cd TorrentTX && yarn && clear && node main.js
 ```
