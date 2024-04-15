@@ -88,7 +88,9 @@ export default class Transaction {
         if (!await this.clients.webtorrent.get(torrentId)) {
             this.clients.webtorrent.add(torrentId, {announce: this.trackers, strategy: 'rarest'}, (torrent) => {
                 this.torrent = torrent;
+
                 console.log(torrent.infoHash, 'Added');
+
                 torrent.on('metadata', () => {
                     console.log(torrent.infoHash, 'Metadata received');
                 });
@@ -215,22 +217,10 @@ export default class Transaction {
     }
 
     announce() {
-        const peers = fs.readFileSync('./peers.txt').toString().split('\n');
         fetch('https://ttx-dht.starfiles.co/' + this.infohash).then(response => response.text()).then(data => console.log("Announced transaction to DHT gateway"));
-        for (const i in peers) {
-            console.log('Broadcasting transaction to:', peers[i]);
-            const peer = peers[i].split(':');
-            if (!peer[0].match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/))
-                continue;
-            if (peer[1] < 1024 || peer[1] > 65535)
-                continue;
-            this.clients.dgram.send(JSON.stringify({torrents: [this.infohash]}), peer[1], peer[0], (err) => {
-                if (!err)
-                    console.log(peers[i], 'Sent payload');
-                else
-                    console.warn(peers[i], err.code, 'Failed to send payload');
-            });
-        }
+
+        const wires = this.clients.webtorrent.torrents.map(torrent => torrent.wires).flat();
+        console.log(wires);
     }
 
     async getTrackers() {;
