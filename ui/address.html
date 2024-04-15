@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Address Viewer</title>
+</head>
+<body>
+    <h1>Address Viewer</h1>
+    <a href="index.html">Back</a>
+    <h2>Address: <span id="address">0x</span></h2>
+    <h2>Balance: <span id="balance">0</span></h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Transaction ID</th>
+                <th>Infohash</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Amount</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody id="transactions"></tbody>
+    </table>
+
+    <script>
+        const address = document.location.hash.replace('#', '');
+        document.getElementById('address').textContent = address;
+        window.electronAPI.handleMessage((event, message) => {
+            const payload = JSON.parse(atob(message));
+
+            document.getElementById('balance').textContent = payload.balances[address];
+
+            document.getElementById('transactions').innerHTML = '';
+            const transactions = JSON.parse(payload.transactions);
+            for (const transaction of transactions) {
+                if (transaction.tx.from !== address && transaction.tx.to !== address)
+                    continue;
+
+                const transactionElement = document.createElement('tr');
+                const txIdElement = document.createElement('td');
+                const infohashElement = document.createElement('td');
+                const fromElement = document.createElement('td');
+                const toElement = document.createElement('td');
+                const amountElement = document.createElement('td');
+                const messageElement = document.createElement('td');
+
+                txIdLink = document.createElement('a');
+                txIdLink.textContent = transaction.hash;
+                txIdLink.href = 'transaction.html#' + transaction.hash;
+                txIdElement.appendChild(txIdLink);
+
+                if (transaction.infohash) {
+                    const infohashLink = document.createElement('a');
+                    infohashLink.textContent = transaction.infohash;
+                    infohashLink.href = 'transaction.html#' + transaction.infohash;
+                    infohashElement.appendChild(infohashLink);
+                } else infohashElement.textContent = 'N/A';
+                
+                const fromLink = document.createElement('a');
+                fromLink.textContent = transaction.tx.from;
+                fromLink.href = 'address.html#' + transaction.tx.from;
+                fromElement.appendChild(fromLink);
+
+                const toLink = document.createElement('a');
+                toLink.textContent = transaction.tx.to;
+                toLink.href = 'address.html#' + transaction.tx.to;
+                toElement.appendChild(toLink);
+
+                amountElement.textContent = transaction.tx.amount;
+                messageElement.textContent = transaction.tx.message;
+
+                if (transaction.tx.from === address)
+                    fromElement.style.backgroundColor = 'lightgreen';
+                else if (transaction.tx.to === address)
+                    toElement.style.backgroundColor = 'lightgreen';
+
+                transactionElement.appendChild(txIdElement);
+                transactionElement.appendChild(infohashElement);
+                transactionElement.appendChild(fromElement);
+                transactionElement.appendChild(toElement);
+                transactionElement.appendChild(amountElement);
+                transactionElement.appendChild(messageElement);
+
+                document.getElementById('transactions').appendChild(transactionElement);
+            }
+        });
+    </script>
+</body>
+</html>

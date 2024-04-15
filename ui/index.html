@@ -139,7 +139,11 @@
             balancesElement.innerHTML = '';
             for (const address in payload.balances) {
                 const balanceElement = document.createElement('p');
-                balanceElement.textContent = address + ': ' + payload.balances[address];
+                const addressLink = document.createElement('a');
+                addressLink.textContent = address;
+                addressLink.href = 'address.html#' + address;
+                balanceElement.appendChild(addressLink);
+                balanceElement.textContent += ': ' + payload.balances[address];
                 balancesElement.appendChild(balanceElement);
             }
 
@@ -167,8 +171,17 @@
                     infohashLink.href = 'transaction.html#' + transaction.infohash;
                     infohashElement.appendChild(infohashLink);
                 } else infohashElement.textContent = 'N/A';
-                fromElement.textContent = transaction.tx.from;
-                toElement.textContent = transaction.tx.to;
+                
+                const fromLink = document.createElement('a');
+                fromLink.textContent = transaction.tx.from;
+                fromLink.href = 'address.html#' + transaction.tx.from;
+                fromElement.appendChild(fromLink);
+
+                const toLink = document.createElement('a');
+                toLink.textContent = transaction.tx.to;
+                toLink.href = 'address.html#' + transaction.tx.to;
+                toElement.appendChild(toLink);
+
                 amountElement.textContent = transaction.tx.amount;
                 messageElement.textContent = transaction.tx.message;
 
