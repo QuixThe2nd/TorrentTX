@@ -88,6 +88,7 @@ export default class Transaction {
         if (!await this.clients.webtorrent.get(torrentId)) {
             this.clients.webtorrent.add(torrentId, {announce: this.trackers, strategy: 'rarest'}, (torrent) => {
                 this.torrent = torrent;
+                const clients = this.clients;
 
                 console.log(torrent.infoHash, 'Added');
 
@@ -111,7 +112,7 @@ export default class Transaction {
                 });
                 torrent.on('wire', function (wire, addr) {
                     console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr);
-                    wire.clients = this.clients;
+                    wire.clients = clients;
                     wire.use(Wire());
                 });
                 torrent.on('noPeers', function (announceType) {
@@ -147,7 +148,8 @@ export default class Transaction {
 
     async seed() {
         if (!await this.clients.webtorrent.get(this.hash)) {
-            this.clients.webtorrent.seed(`transactions/${this.hash}.json`, {announce: this.trackers, strategy: 'rarest'}, (torrent) => {
+            this.clients.webtorrent.seed(`transactions/${this.hash}.json`, {announce: this.trackers, strategy: 'rarest'}, (torrent) => {                
+                const clients = this.clients;
                 this.torrent = torrent;
                 console.log(torrent.infoHash, 'Seeding', torrent.files[0].path);
 
@@ -171,7 +173,7 @@ export default class Transaction {
                 });
                 torrent.on('wire', function (wire, addr) {
                     console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr);
-                    wire.clients = this.clients;
+                    wire.clients = clients;
                     wire.use(Wire());
                 });
                 torrent.on('noPeers', function (announceType) {
