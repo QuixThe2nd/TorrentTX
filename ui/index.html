@@ -52,6 +52,7 @@
         <p>Upload Speed: <span id="uploadSpeed">0B/s</span></p>
         <p>Progress: <span id="progress">0%</span></p>
         <p>Connections: <span id="connections">0</span></p>
+        <p>Peak Connections: <span id="peakConnections">0</span></p>
     </div>
 
     <table>
@@ -116,6 +117,8 @@
             document.getElementById('address_qrcode').src = payload.address + '.webp';
             document.getElementById('balance').textContent = payload.balances[payload.address] || 0;
             document.getElementById('connections').textContent = payload.connections;
+            if (payload.connections > document.getElementById('peakConnections').textContent)
+                document.getElementById('peakConnections').textContent = payload.connections;
 
             document.getElementById('peersCount').textContent = '(' + payload.peers.length + ')';
             const peersElement = document.getElementById('peers');
