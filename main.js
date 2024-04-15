@@ -6,6 +6,10 @@ import Wallet from './src/wallet.js'
 import Transaction from './src/transaction.js';
 import Transactions from './src/transactions.js';
 import WebTorrent from 'webtorrent';
+import { app, BrowserWindow } from 'electron';
+import path from 'path';
+
+const currentDir = path.dirname(new URL(import.meta.url).pathname);
 
 if (!fs.existsSync('peers.txt'))
     fs.writeFileSync('peers.txt', '');
@@ -106,21 +110,51 @@ const userInput = async function (prompt){
     });
 }
 
+const base64encode = (str) => Buffer.from(str).toString('base64');
+
+const sendLatestData = () => {
+    clients.browserWindow.webContents.send('message', base64encode(JSON.stringify({
+        address,
+        balances: clients.transactions.balances,
+        transactions: JSON.stringify(Object.values(clients.transactions.transactions).map(tx => tx.content)),
+        infohashes: fs.readFileSync('infohashes.txt').toString().split('\n'),
+        peers: fs.readFileSync('peers.txt').toString().split('\n'),
+        seeding: clients.webtorrent.torrents.filter(torrent => torrent.done).map(torrent => torrent.infoHash),
+        leeching: clients.webtorrent.torrents.filter(torrent => !torrent.done).map(torrent => torrent.infoHash),
+        ratio: clients.webtorrent.ratio,
+        downloadSpeed: clients.webtorrent.downloadSpeed,
+        uploadSpeed: clients.webtorrent.uploadSpeed,
+        progress: clients.webtorrent.progress,
+    })));
+}
+
+function createWindow() {
+    clients.browserWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        webPreferences: { preload: `${currentDir}/ui/preload.js` }
+    });
+
+    clients.browserWindow.loadFile('ui/index.html');
+
+    setInterval(sendLatestData, 1000);
+}
+
+app.whenReady().then(() => {
+    createWindow();
+
+    app.on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0)
+            createWindow();
+    });
+});
+
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit();
+});
+
 const main = async () => {
-    const torrents = clients.webtorrent.torrents;
-    console.info("Transaction Count:", Object.keys(clients.transactions.transactions).length);
-    const seedingTorrentCount = torrents.filter(torrent => torrent.done).length;
-    console.info("Seeding Transactions:", seedingTorrentCount);
-    const leechingTorrentCount = torrents.filter(torrent => !torrent.done).length;
-    console.info("Downloading Transactions:", leechingTorrentCount);
-
-    console.info("Ratio:", clients.webtorrent.ratio);
-    console.info("Download Speed:", clients.webtorrent.downloadSpeed);
-    console.info("Upload Speed:", clients.webtorrent.uploadSpeed);
-    console.info("Progress:", clients.webtorrent.progress);
-    console.info("Peers:", clients.webtorrent.torrents.reduce((a, b) => a + b.numPeers, 0));
-
-    const input = (await userInput("T = Transfer\nB = Balance\nG = Change Genesis\nS = Search\nP = Proof\nD = Delete Temp Dir")).toLowerCase();
+    const input = (await userInput("T = Transfer\nB = Balance\nG = Change Genesis\nS = Search\nP = Proof\nD = Delete Transactions")).toLowerCase();
     if (input === 't') {
         console.log("Transfer");
 
@@ -165,8 +199,9 @@ const main = async () => {
         console.info("Proof:", torrent.infoHash);
         fs.writeFileSync(`proofs/${query}.torrent`, torrent.torrentFile);
     } else if (input === 'd') {
-        console.log("Deleting temp dirs");
-        fs.rmSync('/tmp/webtorrent', {recursive: true, force: true});
+        console.log("Deleting Dirs");
+        clients.webtorrent.destroy();
+        fs.rmdirSync('transactions', {recursive: true});
     }
     main();
 };
