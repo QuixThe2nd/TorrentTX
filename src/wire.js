@@ -57,7 +57,11 @@ export default () => {
 				return;
 			}
 
-			console.log('Received payload', dict);
+			console.log('Received payload');
+
+			for (const key in dict) {
+				console.log(key, dict[key].length);
+			}
 
 			// Save peers
 			if (dict.peers) {
