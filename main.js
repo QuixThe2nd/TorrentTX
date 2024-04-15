@@ -45,7 +45,7 @@ clients.wallet = new Wallet(clients);
 clients.dgram = dgram.createSocket('udp4');
 clients.transactions = new Transactions(clients);
 clients.transactions.loadSavedTransactions();
-clients.wire = new Wire(clients);
+clients.wire = Wire(clients);
 
 clients.webtorrent.on('listening', () => {
     const address = clients.webtorrent.address();
