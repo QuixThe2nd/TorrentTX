@@ -70,12 +70,17 @@ export default (clients) => {
 				for (const i in dict.torrents) {
 					console.verbose('Checking:', dict.torrents[i]);
 					if (!transactions.includes(dict.torrents[i])) {
+						console.log('a');
 						const createTX = (clients, infohash) => {
+							console.log('b');
 							if (!clients)
 								return;
+							console.log('c');
 							if (!clients.webtorrent)
 								return setTimeout(() => createTX(clients, infohash), 1000);
+							console.log('d');
 							new Transaction(clients, {infohash});
+							console.log('e');
 						};
 						createTX(clients, dict.torrents[i]);
 					}
