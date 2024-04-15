@@ -45,11 +45,13 @@ To create inflation/deflation, we can create a difficulty charge for transaction
 
 ~~An initial devnet is live. Existing code is just a proof of concept. `main.js` acts as a node/wallet. Transaction broadcast and discovery is functional, but I haven't been able to get P2P communication working on WAN, only LAN. So, for transaction discovery and broadcasting, we have 2 solutions in place. A UDP layer for clients to directly communicate and transfer blocks and share peers. And, additionally, a TTX tracker hosted at https://ttx-dht.starfiles.co. When creating a transaction, it is broadcasted to all known peers via UDP (if possible), and also sent to the TTX tracker. The TTX tracker is literally just a directory of all known transaction id's, valid and invalid. At the moment, validation to ensure new coins aren't just minted is disabled to allow for easier testing, yes, this means you can just send yourself coins that you don't own. Block's can, will, and have been deleted while in devnet. Please experiment and create an issue with feedback. PR if you like the idea.~~
 
-P2P communication via UDP is live. Transactions received from the TTX-DHT are treated identically to transactions received via payload transfer P2P using UDP. This means, once there are enough nodes, the Starfiles TTX-DHT can be shut down, as there's no need. By enough nodes, I mean, enough to be confident that there is always at least one other person online. Validation now exists. The validation catches most simple exploits. Though it needs thorough testing.
+~~P2P communication via UDP is live. Transactions received from the TTX-DHT are treated identically to transactions received via payload transfer P2P using UDP. This means, once there are enough nodes, the Starfiles TTX-DHT can be shut down, as there's no need. By enough nodes, I mean, enough to be confident that there is always at least one other person online. Validation now exists. The validation catches most simple exploits. Though it needs thorough testing.~~
+
+TorrentTX is now fully built on the Bittorrent protocol. It is a "Bittorrent Layer 2". All communication is done folowing the Bittorrent spec. Essentially, the TorrentTX protocol "hijacks" the standard Bittorrent handshake. If the other client is a standard Bittorrent node, they can still leech/seed to eachother with no issues. But by specifying TorrentTX as an extension during the Bittorrent handshake, if both nodes specify that they're using Bittorrent, they can start communication directly with eachother. This communication is done via the Bittorrent protocol, following the Bittorrent protocol's specs. This means you no longer need to port forward. As for initial peer discovery, I've solved that. You can now export "proofs" by typing `p` in your node. A proof is just a torrent file for a transaction. This proof, allows you to issue a transaction on a node with 0 peers, and export that proof. Meaning you can send someone TTX via Email. I'm not joking. Just create a transaction, print a receipt (proof), and send. What this means, is we can include the genesis torrent file in the source code. When a node runs, on startup, it checks the proof dir for any torrents and starts downloading/seeding them. Using PeX, Bittorrent Trackers, DHT, and all the other fun things native to the Bittorrent protocol, we can start discovering TorrentTX clients, with nothing but a `.torrent` file and this piece of code. With no extra port forwarding or networking required, JUST the bittorrent protocol, so UDP/UTP/TCP, and now wrtc with the WebTorrent library. TTX trackers are no-longer required, they're actually commented by default now. As for next steps, we need to improve transactions discoverability. From there, consensus.
 
 ### Todo
 There is more todo than what has already been done so far. I'll keep adding things as I remember.
-- Fully migrate P2P communication to Bittorrent native as an extension
+- Ethereum/Metamask compatible RPCs
 - Archival Contracts (read todo in main.js)
 - ttx20 coins (anyone can mint, just like erc20)
 - Liquid Swaps
@@ -73,6 +75,9 @@ Cross chain bridge:
 Through this paragraph, I will say "ethereum" a lot. When I say ethereum, that's just an example.
 The way I think this should work is, nodes will be able to mine bridging blocks. A bridging block is essentially a block that exists on both the ethereum and the TorrentTX blockchain at the same time. Essentially, the bridging blocks will be their own proof of work blockchain. If you find a block first, you then publish it to both the ethereum and the torrenttx blockchains and attach a list of all known balances. If someone disagrees, they can keep mining and find another block that disagrees with you, with the standard TTX consensus mechanism applying to PoW, with miner nodes deciding which block to mine future blocks from. The transaction on the ethereum blockchain also contains a list of requests on the TTX chain to bridge assets over to Eth. This will mean TTX is in a constant mempool states, with finality happening whenever someone decides to bridge an asset out. The reward from mining a bridging block is a 1% fee on bridged assets. Assuming everyone is acting in good faith, a bridging block will be produced whenever someone finds one, and enough assets are pending to be bridged off chain to make the ethereum gas fees worth it. Because of this, if we were to write a smart contract on ethereum that just scans for bridging blocks, and assumes everything is accurate, as long as theres no conflicting information, then everything IS accurate. So then the issue is, what if someone is lying. If a bridging block is mined, payouts wont occur instantly. Instead, the block must be undisputed for 24 hours before ethereum withdrawals happen. This means if there are ANY good faith actors, a bad block wont pass because they'll be disputed. Now, this raises the issue of people raising fake disputes.
 
+## Known Issues
+- FATAL - in src/transaction.js, `this.client` is undefined in the onWire listener
+
 ## Initialisation
 ```
 git clone https://github.com/QuixThe2nd/TorrentTX
@@ -84,10 +89,3 @@ yarn
 ```
 node main.js
 ```
-
-## Port Forwarding
-Although optional, port forwarding is recommended. If you don't enable port forwarding, you will only be able to connect to peers that are port forwarding. If you port forward, you can also connect to the peers that don't port forward. When you run `main.js`, the log's will specify the port you are using.
-
-Default ports to forward:
-- Torrent Protocol: 6969
-- TorrentTX Protocol (UDP): 6901

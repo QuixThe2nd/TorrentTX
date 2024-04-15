@@ -218,7 +218,7 @@ export default class Transaction {
     }
 
     announce() {
-        fetch('https://ttx-dht.starfiles.co/' + this.infohash).then(response => response.text()).then(data => console.log("Announced transaction to DHT gateway"));
+        // fetch('https://ttx-dht.starfiles.co/' + this.infohash).then(response => response.text()).then(data => console.log("Announced transaction to DHT gateway"));
 
         const wires = this.clients.webtorrent.torrents.map(torrent => torrent.wires).flat();
         console.log(wires);
