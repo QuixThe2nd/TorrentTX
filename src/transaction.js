@@ -111,8 +111,7 @@ export default class Transaction {
                 });
                 torrent.on('wire', function (wire, addr) {
                     console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr);
-                    wire.use(Wire());
-                    wire.clients = this.clients;
+                    wire.use(Wire(this.clients));
                 });
                 torrent.on('noPeers', function (announceType) {
                     if (!torrent.done)
@@ -171,8 +170,7 @@ export default class Transaction {
                 });
                 torrent.on('wire', function (wire, addr) {
                     console.verbose(torrent.infoHash, 'Connected to torrent peer: ' + addr);
-                    wire.use(Wire());
-                    wire.clients = this.clients;
+                    wire.use(Wire(this.clients));
                 });
                 torrent.on('noPeers', function (announceType) {
                     if (!torrent.done)
