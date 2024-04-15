@@ -50,9 +50,11 @@
                 txIdElement.appendChild(txIdLink);
 
                 if (transaction.infohash) {
+                    if (!infohashTable[transaction.infohash])
+                        infohashTable[transaction.infohash] = transaction.hash;
                     const infohashLink = document.createElement('a');
                     infohashLink.textContent = transaction.infohash;
-                    infohashLink.href = 'transaction.html#' + transaction.infohash;
+                    infohashLink.href = 'transaction.html#' + infohashTable[transaction.infohash];
                     infohashElement.appendChild(infohashLink);
                 } else infohashElement.textContent = 'N/A';
                 
