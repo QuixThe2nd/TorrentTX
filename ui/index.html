@@ -15,6 +15,10 @@
             margin-bottom: 1rem;
             display: block;
         }
+        .highlight-cell {
+            background-color: #155b0e;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -202,9 +206,9 @@
                 messageElement.textContent = transaction.tx.message;
 
                 if (transaction.tx.from === payload.address)
-                    fromElement.style.backgroundColor = 'lightgreen';
+                    fromElement.classList.add('highlight-cell');
                 else if (transaction.tx.to === payload.address)
-                    toElement.style.backgroundColor = 'lightgreen';
+                    toElement.classList.add('highlight-cell');
 
                 transactionElement.appendChild(txIdElement);
                 transactionElement.appendChild(infohashElement);
