@@ -117,141 +117,137 @@
     </div>
 
     <script>
-        const infohashTable = {};
+      const infohashTable = {}
 
         window.electronAPI.handleLog((event, message) => {
             const messageElement = document.createElement('p');
             messageElement.textContent = atob(message);
             document.getElementById('log').appendChild(messageElement);
         });
+      window.electronAPI.handleMessage((event, message) => {
+        const payload = JSON.parse(atob(message))
 
-        window.electronAPI.handleMessage((event, message) => {
-            const payload = JSON.parse(atob(message));
+        document.getElementById('address').textContent = payload.address
+        document.getElementById('address_qrcode').src = payload.address + '.webp'
+        document.getElementById('balance').textContent = payload.balances[payload.address] || 0
+        document.getElementById('connections').textContent = payload.connections
+        if (payload.connections > document.getElementById('peakConnections').textContent) document.getElementById('peakConnections').textContent = payload.connections
 
-            document.getElementById('address').textContent = payload.address;
-            document.getElementById('address_qrcode').src = payload.address + '.webp';
-            document.getElementById('balance').textContent = payload.balances[payload.address] || 0;
-            document.getElementById('connections').textContent = payload.connections;
-            if (payload.connections > document.getElementById('peakConnections').textContent)
-                document.getElementById('peakConnections').textContent = payload.connections;
+        document.getElementById('peersCount').textContent = '(' + payload.peers.length + ')'
+        const peersElement = document.getElementById('peers')
+        peersElement.innerHTML = ''
+        for (const peer of payload.peers) {
+          const peerElement = document.createElement('li')
+          peerElement.textContent = peer
+          peersElement.appendChild(peerElement)
+        }
 
-            document.getElementById('peersCount').textContent = '(' + payload.peers.length + ')';
-            const peersElement = document.getElementById('peers');
-            peersElement.innerHTML = '';
-            for (const peer of payload.peers) {
-                const peerElement = document.createElement('li');
-                peerElement.textContent = peer;
-                peersElement.appendChild(peerElement);
-            }
+        document.getElementById('mempoolCount').textContent = '(' + payload.infohashes.length + ')'
+        const mempoolElement = document.getElementById('mempool')
+        mempoolElement.innerHTML = ''
+        for (const infohash of payload.infohashes) {
+          const infohashElement = document.createElement('li')
+          if (infohashTable[infohash]) {
+            const txIdLink = document.createElement('a')
+            txIdLink.textContent = infohash
+            txIdLink.href = 'transaction.html#' + infohashTable[infohash]
+            infohashElement.appendChild(txIdLink)
+          } else infohashElement.textContent = infohash
+          mempoolElement.appendChild(infohashElement)
+        }
 
-            document.getElementById('mempoolCount').textContent = '(' + payload.infohashes.length + ')';
-            const mempoolElement = document.getElementById('mempool');
-            mempoolElement.innerHTML = '';
-            for (const infohash of payload.infohashes) {
-                const infohashElement = document.createElement('li');
-                if (infohashTable[infohash]) {
-                    const txIdLink = document.createElement('a');
-                    txIdLink.textContent = infohash;
-                    txIdLink.href = 'transaction.html#' + infohashTable[infohash];
-                    infohashElement.appendChild(txIdLink);
-                } else infohashElement.textContent = infohash;
-                mempoolElement.appendChild(infohashElement);
-            }
+        document.getElementById('seedingCount').textContent = '(' + payload.seeding.length + ')'
+        const seedingElement = document.getElementById('seeding')
+        seedingElement.innerHTML = ''
+        for (const infohash of payload.seeding) {
+          const infohashElement = document.createElement('li')
+          if (infohashTable[infohash]) {
+            const txIdLink = document.createElement('a')
+            txIdLink.textContent = infohash
+            txIdLink.href = 'transaction.html#' + infohashTable[infohash]
+            infohashElement.appendChild(txIdLink)
+          } else infohashElement.textContent = infohash
+          seedingElement.appendChild(infohashElement)
+        }
 
-            document.getElementById('seedingCount').textContent = '(' + payload.seeding.length + ')';
-            const seedingElement = document.getElementById('seeding');
-            seedingElement.innerHTML = '';
-            for (const infohash of payload.seeding) {
-                const infohashElement = document.createElement('li');
-                if (infohashTable[infohash]) {
-                    const txIdLink = document.createElement('a');
-                    txIdLink.textContent = infohash;
-                    txIdLink.href = 'transaction.html#' + infohashTable[infohash];
-                    infohashElement.appendChild(txIdLink);
-                } else infohashElement.textContent = infohash;
-                seedingElement.appendChild(infohashElement);
-            }
+        document.getElementById('leechingCount').textContent = '(' + payload.leeching.length + ')'
+        const leechingElement = document.getElementById('leeching')
+        leechingElement.innerHTML = ''
+        for (const infohash of payload.leeching) {
+          const infohashElement = document.createElement('p')
+          infohashElement.textContent = infohash
+          leechingElement.appendChild(infohashElement)
+        }
 
-            document.getElementById('leechingCount').textContent = '(' + payload.leeching.length + ')';
-            const leechingElement = document.getElementById('leeching');
-            leechingElement.innerHTML = '';
-            for (const infohash of payload.leeching) {
-                const infohashElement = document.createElement('p');
-                infohashElement.textContent = infohash;
-                leechingElement.appendChild(infohashElement);
-            }
+        document.getElementById('balancesCount').textContent = '(' + Object.keys(payload.balances).length + ')'
+        const balancesElement = document.getElementById('balances')
+        balancesElement.innerHTML = ''
+        for (const address in payload.balances) {
+          const balanceElement = document.createElement('p')
+          const addressLink = document.createElement('a')
+          addressLink.textContent = address
+          addressLink.href = 'address.html#' + address
+          balanceElement.appendChild(addressLink)
+          balanceElement.textContent += ': ' + payload.balances[address]
+          balancesElement.appendChild(balanceElement)
+        }
 
-            document.getElementById('balancesCount').textContent = '(' + Object.keys(payload.balances).length + ')';
-            const balancesElement = document.getElementById('balances');
-            balancesElement.innerHTML = '';
-            for (const address in payload.balances) {
-                const balanceElement = document.createElement('p');
-                const addressLink = document.createElement('a');
-                addressLink.textContent = address;
-                addressLink.href = 'address.html#' + address;
-                balanceElement.appendChild(addressLink);
-                balanceElement.textContent += ': ' + payload.balances[address];
-                balancesElement.appendChild(balanceElement);
-            }
+        document.getElementById('transactions').innerHTML = ''
+        const transactions = JSON.parse(payload.transactions)
+        for (const transaction of transactions) {
+          const transactionElement = document.createElement('tr')
+          const txIdElement = document.createElement('td')
+          const infohashElement = document.createElement('td')
+          const fromElement = document.createElement('td')
+          const toElement = document.createElement('td')
+          const amountElement = document.createElement('td')
+          const messageElement = document.createElement('td')
 
-            document.getElementById('transactions').innerHTML = '';
-            const transactions = JSON.parse(payload.transactions);
-            for (const transaction of transactions) {
-                const transactionElement = document.createElement('tr');
-                const txIdElement = document.createElement('td');
-                const infohashElement = document.createElement('td');
-                const fromElement = document.createElement('td');
-                const toElement = document.createElement('td');
-                const amountElement = document.createElement('td');
-                const messageElement = document.createElement('td');
+          txIdLink = document.createElement('a')
+          txIdLink.textContent = transaction.hash
+          txIdLink.href = 'transaction.html#' + transaction.hash
+          txIdElement.appendChild(txIdLink)
 
-                txIdLink = document.createElement('a');
-                txIdLink.textContent = transaction.hash;
-                txIdLink.href = 'transaction.html#' + transaction.hash;
-                txIdElement.appendChild(txIdLink);
+          if (transaction.infohash) {
+            if (!infohashTable[transaction.infohash])
+              infohashTable[transaction.infohash] = transaction.hash
+            const infohashLink = document.createElement('a')
+            infohashLink.textContent = transaction.infohash
+            infohashLink.href = 'transaction.html#' + transaction.infohash
+            infohashElement.appendChild(infohashLink)
+          } else infohashElement.textContent = 'N/A'
 
-                if (transaction.infohash) {
-                    if (!infohashTable[transaction.infohash])
-                        infohashTable[transaction.infohash] = transaction.hash;
-                    const infohashLink = document.createElement('a');
-                    infohashLink.textContent = transaction.infohash;
-                    infohashLink.href = 'transaction.html#' + transaction.infohash;
-                    infohashElement.appendChild(infohashLink);
-                } else infohashElement.textContent = 'N/A';
-                
-                const fromLink = document.createElement('a');
-                fromLink.textContent = transaction.tx.from;
-                fromLink.href = 'address.html#' + transaction.tx.from;
-                fromElement.appendChild(fromLink);
+          const fromLink = document.createElement('a')
+          fromLink.textContent = transaction.tx.from
+          fromLink.href = 'address.html#' + transaction.tx.from
+          fromElement.appendChild(fromLink)
 
-                const toLink = document.createElement('a');
-                toLink.textContent = transaction.tx.to;
-                toLink.href = 'address.html#' + transaction.tx.to;
-                toElement.appendChild(toLink);
+          const toLink = document.createElement('a')
+          toLink.textContent = transaction.tx.to
+          toLink.href = 'address.html#' + transaction.tx.to
+          toElement.appendChild(toLink)
 
-                amountElement.textContent = transaction.tx.amount;
-                messageElement.textContent = transaction.tx.message;
+          amountElement.textContent = transaction.tx.amount
+          messageElement.textContent = transaction.tx.message
 
-                if (transaction.tx.from === payload.address)
-                    fromElement.classList.add('highlight-cell');
-                if (transaction.tx.to === payload.address)
-                    toElement.classList.add('highlight-cell');
+          if (transaction.tx.from === payload.address) fromElement.classList.add('highlight-cell')
+          if (transaction.tx.to === payload.address) toElement.classList.add('highlight-cell')
 
-                transactionElement.appendChild(txIdElement);
-                transactionElement.appendChild(infohashElement);
-                transactionElement.appendChild(fromElement);
-                transactionElement.appendChild(toElement);
-                transactionElement.appendChild(amountElement);
-                transactionElement.appendChild(messageElement);
+          transactionElement.appendChild(txIdElement)
+          transactionElement.appendChild(infohashElement)
+          transactionElement.appendChild(fromElement)
+          transactionElement.appendChild(toElement)
+          transactionElement.appendChild(amountElement)
+          transactionElement.appendChild(messageElement)
 
-                document.getElementById('transactions').appendChild(transactionElement);
-            }
+          document.getElementById('transactions').appendChild(transactionElement)
+        }
 
-            document.getElementById('ratio').textContent = payload.ratio;
-            document.getElementById('downloadSpeed').textContent = payload.downloadSpeed + 'B/s';
-            document.getElementById('uploadSpeed').textContent = payload.uploadSpeed + 'B/s';
-            document.getElementById('progress').textContent = payload.progress + '%';
-        });
+        document.getElementById('ratio').textContent = payload.ratio
+        document.getElementById('downloadSpeed').textContent = payload.downloadSpeed + 'B/s'
+        document.getElementById('uploadSpeed').textContent = payload.uploadSpeed + 'B/s'
+        document.getElementById('progress').textContent = payload.progress + '%'
+      })
     </script>
-</body>
+  </body>
 </html>
