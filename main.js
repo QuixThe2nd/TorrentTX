@@ -1,6 +1,5 @@
 import fs from 'fs';
 import readline from 'readline';
-import dgram from "dgram";
 import {initClients} from './src/clients.js';
 import Wallet from './src/wallet.js'
 import Transaction from './src/transaction.js';
@@ -58,7 +57,6 @@ if (!WebTorrent.WEBRTC_SUPPORT) {
 
 clients.webtorrent = new WebTorrent({maxConns: 250});
 clients.wallet = new Wallet(clients);
-clients.dgram = dgram.createSocket('udp4');
 clients.transactions = new Transactions(clients);
 clients.transactions.loadSavedTransactions();
 // process.exit();
