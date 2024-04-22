@@ -1,7 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
-        handleLog: (callback) => ipcRenderer.on('log', callback),
 contextBridge.exposeInMainWorld('electronAPI', {
   handleMessage: callback => ipcRenderer.on('message', callback),
+  handleLog: (type, log) => ipcRenderer.on('log', type, log),
   sendMessageToMain: message => ipcRenderer.send('message-from-renderer', message)
 })

@@ -119,11 +119,21 @@
     <script>
       const infohashTable = {}
 
-        window.electronAPI.handleLog((event, message) => {
-            const messageElement = document.createElement('p');
-            messageElement.textContent = atob(message);
-            document.getElementById('log').appendChild(messageElement);
-        });
+      const colorSet = {
+        error: '#f00',
+        info: '#008000',
+        warn: '#ff0',
+        log: '#00f',
+        verbose: '#888'
+      }
+
+      window.electronAPI.handleLog((event, type, message) => {
+        const messageElement = document.createElement('p')
+        messageElement.style.color = colorSet[type]
+        messageElement.textContent = atob(message)
+        document.getElementById('log').appendChild(messageElement)
+      })
+
       window.electronAPI.handleMessage((event, message) => {
         const payload = JSON.parse(atob(message))
 
