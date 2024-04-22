@@ -1,14 +1,7 @@
-import fs from 'fs';
-import readline from 'readline';
-import {initClients} from './src/clients.js';
+import fs from 'fs'
+import readline from 'readline'
+import { initClients } from './src/clients.js'
 import Wallet from './src/wallet.js'
-import Transaction from './src/transaction.js';
-import Transactions from './src/transactions.js';
-import WebTorrent from 'webtorrent';
-import { app, BrowserWindow, ipcMain } from 'electron';
-import path from 'path';
-import QRCode from 'qrcode';
-
 const currentDir = path.dirname(new URL(import.meta.url).pathname);
 
 if (!fs.existsSync('peers.txt'))
@@ -23,6 +16,12 @@ for (const i in peers) {
         peers.splice(i, 1);
 }
 fs.writeFileSync('peers.txt', peers.join('\n'));
+import Transaction from './src/transaction.js'
+import Transactions from './src/transactions.js'
+import WebTorrent from 'webtorrent'
+import { app, BrowserWindow, ipcMain } from 'electron'
+import path from 'path'
+import QRCode from 'qrcode'
 
 const clients = initClients();
 
