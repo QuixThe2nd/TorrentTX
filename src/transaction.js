@@ -70,74 +70,79 @@ export default class Transaction {
     return this.clients.wallet.verifySignature(this.hash, this.signature, this.body.from)
   }
 
-    async leech(torrentId) {
-        if (!await this.clients.webtorrent.get(torrentId)) {
-            this.clients.webtorrent.add(torrentId, {announce: this.trackers, strategy: 'rarest'}, (torrent) => {
-                this.torrent = torrent;
-                const clients = this.clients;
+  async leech (torrentId) {
+    if (!(await this.clients.webtorrent.get(torrentId))) {
+      console.log('Adding Torrent', torrentId)
+      this.clients.webtorrent.add(
+        torrentId,
+        {
+          announce: this.trackers,
+          strategy: 'rarest',
+          alwaysChokeSeeders: false
+        },
+        torrent => {
+          this.torrent = torrent
+          const clients = this.clients
 
-                console.log(torrent.infoHash, 'Added');
+          console.log(torrent.infoHash, 'Added')
 
-                const peers = [...new Set([...torrent.wires.map(wire => wire.remoteAddress), ...fs.readFileSync('peers.txt').toString().split('\n')])].join('\n');
-                fs.writeFileSync('peers.txt', peers);
+          const peers = [
+            ...new Set([
+              ...torrent.wires.map(wire => wire.remoteAddress),
+              ...fs.readFileSync('peers.txt').toString().split('\n')
+            ])
+          ]
+          for (const i in peers) {
+            if (!peers[i].match(/^[0-9a-fA-F:.]+$/)) peers.splice(i, 1)
+          }
+          fs.writeFileSync('peers.txt', Array.from(peers).join('\n'))
 
-                for (const peer of peers) {
-                    torrent.addPeer(peer);
-                }
+          for (const peer of peers) {
+            torrent.addPeer(peer)
+          }
 
-                torrent.on('metadata', () => {
-                    console.log(torrent.infoHash, 'Metadata received');
-                });
-                torrent.on('ready', () => {
-                    console.log(torrent.infoHash, 'Download ready');
-                });
-                torrent.on('warning', (err) => {
-                    console.verbose(torrent.infoHash, err.message);
-                });
-                torrent.on('error', (err) => {
-                    console.error(torrent.infoHash, err);
-                });
-                torrent.on('download', (bytes) => {
-                    console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes');
-                });
-                torrent.on('upload', (bytes) => {
-                    console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes');
-                });
-                torrent.on('wire', function (wire, addr) {
-                    console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr);
-                    wire.clients = clients;
-                    wire.use(Wire());
-                });
-                torrent.on('noPeers', function (announceType) {
-                    if (!torrent.done)
-                        console.verbose(torrent.infoHash, 'No peers found for', announceType);
-                });
-                torrent.on('done', () => {
-                    console.log(torrent.infoHash, 'Download complete');
+          torrent.on('metadata', () => console.log(torrent.infoHash, 'Metadata received'))
+          torrent.on('ready', () => console.log(torrent.infoHash, 'Download ready'))
+          torrent.on('warning', err => console.verbose(torrent.infoHash, err.message))
+          torrent.on('error', err => console.error(torrent.infoHash, err))
+          torrent.on('download', bytes => console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes'))
+          torrent.on('upload', bytes => console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes'))
+          torrent.on('noPeers', (announceType) => {
+            if (!torrent.done) console.verbose(torrent.infoHash, 'No peers found for', announceType)
+          })
+          torrent.on('wire', (wire, addr) => {
+            console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr)
+            wire.clients = clients
+            wire.use(Wire())
+          })
+          torrent.on('done', () => {
+            console.log(torrent.infoHash, 'Download complete')
 
-                    const files = torrent.files;
-                    for (const i in files) {
-                        const file = files[i];
-                        console.log(torrent.infoHash, 'File:', file.path);
+            const files = torrent.files
+            for (const file of files) {
+              console.log(torrent.infoHash, 'File:', file.path)
 
-                        this.txContentString =  fs.readFileSync(torrent.path + '/' + file.path).toString();
-                        this.content = JSON.parse(this.txContentString);
-                        console.log(this.content)
-                        this.hash = this.content.hash;
-                        this.body = this.content.tx;
-                        this.signature = this.content.signature;
-                        this.torrent = torrent;
+              this.txContentString = fs
+                .readFileSync(torrent.path + '/' + file.path)
+                .toString()
+              this.content = JSON.parse(this.txContentString)
+              console.log(this.content)
+              this.hash = this.content.hash
+              this.body = this.content.tx
+              this.signature = this.content.signature
+              this.torrent = torrent
 
-                        this.validateAndSaveTransaction();
+              this.validateAndSaveTransaction()
 
-                        this.clients.transactions.addTransaction(this);
+              this.clients.transactions.addTransaction(this)
 
-                        torrent.destroy();
-                    };
-                });
-            });
+              torrent.destroy()
+            }
+          })
         }
+      )
     }
+  }
 
     async seed() {
         if (!await this.clients.webtorrent.get(this.hash)) {
