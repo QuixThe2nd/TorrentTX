@@ -70,19 +70,21 @@ clients.webtorrent.on('listening', () => {
 
 clients.webtorrent.on('error', console.error);
 
-
-QRCode.toFile(`ui/${address}.webp`, address, {
-    color: {
-        dark: '#000',
-        light: '#fff'
-    },
-    width: 200,
-    type: 'image/webp'
-}, function (err) {
-    if (err) throw err
-    console.log('done')
-});
 console.info("Address:", clients.wallet.address);
+
+if (!fs.existsSync(`ui/${clients.wallet.address}.webp`)) {
+    QRCode.toFile(`ui/${clients.wallet.address}.webp`, clients.wallet.address, {
+        color: {
+            dark: '#000',
+            light: '#fff'
+        },
+        width: 200,
+        type: 'image/webp'
+    }, function (err) {
+        if (err) throw err
+        console.log('done')
+    });
+}
 
 // transactionListener(clients);
 
