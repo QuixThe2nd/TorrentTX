@@ -14,6 +14,10 @@ export default class Wallet {
         for (const key in keys) {
             this[key] = keys[key];
         }
+
+        this.generateAddress();
+
+        this.address = this.wallet.getAddressString();
     }
 
     generateAddress(path = "m/44'/60'/0'/0/0") {

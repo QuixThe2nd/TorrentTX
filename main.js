@@ -70,9 +70,6 @@ clients.webtorrent.on('listening', () => {
 
 clients.webtorrent.on('error', console.error);
 
-clients.wallet.generateAddress();
-const address = clients.wallet.wallet.getAddressString();
-console.info("Address:", address);
 
 QRCode.toFile(`ui/${address}.webp`, address, {
     color: {
@@ -85,6 +82,7 @@ QRCode.toFile(`ui/${address}.webp`, address, {
     if (err) throw err
     console.log('done')
 });
+console.info("Address:", clients.wallet.address);
 
 // transactionListener(clients);
 
@@ -132,7 +130,7 @@ const base64encode = (str) => Buffer.from(str).toString('base64');
 
 const sendLatestData = () => {
     clients.browserWindow.webContents.send('message', base64encode(JSON.stringify({
-        address,
+        address: clients.wallet.address,
         balances: clients.transactions.balances,
         transactions: JSON.stringify(Object.values(clients.transactions.transactions).map(tx => {
             return {
@@ -168,7 +166,7 @@ function createWindow() {
             if (transaction)
                 clients.browserWindow.webContents.send('message', base64encode(JSON.stringify({...transaction.content, infohash: transaction.torrent ? transaction.torrent.infoHash : ""})));
         } else if (data.type === 'transfer') {
-            const transaction = new Transaction(clients, {from: address, to: data.to, amount: data.amount, message: data.message});
+            const transaction = new Transaction(clients, {from: clients.wallet.address, to: data.to, amount: data.amount, message: data.message});
             clients.transactions.addTransaction(transaction);
             console.log("Created Transaction:", transaction.content.hash);
             transaction.announce();
