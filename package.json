@@ -15,4 +15,8 @@
     "start": "node_modules/.bin/electron main.js"
   },
   "license": "Unlicense"
+  "devDependencies": {
+    "standard": "^17.1.0",
+    "prettier-standard": "^16.4.1"
+  }
 }
