@@ -1,5 +1,5 @@
-import fs from "fs";
-import Transaction from "./transaction.js";
+import fs from 'fs'
+import Transaction from './transaction.js'
 
 export default class Transactions {
     constructor(clients) {
