@@ -1,6 +1,6 @@
-function initClients() {
-    const clients = {};
-    return clients;
+function initClients () {
+  const clients = {}
+  return clients
 }
 
-export { initClients };
+export { initClients }
