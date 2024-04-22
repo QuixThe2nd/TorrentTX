@@ -83,7 +83,7 @@ export default () => {
         const transactions = fs.readFileSync('infohashes.txt').toString().split('\n')
         for (const torrent of dict.torrents) {
           console.verbose('Checking:', torrent)
-          if (!transactions.includes(torrent)) Transaction(this.clients, { infohash: torrent })
+          if (!transactions.includes(torrent)) this.clients._ = new Transaction(this.clients, { infohash: torrent })
         }
       }
 
