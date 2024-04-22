@@ -217,7 +217,7 @@
 
                 if (transaction.tx.from === payload.address)
                     fromElement.classList.add('highlight-cell');
-                else if (transaction.tx.to === payload.address)
+                if (transaction.tx.to === payload.address)
                     toElement.classList.add('highlight-cell');
 
                 transactionElement.appendChild(txIdElement);

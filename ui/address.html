@@ -87,7 +87,8 @@
 
                 if (transaction.tx.from === address)
                     fromElement.style.backgroundColor = 'lightgreen';
-                else if (transaction.tx.to === address)
+                
+                    if (transaction.tx.to === address)
                     toElement.style.backgroundColor = 'lightgreen';
 
                 transactionElement.appendChild(txIdElement);
