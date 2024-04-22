@@ -1,8 +1,9 @@
 # TorrentTX - The world's first Bittorrent Layer 2
-An experiment aiming to extend the capabilities of the torrent standard.
+An experiment aiming to extend the capabilities of the Bittorrent protocol.
 
-TorrentTX aims to build on-top of the torrent protocol by adding a new consensus-layer. The idea is, torrents are the perfect store of information. They are immutable, and stay online as long as ONE person cares to keep them online. Torrents allow for bitcoin-style certainty, with infinite scaling.
+TorrentTX aims to build on-top of the Bittorrent protocol by adding a new consensus-layer. The idea is, torrents are the perfect store of information. They are immutable, and stay online as long as ONE person cares to keep them online. Torrents allow for bitcoin-style certainty, with infinite scaling.
 
+## The idea
 TLDR: What if the blockchain IS the mempool?
 
 So, what are the main issues with bitcoin?
@@ -40,14 +41,14 @@ Once heirarchy is figured out, we can then start building additional "modules", 
 Sidenote:
 To create inflation/deflation, we can create a difficulty charge for transactions. Basically, force them to find a hash with x leading 0s. We can say, if ur hash has more leading 0s than the average of the last 5 transactions in the branch, you gain tokens, and if its lower, you pay a fee.
 
-## Current State
+## Progress
 ~~At the time of writing, I have created the mechanism for creating wallets, creating transactions, and broadcasting transactions. To finish the proof of concept, I need the other side. Discovering and validating new transactions need to be written.~~
 
 ~~An initial devnet is live. Existing code is just a proof of concept. `main.js` acts as a node/wallet. Transaction broadcast and discovery is functional, but I haven't been able to get P2P communication working on WAN, only LAN. So, for transaction discovery and broadcasting, we have 2 solutions in place. A UDP layer for clients to directly communicate and transfer blocks and share peers. And, additionally, a TTX tracker hosted at https://ttx-dht.starfiles.co. When creating a transaction, it is broadcasted to all known peers via UDP (if possible), and also sent to the TTX tracker. The TTX tracker is literally just a directory of all known transaction id's, valid and invalid. At the moment, validation to ensure new coins aren't just minted is disabled to allow for easier testing, yes, this means you can just send yourself coins that you don't own. Block's can, will, and have been deleted while in devnet. Please experiment and create an issue with feedback. PR if you like the idea.~~
 
 ~~P2P communication via UDP is live. Transactions received from the TTX-DHT are treated identically to transactions received via payload transfer P2P using UDP. This means, once there are enough nodes, the Starfiles TTX-DHT can be shut down, as there's no need. By enough nodes, I mean, enough to be confident that there is always at least one other person online. Validation now exists. The validation catches most simple exploits. Though it needs thorough testing.~~
 
-TorrentTX is now fully built on the Bittorrent protocol. It is a "Bittorrent Layer 2". All communication is done folowing the Bittorrent spec. Essentially, the TorrentTX protocol "hijacks" the standard Bittorrent handshake. If the other client is a standard Bittorrent node, they can still leech/seed to eachother with no issues. But by specifying TorrentTX as an extension during the Bittorrent handshake, if both nodes specify that they're using Bittorrent, they can start communication directly with eachother. This communication is done via the Bittorrent protocol, following the Bittorrent protocol's specs. This means you no longer need to port forward. As for initial peer discovery, I've solved that. You can now export "proofs" by typing `p` in your node. A proof is just a torrent file for a transaction. This proof, allows you to issue a transaction on a node with 0 peers, and export that proof. Meaning you can send someone TTX via Email. I'm not joking. Just create a transaction, print a receipt (proof), and send. What this means, is we can include the genesis torrent file in the source code. When a node runs, on startup, it checks the proof dir for any torrents and starts downloading/seeding them. Using PeX, Bittorrent Trackers, DHT, and all the other fun things native to the Bittorrent protocol, we can start discovering TorrentTX clients, with nothing but a `.torrent` file and this piece of code. With no extra port forwarding or networking required, JUST the bittorrent protocol, so UDP/UTP/TCP, and now wrtc with the WebTorrent library. TTX trackers are no-longer required, they're actually commented by default now. As for next steps, we need to improve transactions discoverability. From there, consensus.
+~~TorrentTX is now fully built on the Bittorrent protocol. It is a "Bittorrent Layer 2". All communication is done folowing the Bittorrent spec. Essentially, the TorrentTX protocol "hijacks" the standard Bittorrent handshake. If the other client is a standard Bittorrent node, they can still leech/seed to eachother with no issues. But by specifying TorrentTX as an extension during the Bittorrent handshake, if both nodes specify that they're using TorrentTX, they can start communication directly with eachother. This communication is done via the Bittorrent protocol, following the Bittorrent protocol's specs. This means you no longer need to port forward. As for initial peer discovery, I've solved that. You can now export "proofs" by typing `p` in your node. A proof is just a torrent file for a transaction. This proof, allows you to issue a transaction on a node with 0 peers, and export that proof. Meaning you can send someone TTX via Email. I'm not joking. Just create a transaction, print a receipt (proof), and send. What this means, is we can include the genesis torrent file in the source code. When a node runs, on startup, it checks the proof dir for any torrents and starts downloading/seeding them. Using PeX, Bittorrent Trackers, DHT, and all the other fun things native to the Bittorrent protocol, we can start discovering TorrentTX clients, with nothing but a `.torrent` file and this piece of code. With no extra port forwarding or networking required, JUST the bittorrent protocol, so UDP/UTP/TCP, and now wrtc with the WebTorrent library. TTX trackers are no-longer required, they're actually commented by default now. As for next steps, we need to improve transactions discoverability. From there, consensus. It's worth noting, currently all torrents are stored on each node. Eventually when the blockchain becomes large, clients can be modified to just store what's needed.~~
 
 Now with GUI.
 
@@ -72,6 +73,7 @@ There is more todo than what has already been done so far. I'll keep adding thin
 - Create framework for people to publish global javascript functions that others can reference in their smart contract
 - Eventually make a GUI
 - Make bridging layer from other blockchains
+- do some sort of merkle-tree proof for proving u have torrents
 
 Cross chain bridge:
 Through this paragraph, I will say "ethereum" a lot. When I say ethereum, that's just an example.
