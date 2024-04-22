@@ -23,80 +23,97 @@
   </head>
   <body>
     <div style="display: flex; justify-content: space-between;">
+      <div>
+        <h1>TorrentTX Wallet</h1>
+        <h2>Balance: <span id="balance">0</span></h2>
+        <h2>Address: <span id="address">0x</span></h2>
+        <div style="display: flex; gap: 1rem">
+          <p>Ratio: <span id="ratio">0</span></p>
+          <p>Download Speed: <span id="downloadSpeed">0B/s</span></p>
+          <p>Upload Speed: <span id="uploadSpeed">0B/s</span></p>
+          <p>Progress: <span id="progress">0%</span></p>
+          <p>Connections: <span id="connections">0</span></p>
+          <p>Peak Connections: <span id="peakConnections">0</span></p>
+        </div>
         <div>
-            <h1>TorrentTX Wallet</h1>
-            <h2>Balance: <span id="balance">0</span></h2>
-            <h2>Address: <span id="address">0x</span></h2>
-            <div style="display: flex; gap: 1rem">
-                <p>Ratio: <span id="ratio">0</span></p>
-                <p>Download Speed: <span id="downloadSpeed">0B/s</span></p>
-                <p>Upload Speed: <span id="uploadSpeed">0B/s</span></p>
-                <p>Progress: <span id="progress">0%</span></p>
-                <p>Connections: <span id="connections">0</span></p>
-                <p>Peak Connections: <span id="peakConnections">0</span></p>
-            </div>
-            <div>
-                <input type="number" id="transferAmount" placeholder="Amount" min="0">
-                <input type="text" id="transferTo" placeholder="To">
-                <input type="text" id="transferMessage" placeholder="Message">
-                <button onclick="window.electronAPI.sendMessageToMain(JSON.stringify({
+          <input type="number" id="transferAmount" placeholder="Amount" min="0" />
+          <input type="text" id="transferTo" placeholder="To" />
+          <input type="text" id="transferMessage" placeholder="Message" />
+          <button onclick="window.electronAPI.sendMessageToMain(JSON.stringify({
                     type: 'transfer',
                     amount: document.getElementById('transferAmount').value,
                     to: document.getElementById('transferTo').value,
                     message: document.getElementById('transferMessage').value
                 }))">Transfer</button>
-            </div>
         </div>
-        <div style="display: flex; justify-content: center; flex-direction: column;">
-            <h3 style="text-align: center; margin: 0">Deposit</h3>
-            <img id="address_qrcode" src="#" style="margin: 1rem">
-        </div>
+      </div>
+      <div style="display: flex; justify-content: center; flex-direction: column">
+        <h3 style="text-align: center; margin: 0">Deposit</h3>
+        <img id="address_qrcode" src="#" style="margin: 1rem" />
+      </div>
     </div>
-    <br>
+    <br />
     <table>
-        <thead>
-            <tr>
-                <th>Transaction ID</th>
-                <th>Infohash</th>
-                <th>From</th>
-                <th>To</th>
-                <th>Amount</th>
-                <th>Message</th>
-            </tr>
-        </thead>
-        <tbody id="transactions"></tbody>
+      <thead>
+        <tr>
+          <th>Transaction ID</th>
+          <th>Infohash</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Amount</th>
+          <th>Message</th>
+        </tr>
+      </thead>
+      <tbody id="transactions"></tbody>
     </table>
 
     <div style="display: flex; gap: 1rem">
-        <div>
-            <h3>Peers <span id="peersCount" style="font-size: 0.8rem">(Loading)</span></h3>
-            <ul id="peers" style="list-style: none; padding: 0"></ul>
-        </div>
+      <div>
+        <h3>
+          Peers <span id="peersCount" style="font-size: 0.8rem">(Loading)</span>
+        </h3>
+        <ul id="peers" style="list-style: none; padding: 0"></ul>
+      </div>
 
-        <div>
-            <h3>Mempool <span id="mempoolCount" style="font-size: 0.8rem">(Loading)</span></h3>
-            <ul id="mempool" style="list-style: none; padding: 0"></ul>
-        </div>
+      <div>
+        <h3>
+          Mempool
+          <span id="mempoolCount" style="font-size: 0.8rem">(Loading)</span>
+        </h3>
+        <ul id="mempool" style="list-style: none; padding: 0"></ul>
+      </div>
 
-        <div>
-            <h3>Seeding <span id="seedingCount" style="font-size: 0.8rem">(Loading)</span></h3>
-            <ul id="seeding" style="list-style: none; padding: 0"></ul>
-        </div>
+      <div>
+        <h3>
+          Seeding
+          <span id="seedingCount" style="font-size: 0.8rem">(Loading)</span>
+        </h3>
+        <ul id="seeding" style="list-style: none; padding: 0"></ul>
+      </div>
 
-        <div>
-            <h3>Leeching <span id="leechingCount" style="font-size: 0.8rem">(Loading)</span></h3>
-            <div id="leeching" style="list-style: none; padding: 0"></div>
-        </div>
+      <div>
+        <h3>
+          Leeching
+          <span id="leechingCount" style="font-size: 0.8rem">(Loading)</span>
+        </h3>
+        <div id="leeching" style="list-style: none; padding: 0"></div>
+      </div>
 
-        <div>
-            <h3>Balances <span id="balancesCount" style="font-size: 0.8rem">(Loading)</span></h3>
-            <div id="balances" style="list-style: none; padding: 0"></div>
-        </div>
+      <div>
+        <h3>
+          Balances
+          <span id="balancesCount" style="font-size: 0.8rem">(Loading)</span>
+        </h3>
+        <div id="balances" style="list-style: none; padding: 0"></div>
+      </div>
     </div>
 
     <div>
-        <h3>Logs</h3>
-        <pre id="log"></pre>
+      <h3>Logs</h3>
+      <pre
+        id="log"
+        style="display: flex; flex-direction: column-reverse;"
+      ></pre>
     </div>
 
     <script>
