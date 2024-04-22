@@ -56,26 +56,19 @@ export default class Transaction {
     }
   }
 
-    isValid() {
-        if (this.hash === this.genesisHash)
-            return true;
-        if (isNaN(this.body.amount))
-            return false;
-        if (this.body.amount < 0)
-            return false;
-        if (!this.clients.transactions.balances[this.body.from] || this.clients.transactions.balances[this.body.from] < this.body.amount)
-            return false;
-        if (this.body['prev'].length == 0)
-            return false;
-        for (const i in this.body['prev']) {
-            const hash = this.body['prev'][i];
-            if (!fs.existsSync(`transactions/${hash}.json`))
-                return false;
-        }
+  isValid () {
+    if (this.hash === this.genesisHash) return true
+    if (isNaN(this.body.amount)) return false
+    if (this.body.amount < 0) return false
+    if (!this.clients.transactions.balances[this.body.from] || this.clients.transactions.balances[this.body.from] < this.body.amount) return false
+    if (!this.body.prev.length) return false
 
-        return this.clients.wallet.verifySignature(this.hash, this.signature, this.body.from);
+    for (const hash of this.body.prev) {
+      if (!fs.existsSync(`transactions/${hash}.json`)) return false
     }
 
+    return this.clients.wallet.verifySignature(this.hash, this.signature, this.body.from)
+  }
 
     async leech(torrentId) {
         if (!await this.clients.webtorrent.get(torrentId)) {
