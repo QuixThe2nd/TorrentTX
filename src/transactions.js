@@ -17,7 +17,10 @@ export default class Transactions {
             transactionFound = false;
             const files = fs.readdirSync('transactions');
             for (const i in files) {
-                const transaction = new Transaction(this.clients, {hash:files[i].replace('.json', '')});
+                const file = files[i];
+                if (file.substring(0, 1) === '.')
+                    continue;
+                const transaction = new Transaction(this.clients, {hash:file.replace('.json', '')});
                 if (!this.transactions[transaction.hash] && this.addTransaction(transaction)){
                     transactionFound = true;
                 }
@@ -80,6 +83,8 @@ export default class Transactions {
         const transactions = fs.readdirSync('transactions');
         for (const i in transactions) {
             const file = transactions[i];
+            if (file.substring(0, 1) === '.')
+                continue;
             const data = JSON.parse(fs.readFileSync(`transactions/${file}`));
             const { tx, signature, hash } = data;
             if (tx.to === address)
