@@ -75,7 +75,9 @@ function createWindow () {
   if (proofs.length > 0) {
     for (const i in proofs) {
       const hash = proofs[i].split('.')[0]
-      if (!fs.existsSync(`transactions/${hash}.json`)) Transaction(clients, { torrentPath: `proofs/${proofs[i]}` })
+      if (!fs.existsSync(`transactions/${hash}.json`)) {
+        window._ = new Transaction(clients, { torrentPath: `proofs/${proofs[i]}` })
+      }
     }
   }
 
