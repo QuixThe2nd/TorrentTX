@@ -43,7 +43,7 @@ export default class Transaction {
         to,
         amount: amount / 1,
         message: message ?? '',
-        prev: /*isGenesis ? [] : */clients.transactions.findUnusedUTXOs(from, amount)
+        prev: /* isGenesis ? [] : */clients.transactions.findUnusedUTXOs(from, amount)
       }
 
       this.hash = ethUtil.sha256(Buffer.from(JSON.stringify(this.body))).toString('hex')
@@ -144,96 +144,72 @@ export default class Transaction {
     }
   }
 
-    async seed() {
-        if (!await this.clients.webtorrent.get(this.hash)) {
-            this.clients.webtorrent.seed(`transactions/${this.hash}.json`, {announce: this.trackers, strategy: 'rarest'}, (torrent) => {                
-                const clients = this.clients;
-                this.torrent = torrent;
-                console.log(torrent.infoHash, 'Seeding', torrent.files[0].path);
+  async seed () {
+    if (!(await this.clients.webtorrent.get(this.hash))) {
+      console.log('Seeding', this.hash)
+      this.clients.webtorrent.seed(
+        `transactions/${this.hash}.json`,
+        {
+          announce: this.trackers,
+          strategy: 'rarest',
+          alwaysChokeSeeders: false
+        },
+        torrent => {
+          const clients = this.clients
+          this.torrent = torrent
+          this.infohash = torrent.infoHash
 
-                torrent.on('metadata', () => {
-                    console.log(torrent.infoHash, 'Metadata received');
-                });
-                torrent.on('ready', () => {
-                    console.log(torrent.infoHash, 'Download ready');
-                });
-                torrent.on('warning', (err) => {
-                    console.verbose(torrent.infoHash, err.message);
-                });
-                torrent.on('error', (err) => {
-                    console.warn(torrent.infoHash, "FATAL", err);
-                });
-                torrent.on('download', (bytes) => {
-                    console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes');
-                });
-                torrent.on('upload', (bytes) => {
-                    console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes');
-                });
-                torrent.on('wire', function (wire, addr) {
-                    console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr);
-                    wire.clients = clients;
-                    wire.use(Wire());
-                });
-                torrent.on('noPeers', function (announceType) {
-                    if (!torrent.done)
-                        console.verbose(torrent.infoHash, 'No peers found for', announceType);
-                });
-                
-                this.torrent = torrent;
-                this.infohash = torrent.infoHash;
+          console.log(torrent.infoHash, 'Seeding', torrent.files[0].path.replace('.json', ''))
 
-                const torrents = fs.readFileSync('./infohashes.txt').toString().split('\n');
-                if (!torrents.includes(torrent.infoHash)) {
-                    torrents.push(torrent.infoHash);
-                    fs.writeFileSync('./infohashes.txt', torrents.join('\n'));
-                }
+          torrent.on('metadata', () => console.log(torrent.infoHash, 'Metadata received'))
+          torrent.on('ready', () => console.log(torrent.infoHash, 'Download ready'))
+          torrent.on('warning', err => console.verbose(torrent.infoHash, err.message))
+          torrent.on('error', err => console.error(torrent.infoHash, err))
+          torrent.on('download', bytes => console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes'))
+          torrent.on('upload', bytes => console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes'))
+          torrent.on('noPeers', announceType => {
+            if (!torrent.done) console.verbose(torrent.infoHash, 'No peers found for', announceType)
+          })
+          torrent.on('wire', (wire, addr) => {
+            console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr)
+            wire.clients = clients
+            wire.use(Wire())
+          })
 
-                torrent.on('error', (err) => console.warn(err));
-            });
+          const torrents = fs.readFileSync('./infohashes.txt').toString().split('\n')
+          if (!torrents.includes(torrent.infoHash)) {
+            torrents.push(torrent.infoHash)
+            fs.writeFileSync('./infohashes.txt', torrents.join('\n'))
+          }
         }
+      )
     }
+  }
 
-    validateAndSaveTransaction() {
-        if (this.isValid()) {
-            const prev = this.body.prev;
-            for (const i in prev) {
-                const hash = prev[i];
-                if (!this.clients.transactions.transactions[hash]) {
-                    this.clients.transactions.addTransaction(new Transaction(this.clients, {hash}));
-                }
-            }
+  validateAndSaveTransaction () {
+    if (this.isValid()) {
+      const prev = this.body.prev
+      for (const hash of prev) {
+        if (!this.clients.transactions.transactions[hash]) this.clients.transactions.addTransaction(new Transaction(this.clients, { hash }))
+      }
 
-            if (!fs.existsSync(`transactions/${this.hash}.json`))
-                fs.writeFileSync(`transactions/${this.hash}.json`, this.txContentString);
-            this.seed();
-        }else
-            console.verbose("Invalid Transaction");
-    }
+      if (!fs.existsSync(`transactions/${this.hash}.json`)) fs.writeFileSync(`transactions/${this.hash}.json`, this.txContentString)
+      this.seed()
+    } else console.verbose('Invalid Transaction')
+  }
 
-    infohash() { // TODO: THIS WONT WORK
-        const torrent = this.clients.webtorrent.get(this.hash);
-        if (torrent)
-            return torrent.infoHash;
-        else
-            throw new Error("Invalid infohash");
-    }
+  announce () {
+    // fetch('https://ttx-dht.starfiles.co/' + this.infohash).then(response => response.text()).then(data => console.log("Announced transaction to DHT gateway"));
+    const wires = this.clients.webtorrent.torrents.map(torrent => torrent.wires).flat()
+    console.log(wires)
+  }
 
-    announce() {
-        // fetch('https://ttx-dht.starfiles.co/' + this.infohash).then(response => response.text()).then(data => console.log("Announced transaction to DHT gateway"));
+  async getTrackers () {
+    const wsTrackers = await (await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ws.txt')).text()
+    const bestTrackers = await (await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt')).text()
 
-        const wires = this.clients.webtorrent.torrents.map(torrent => torrent.wires).flat();
-        console.log(wires);
-    }
+    this.trackers = (wsTrackers + '\n' + bestTrackers).split('\n').filter(Boolean)
 
-    async getTrackers() {;
-        const wsResponse = await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ws.txt');
-        const wsTrackers = await wsResponse.text();
-
-        const bestResponse = await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt');
-        const bestTrackers = await bestResponse.text();
-
-        this.trackers = (wsTrackers + '\n' + bestTrackers).split('\n').filter(Boolean);
-
-        return this.trackers;
-    }
+    return this.trackers
+  }
 }
