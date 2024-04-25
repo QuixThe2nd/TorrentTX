@@ -19,7 +19,7 @@ export default () => {
     onExtendedHandshake (handshake) {
       console.log('Extended handshake with:', Object.keys(handshake.m).join(', '))
       if (!handshake.m || !handshake.m.torrenttx) return this.emit('warning', new Error('Peer does not support torrenttx'))
-      else console.verbose('Peer supports torrenttx')
+      else console.log('Peer supports torrenttx')
 
       this.sendPayload()
     }
@@ -54,10 +54,6 @@ export default () => {
       }
 
       console.log('Received payload')
-
-      for (const key in dict) {
-        console.log(key, dict[key].length)
-      }
 
       // Save peers
       if (dict.peers) {

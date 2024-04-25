@@ -9,6 +9,7 @@ import WebTorrent from 'webtorrent'
 import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'path'
 import QRCode from 'qrcode'
+import bencode from 'bencode'
 // import Mine from './src/mine.js'
 
 const currentDir = path.dirname(new URL(import.meta.url).pathname)
@@ -226,6 +227,9 @@ ipcMain.on('message-from-renderer', (event, message) => {
       message: data.message
     })
     glob.transactions.addTransaction(transaction)
+    glob.webtorrent.torrents.forEach(torrent => {
+      if (torrent.wire) torrent.wire.extended('torrenttx', bencode.encode(JSON.stringify({ torrents: [torrent.infoHash], msg_type: 0 })))
+    });
     console.log('Created Transaction:', transaction.content.hash)
     transaction.announce()
   }
