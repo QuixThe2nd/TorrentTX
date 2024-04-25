@@ -4,8 +4,6 @@ import ethUtil from 'ethereumjs-util'
 import Wire from './wire.js'
 
 export default class Transaction {
-    this.genesisHash = fs.readFileSync('genesis.txt').toString().trim()
-    this.getTrackers()
   constructor (glob, { from, to, amount, message, hash, infohash, torrentPath, path }) {
     this.glob = glob
 

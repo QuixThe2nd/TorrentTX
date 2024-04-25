@@ -50,6 +50,11 @@ function createWindow () {
   glob.webtorrent.on('error', console.error)
   glob.webtorrent.on('listening', () => console.info(`Torrent client listening 0.0.0.0:${(glob.webtorrent.address()).port}`))
 
+  const wsTrackers = await (await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ws.txt')).text()
+  const bestTrackers = await (await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt')).text()
+  glob.trackers = (wsTrackers + '\n' + bestTrackers).split('\n').filter(Boolean)
+
+  glob.genesisHash = fs.readFileSync('genesis.txt').toString().trim()
   // Wallet
   glob.wallet = new Wallet(glob)
 
