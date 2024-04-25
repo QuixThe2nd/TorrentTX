@@ -72,8 +72,7 @@ function createWindow () {
 
     const peers = fs.readFileSync('peers.txt').toString().split('\n')
     for (const peer of peers) {
-      if (torrent.addPeer(peer)) console.verbose(torrent.infoHash, 'Added peer', peer)
-      else console.verbose(torrent.infoHash, 'Failed to add peer', peer)
+      if (!torrent.addPeer(peer)) console.verbose(torrent.infoHash, 'Failed to add peer', peer)
     }
 
     torrent.on('metadata', () => console.error('DHT Meeting Point: Metadata received'))
