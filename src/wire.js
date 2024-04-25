@@ -30,17 +30,13 @@ export default () => {
     }
 
     sendPayload (type = 'ping') {
-      const transactions = fs.readFileSync('infohashes.txt').toString().split('\n')
-      const peers = fs.readFileSync('peers.txt').toString().split('\n')
-
-      const payload = {
-        torrents: transactions,
-        peers,
-        msg_type: type === 'ping' ? 0 : 1
-      }
       console.log('Sending payload')
 
-      this.send(payload)
+      this.send({
+        torrents: fs.readFileSync('infohashes.txt').toString().split('\n'),
+        peers: fs.readFileSync('peers.txt').toString().split('\n'),
+        msg_type: type === 'ping' ? 0 : 1
+      })
     }
 
     onMessage (buf) {
@@ -65,17 +61,11 @@ export default () => {
 
       // Save peers
       if (dict.peers) {
-        const peers = new Set([
-          ...fs
-            .readFileSync('peers.txt')
-            .toString()
-            .split('\n'),
-          ...dict.peers
-        ])
-        for (const i in peers) {
-          if (!peers[i].match(/^[0-9a-fA-F:.]+$/)) peers.splice(i, 1)
+        const peers = fs.readFileSync('peers.txt').toString().split('\n')
+        for (const peer of dict.peers) {
+          if (peer.match(/^[0-9a-fA-F:.]+$/) && !peers.includes(peer)) peers.push(peer)
         }
-        fs.writeFileSync('peers.txt', Array.from(peers).join('\n'))
+        fs.writeFileSync('peers.txt', peers.join('\n'))
       }
 
       // Save transactions

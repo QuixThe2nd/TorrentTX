@@ -70,20 +70,24 @@ function createWindow () {
     torrent.on('warning', err => console.verbose(err.message))
     torrent.on('error', err => console.error(err))
 
+    const peers = fs.readFileSync('peers.txt').toString().split('\n')
+    for (const peer of peers) {
+      if (torrent.addPeer(peer)) console.verbose(torrent.infoHash, 'Added peer', peer)
+      else console.verbose(torrent.infoHash, 'Failed to add peer', peer)
+    }
+
     torrent.on('metadata', () => console.error('DHT Meeting Point: Metadata received'))
     torrent.on('ready', () => console.log('DHT Meeting Point: Download ready'))
     torrent.on('warning', err => console.verbose(`DHT Meeting Point: ${err.message}`))
     torrent.on('error', err => console.error(`DHT Meeting Point: ${err.message}`))
     torrent.on('download', bytes => console.verbose('DHT Meeting Point: Downloaded', bytes + ' bytes'))
     torrent.on('upload', bytes => console.verbose('DHT Meeting Point: Uploaded', bytes + ' bytes'))
-    torrent.on('noPeers', (announceType) => {
-      if (!torrent.done) console.verbose('DHT Meeting Point: No peers found for', announceType)
-    })
+    torrent.on('noPeers', (announceType) => torrent.done || console.verbose('DHT Meeting Point: No peers found for', announceType))
     torrent.on('wire', (wire, addr) => {
       console.log('DHT Meeting Point: Connected to torrent peer: ' + addr)
       const peers = fs.readFileSync('peers.txt').toString().split('\n')
 
-      if (addr.includes(':') && !peers.includes(addr)) {
+      if (addr.match(/^[0-9a-fA-F:.]+$/) && !peers.includes(addr)) {
         peers.push(addr)
         fs.writeFileSync('peers.txt', peers.join('\n'))
       }

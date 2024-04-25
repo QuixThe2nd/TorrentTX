@@ -86,19 +86,10 @@ export default class Transaction {
 
           console.log(torrent.infoHash, 'Added')
 
-          const peers = [
-            ...new Set([
-              ...torrent.wires.map(wire => wire.remoteAddress),
-              ...fs.readFileSync('peers.txt').toString().split('\n')
-            ])
-          ]
-          for (const i in peers) {
-            if (!peers[i].match(/^[0-9a-fA-F:.]+$/)) peers.splice(i, 1)
-          }
-          fs.writeFileSync('peers.txt', Array.from(peers).join('\n'))
-
+          const peers = fs.readFileSync('peers.txt').toString().split('\n')
           for (const peer of peers) {
-            torrent.addPeer(peer)
+            if (torrent.addPeer(peer)) console.verbose(torrent.infoHash, 'Added peer', peer)
+            else console.verbose(torrent.infoHash, 'Failed to add peer', peer)
           }
 
           torrent.on('metadata', () => console.log(torrent.infoHash, 'Metadata received'))
@@ -107,13 +98,11 @@ export default class Transaction {
           torrent.on('error', err => console.error(torrent.infoHash, err.message))
           torrent.on('download', bytes => console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes'))
           torrent.on('upload', bytes => console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes'))
-          torrent.on('noPeers', (announceType) => {
-            if (!torrent.done) console.verbose(torrent.infoHash, 'No peers found for', announceType)
-          })
+          torrent.on('noPeers', (announceType) => torrent.done || console.verbose(torrent.infoHash, 'No peers found for', announceType))
           torrent.on('wire', (wire, addr) => {
             console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr)
 
-            if (addr.includes(':') && !peers.includes(addr)) {
+            if (addr.match(/^[0-9a-fA-F:.]+$/) && !peers.includes(addr)) {
               peers.push(addr)
               fs.writeFileSync('peers.txt', peers.join('\n'))
             }
@@ -167,20 +156,24 @@ export default class Transaction {
 
           console.log(torrent.infoHash, 'Seeding', torrent.files[0].path.replace('.json', ''))
 
+          const peers = fs.readFileSync('peers.txt').toString().split('\n')
+          for (const peer of peers) {
+            if (torrent.addPeer(peer)) console.verbose(torrent.infoHash, 'Added peer', peer)
+            else console.verbose(torrent.infoHash, 'Failed to add peer', peer)
+          }
+
           torrent.on('metadata', () => console.log(torrent.infoHash, 'Metadata received'))
           torrent.on('ready', () => console.log(torrent.infoHash, 'Download ready'))
           torrent.on('warning', err => console.verbose(torrent.infoHash, err.message))
           torrent.on('error', err => console.error(torrent.infoHash, err.message))
           torrent.on('download', bytes => console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes'))
           torrent.on('upload', bytes => console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes'))
-          torrent.on('noPeers', announceType => {
-            if (!torrent.done) console.verbose(torrent.infoHash, 'No peers found for', announceType)
-          })
+          torrent.on('noPeers', (announceType) => torrent.done || console.verbose(torrent.infoHash, 'No peers found for', announceType))
           torrent.on('wire', (wire, addr) => {
             console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr)
             const peers = fs.readFileSync('peers.txt').toString().split('\n')
 
-            if (addr.includes(':') && !peers.includes(addr)) {
+            if (addr.match(/^[0-9a-fA-F:.]+$/) && !peers.includes(addr)) {
               peers.push(addr)
               fs.writeFileSync('peers.txt', peers.join('\n'))
             }
