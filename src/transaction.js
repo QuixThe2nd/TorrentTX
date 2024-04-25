@@ -112,6 +112,12 @@ export default class Transaction {
           })
           torrent.on('wire', (wire, addr) => {
             console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr)
+
+            if (addr.includes(':') && !peers.includes(addr)) {
+              peers.push(addr)
+              fs.writeFileSync('peers.txt', peers.join('\n'))
+            }
+
             wire.glob = glob
             wire.use(Wire())
           })
@@ -172,6 +178,13 @@ export default class Transaction {
           })
           torrent.on('wire', (wire, addr) => {
             console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr)
+            const peers = fs.readFileSync('peers.txt').toString().split('\n')
+
+            if (addr.includes(':') && !peers.includes(addr)) {
+              peers.push(addr)
+              fs.writeFileSync('peers.txt', peers.join('\n'))
+            }
+
             wire.glob = glob
             wire.use(Wire())
           })
