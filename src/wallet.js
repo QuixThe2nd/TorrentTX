@@ -6,8 +6,8 @@ import HDWallet from 'ethereumjs-wallet'
 const hdkey = HDWallet.hdkey
 
 export default class Wallet {
-  constructor (clients, walletFilePath = 'wallet.json') {
-    this.clients = clients
+  constructor (glob, walletFilePath = 'wallet.json') {
+    this.glob = glob
     this.walletFilePath = walletFilePath
 
     const keys = fs.existsSync(this.walletFilePath)

@@ -1,6 +1,6 @@
 import fs from 'fs'
 import readline from 'readline'
-import { initClients } from './src/clients.js'
+import { initGlob } from './src/glob.js'
 import Wallet from './src/wallet.js'
 import Transaction from './src/transaction.js'
 import Transactions from './src/transactions.js'
@@ -17,16 +17,16 @@ if (!fs.existsSync('infohashes.txt')) fs.writeFileSync('infohashes.txt', '')
 
 const base64encode = str => Buffer.from(str).toString('base64')
 
-const clients = initClients()
+const glob = initGlob()
 
 function createWindow () {
-  clients.browserWindow = new BrowserWindow({
+  glob.browserWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: { preload: `${currentDir}/ui/preload.js` }
   })
 
-  clients.browserWindow.loadFile('ui/index.html')
+  glob.browserWindow.loadFile('ui/index.html')
 }
 
 (async () => {
@@ -39,26 +39,26 @@ function createWindow () {
   console.verbose = console.log
   for (const type of ['info', 'log', 'verbose', 'warn', 'error']) {
     console[type] = function () {
-      if (clients.browserWindow && (arguments.length === 0 || Array.from(arguments).every(arg => typeof arg === 'string'))) clients.browserWindow.webContents.send('log', type, base64encode(Array.from(arguments).join(' ')))
+      if (glob.browserWindow && (arguments.length === 0 || Array.from(arguments).every(arg => typeof arg === 'string'))) glob.browserWindow.webContents.send('log', type, base64encode(Array.from(arguments).join(' ')))
       else console.fallback('Invalid Arguments', arguments)
     }
   }
 
   // WebTorrent
   if (!WebTorrent.WEBRTC_SUPPORT) console.error('WebRTC Not Supported')
-  clients.webtorrent = new WebTorrent({ maxConns: 250 })
-  clients.webtorrent.on('error', console.error)
-  clients.webtorrent.on('listening', () => console.info(`Torrent client listening 0.0.0.0:${(clients.webtorrent.address()).port}`))
+  glob.webtorrent = new WebTorrent({ maxConns: 250 })
+  glob.webtorrent.on('error', console.error)
+  glob.webtorrent.on('listening', () => console.info(`Torrent client listening 0.0.0.0:${(glob.webtorrent.address()).port}`))
 
   // Wallet
-  clients.wallet = new Wallet(clients)
+  glob.wallet = new Wallet(glob)
 
   // Transactions
-  clients.transactions = new Transactions(clients)
-  clients.transactions.loadSavedTransactions()
+  glob.transactions = new Transactions(glob)
+  glob.transactions.loadSavedTransactions()
 
-  if (!fs.existsSync(`ui/${clients.wallet.address}.webp`)) {
-    QRCode.toFile(`ui/${clients.wallet.address}.webp`, clients.wallet.address,
+  if (!fs.existsSync(`ui/${glob.wallet.address}.webp`)) {
+    QRCode.toFile(`ui/${glob.wallet.address}.webp`, glob.wallet.address,
       {
         color: {
           dark: '#000',
@@ -76,7 +76,7 @@ function createWindow () {
     for (const i in proofs) {
       const hash = proofs[i].split('.')[0]
       if (!fs.existsSync(`transactions/${hash}.json`)) {
-        clients._ = new Transaction(clients, { torrentPath: `proofs/${proofs[i]}` })
+        glob._ = new Transaction(glob, { torrentPath: `proofs/${proofs[i]}` })
       }
     }
   }
@@ -95,21 +95,52 @@ function createWindow () {
     })
   }
 
-  // Mine(clients, clients.wallet.wallet.getPrivateKey(), clients.wallet.address)
+  // Mine(glob, glob.wallet.wallet.getPrivateKey(), glob.wallet.address)
+
+  setInterval(() => {
+    if (glob.browserWindow) {
+      glob.browserWindow.webContents.send(
+        'message',
+        base64encode(
+          JSON.stringify({
+            address: glob.wallet.address,
+            balances: glob.transactions?.balances,
+            transactions: JSON.stringify(
+              Object.values(glob.transactions.transactions).map(tx => {
+                return {
+                  ...tx.content,
+                  infohash: tx.torrent?.infoHash ?? ''
+                }
+              })
+            ),
+            infohashes: fs.readFileSync('infohashes.txt').toString().split('\n'),
+            peers: fs.readFileSync('peers.txt').toString().split('\n'),
+            connections: glob.webtorrent.torrents.map(torrent => torrent.numPeers).reduce((a, b) => a + b, 0),
+            seeding: glob.webtorrent.torrents.filter(torrent => torrent.done).map(torrent => torrent.infoHash),
+            leeching: glob.webtorrent.torrents.filter(torrent => !torrent.done).map(torrent => torrent.infoHash),
+            ratio: glob.webtorrent.ratio,
+            downloadSpeed: glob.webtorrent.downloadSpeed,
+            uploadSpeed: glob.webtorrent.uploadSpeed,
+            progress: glob.webtorrent.progress
+          })
+        )
+      )
+    }
+  }, 1000)
 
   const main = async () => {
     const input = (await userInput('S = Search\nP = Proof\nD = Delete Transactions')).toLowerCase()
     if (input === 's') {
       const query = await userInput('Search')
-      console.info(clients.transactions.search(clients, { query }))
+      console.info(glob.transactions.search(glob, { query }))
     } else if (input === 'p') {
       const query = await userInput('Transaction Hash')
-      const torrent = await clients.transactions.search(clients, { query }).transactions.torrent
+      const torrent = await glob.transactions.search(glob, { query }).transactions.torrent
       console.info('Proof:', torrent.infoHash)
       fs.writeFileSync(`proofs/${query}.torrent`, torrent.torrentFile)
     } else if (input === 'd') {
       console.log('Deleting Dirs')
-      clients.webtorrent.destroy()
+      glob.webtorrent.destroy()
       fs.rmdirSync('transactions', { recursive: true })
     }
     main()
@@ -128,9 +159,9 @@ app.on('window-all-closed', () => {
 ipcMain.on('message-from-renderer', (event, message) => {
   const data = JSON.parse(message)
   if (data.type === 'getTransaction') {
-    const transaction = clients.transactions.transactions[data.hash]
+    const transaction = glob.transactions.transactions[data.hash]
     if (transaction) {
-      clients.browserWindow.webContents.send(
+      glob.browserWindow.webContents.send(
         'message',
         base64encode(
           JSON.stringify({
@@ -141,48 +172,17 @@ ipcMain.on('message-from-renderer', (event, message) => {
       )
     }
   } else if (data.type === 'transfer') {
-    const transaction = new Transaction(clients, {
-      from: clients.wallet.address,
+    const transaction = new Transaction(glob, {
+      from: glob.wallet.address,
       to: data.to,
       amount: data.amount,
       message: data.message
     })
-    clients.transactions.addTransaction(transaction)
+    glob.transactions.addTransaction(transaction)
     console.log('Created Transaction:', transaction.content.hash)
     transaction.announce()
   }
 })
-
-setInterval(() => {
-  if (clients.browserWindow) {
-    clients.browserWindow.webContents.send(
-      'message',
-      base64encode(
-        JSON.stringify({
-          address: clients.wallet.address,
-          balances: clients.transactions?.balances,
-          transactions: JSON.stringify(
-            Object.values(clients.transactions.transactions).map(tx => {
-              return {
-                ...tx.content,
-                infohash: tx.torrent?.infoHash ?? ''
-              }
-            })
-          ),
-          infohashes: fs.readFileSync('infohashes.txt').toString().split('\n'),
-          peers: fs.readFileSync('peers.txt').toString().split('\n'),
-          connections: clients.webtorrent.torrents.map(torrent => torrent.numPeers).reduce((a, b) => a + b, 0),
-          seeding: clients.webtorrent.torrents.filter(torrent => torrent.done).map(torrent => torrent.infoHash),
-          leeching: clients.webtorrent.torrents.filter(torrent => !torrent.done).map(torrent => torrent.infoHash),
-          ratio: clients.webtorrent.ratio,
-          downloadSpeed: clients.webtorrent.downloadSpeed,
-          uploadSpeed: clients.webtorrent.uploadSpeed,
-          progress: clients.webtorrent.progress
-        })
-      )
-    )
-  }
-}, 1000)
 
 /*
 TODO:
