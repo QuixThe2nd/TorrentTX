@@ -1,5 +1,4 @@
 import fs from 'fs'
-import fetch from 'node-fetch'
 import ethUtil from 'ethereumjs-util'
 import Wire from './wire.js'
 
@@ -64,6 +63,9 @@ export default class Transaction {
     for (const hash of this.body.prev) {
       if (!fs.existsSync(`transactions/${hash}.json`)) return false
     }
+
+    // TODO: Make sure prev isn't overspent
+    // TODO: Make sure prev is sent to the person who's sending this transaction
 
     return this.glob.wallet.verifySignature(this.hash, this.signature, this.body.from)
   }
