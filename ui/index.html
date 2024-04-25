@@ -253,7 +253,7 @@
           document.getElementById('transactions').appendChild(transactionElement)
         }
 
-        document.getElementById('ratio').textContent = payload.ratio
+        document.getElementById('ratio').textContent = Math.round(payload.ratio*100)/100
         document.getElementById('downloadSpeed').textContent = payload.downloadSpeed + 'B/s'
         document.getElementById('uploadSpeed').textContent = payload.uploadSpeed + 'B/s'
         document.getElementById('progress').textContent = payload.progress + '%'
