@@ -4,6 +4,7 @@ import { initGlob } from './src/glob.js'
 import Wallet from './src/wallet.js'
 import Transaction from './src/transaction.js'
 import Transactions from './src/transactions.js'
+import Wire from './src/wire.js'
 import WebTorrent from 'webtorrent'
 import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'path'
@@ -55,6 +56,44 @@ function createWindow () {
   glob.trackers = (wsTrackers + '\n' + bestTrackers).split('\n').filter(Boolean)
 
   glob.genesisHash = fs.readFileSync('genesis.txt').toString().trim()
+
+  // remove first 16 chars
+  const meetingPointHash = glob.genesisHash.substring(24)
+
+  console.log('Connecting to DHT Meeting Point:', meetingPointHash)
+  glob.webtorrent.add(meetingPointHash, {
+    announce: glob.trackers,
+    strategy: 'rarest',
+    alwaysChokeSeeders: false
+  }, torrent => {
+    console.log('Connected to DHT Meeting Point')
+    torrent.on('warning', err => console.verbose(err.message))
+    torrent.on('error', err => console.error(err))
+
+    torrent.on('metadata', () => console.error('DHT Meeting Point: Metadata received'))
+    torrent.on('ready', () => console.log('DHT Meeting Point: Download ready'))
+    torrent.on('warning', err => console.verbose(`DHT Meeting Point: ${err.message}`))
+    torrent.on('error', err => console.error(`DHT Meeting Point: ${err.message}`))
+    torrent.on('download', bytes => console.verbose('DHT Meeting Point: Downloaded', bytes + ' bytes'))
+    torrent.on('upload', bytes => console.verbose('DHT Meeting Point: Uploaded', bytes + ' bytes'))
+    torrent.on('noPeers', (announceType) => {
+      if (!torrent.done) console.verbose('DHT Meeting Point: No peers found for', announceType)
+    })
+    torrent.on('wire', (wire, addr) => {
+      console.log('DHT Meeting Point: Connected to torrent peer: ' + addr)
+      const peers = fs.readFileSync('peers.txt').toString().split('\n')
+
+      if (addr.includes(':') && !peers.includes(addr)) {
+        peers.push(addr)
+        fs.writeFileSync('peers.txt', peers.join('\n'))
+      }
+
+      wire.glob = glob
+      wire.use(Wire())
+    })
+    torrent.on('done', () => console.error('DHT Meeting Point: Downloaded - This should NEVER happen. If it does, transaction and peer discovery has been broken.'))
+  })
+
   // Wallet
   glob.wallet = new Wallet(glob)
 
