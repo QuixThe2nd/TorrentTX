@@ -76,7 +76,7 @@ export default class Transaction {
       this.glob.webtorrent.add(
         torrentId,
         {
-          announce: this.trackers,
+          announce: this.glob.trackers,
           strategy: 'rarest',
           alwaysChokeSeeders: false
         },
@@ -150,7 +150,7 @@ export default class Transaction {
       this.glob.webtorrent.seed(
         `transactions/${this.hash}.json`,
         {
-          announce: this.trackers,
+          announce: this.glob.trackers,
           strategy: 'rarest',
           alwaysChokeSeeders: false
         },
@@ -202,14 +202,5 @@ export default class Transaction {
     // fetch('https://ttx-dht.starfiles.co/' + this.infohash).then(response => response.text()).then(data => console.log("Announced transaction to DHT gateway"));
     const wires = this.glob.webtorrent.torrents.map(torrent => torrent.wires).flat()
     console.log(wires)
-  }
-
-  async getTrackers () {
-    const wsTrackers = await (await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ws.txt')).text()
-    const bestTrackers = await (await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt')).text()
-
-    this.trackers = (wsTrackers + '\n' + bestTrackers).split('\n').filter(Boolean)
-
-    return this.trackers
   }
 }

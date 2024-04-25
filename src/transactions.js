@@ -55,7 +55,7 @@ export default class Transactions {
     if (this.balances[transaction.body.to]) this.balances[transaction.body.to] += transaction.body.amount
     else this.balances[transaction.body.to] = transaction.body.amount
 
-    if (transaction.hash !== transaction.genesisHash) {
+    if (transaction.hash !== this.glob.genesisHash) {
       if (this.balances[transaction.body.from]) this.balances[transaction.body.from] -= transaction.body.amount
       else this.balances[transaction.body.from] = -transaction.body.amount
     }
