@@ -41,7 +41,7 @@ function createWindow () {
   console.verbose = console.log
   for (const type of ['info', 'log', 'verbose', 'warn', 'error']) {
     console[type] = function () {
-      if (glob.browserWindow && (arguments.length === 0 || Array.from(arguments).every(arg => typeof arg === 'string'))) glob.browserWindow.webContents.send('log', type, base64encode(Array.from(arguments).join(' ')))
+      if (glob.browserWindow && (arguments.length === 0 || Array.from(arguments).every(arg => typeof arg === 'string'))) glob.browserWindow.webContents.send('log', JSON.stringify({ type, message: base64encode(Array.from(arguments).join(' ')) }))
       else console.fallback('Invalid Arguments', arguments)
     }
   }

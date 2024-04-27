@@ -127,7 +127,11 @@
         verbose: '#888'
       }
 
-      window.electronAPI.handleLog((event, type, message) => {
+      window.electronAPI.handleLog((event, data) => {
+        const data2 = JSON.parse(data);
+        const type = data2[type];
+        const message = data2[message];
+
         const messageElement = document.createElement('p')
         messageElement.style.color = colorSet[type]
         messageElement.textContent = atob(message)
