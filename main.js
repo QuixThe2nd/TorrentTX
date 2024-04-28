@@ -60,9 +60,10 @@ function createWindow () {
 
   // remove first 16 chars
   const meetingPointHash = glob.genesisHash.substring(24)
+  const mettingPointMagnetUri = `magnet:?xt=urn:btih:${meetingPointHash}&dn=MeetingPoint&tr=${glob.trackers.join('&tr=')}`
 
-  console.log('Connecting to DHT Meeting Point:', meetingPointHash)
-  glob.webtorrent.add(meetingPointHash, {
+  console.log('Connecting to DHT Meeting Point:', mettingPointMagnetUri)
+  glob.webtorrent.add(mettingPointMagnetUri, {
     announce: glob.trackers,
     strategy: 'rarest',
     alwaysChokeSeeders: false
