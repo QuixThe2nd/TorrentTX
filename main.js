@@ -131,7 +131,7 @@ function createWindow () {
           }
         })
         return wires.length > 0 ? wires : []
-      })
+      }).sort((a, b) => a.address.localeCompare(b.address))
       glob.browserWindow.webContents.send(
         'message',
         base64encode(
