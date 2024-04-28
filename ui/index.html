@@ -34,6 +34,7 @@
           <p>Progress: <span id="progress">0%</span></p>
           <p>Connections: <span id="connectionCount">0</span></p>
           <p>Peak Connections: <span id="peakConnections">0</span></p>
+          <p>Known Peers: <span id="peersCount">0</span></p>
         </div>
         <div>
           <input type="number" id="transferAmount" placeholder="Amount" min="0" />
@@ -91,14 +92,6 @@
     </table>
 
     <div style="display: flex; gap: 1rem">
-      <div>
-        <h3>
-          Peers
-          <span id="peersCount" style="font-size: 0.8rem">(Loading)</span>
-        </h3>
-        <ul id="peers" style="list-style: none; padding: 0"></ul>
-      </div>
-
       <div>
         <h3>
           Mempool
@@ -173,14 +166,7 @@
         document.getElementById('connectionCount').textContent = connectionCount
         if (connectionCount > document.getElementById('peakConnections').textContent) document.getElementById('peakConnections').textContent = connectionCount
 
-        document.getElementById('peersCount').textContent = '(' + payload.peers.length + ')'
-        const peersElement = document.getElementById('peers')
-        peersElement.innerHTML = ''
-        for (const peer of payload.peers) {
-          const peerElement = document.createElement('li')
-          peerElement.textContent = peer
-          peersElement.appendChild(peerElement)
-        }
+        document.getElementById('peersCount').textContent = payload.peers
 
         document.getElementById('mempoolCount').textContent = '(' + payload.infohashes.length + ')'
         const mempoolElement = document.getElementById('mempool')
