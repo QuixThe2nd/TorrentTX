@@ -61,6 +61,7 @@
           <th>Is Me</th>
           <th>Peer Id</th>
           <th>Address</th>
+          <th>Version</th>
           <th>Am Choking</th>
           <th>Am Interested</th>
           <th>Peer Choking</th>
@@ -272,6 +273,7 @@
           const isMeElement = document.createElement('td')
           const peerIdElement = document.createElement('td')
           const addressElement = document.createElement('td')
+          const versionElement = document.createElement('td')
           const amChokingElement = document.createElement('td')
           const amInterestedElement = document.createElement('td')
           const peerChokingElement = document.createElement('td')
@@ -285,6 +287,7 @@
           isMeElement.textContent = connection.isMe
           peerIdElement.textContent = connection.peerId
           addressElement.textContent = connection.address
+          versionElement.textContent = connection.version
           amChokingElement.textContent = connection.amChoking
           amInterestedElement.textContent = connection.amInterested
           peerChokingElement.textContent = connection.peerChoking
@@ -300,6 +303,7 @@
           connectionElement.appendChild(isMeElement)
           connectionElement.appendChild(peerIdElement)
           connectionElement.appendChild(addressElement)
+          connectionElement.appendChild(versionElement)
           connectionElement.appendChild(amChokingElement)
           connectionElement.appendChild(amInterestedElement)
           connectionElement.appendChild(peerChokingElement)

@@ -18,6 +18,8 @@ const base64encode = str => Buffer.from(str).toString('base64')
 
 const glob = initGlob()
 
+glob.version = '0.0.2'
+
 function createWindow () {
   glob.browserWindow = new BrowserWindow({
     width: 1200,
@@ -118,7 +120,8 @@ function createWindow () {
             downloaded: wire.downloaded,
             type: wire.type,
             uploadSpeed: wire.uploadSpeed(),
-            downloadSpeed: wire.downloadSpeed()
+            downloadSpeed: wire.downloadSpeed(),
+            version: wire.torrenttx.version
           }
         })
         return wires.length > 0 ? wires : []
