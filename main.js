@@ -141,7 +141,7 @@ function createWindow () {
               })
             ),
             infohashes: fs.readFileSync('infohashes.txt').toString().split('\n'),
-            peers: fs.readFileSync('peers.txt').toString().split('\n'),
+            peers: fs.readFileSync('peers.txt').toString().split('\n').length,
             connections,
             seeding: glob.webtorrent.torrents.filter(torrent => torrent.done).map(torrent => torrent.infoHash),
             leeching: glob.webtorrent.torrents.filter(torrent => !torrent.done).map(torrent => torrent.infoHash),
@@ -207,7 +207,6 @@ ipcMain.on('message-from-renderer', (event, message) => {
     })
     glob.transactions.addTransaction(transaction)
     glob.webtorrent.torrents.forEach(torrent => {
-      if (torrent.wire) torrent.wire.extended('torrenttx', bencode.encode(JSON.stringify({ torrents: [torrent.infoHash], msg_type: 0 })))
     });
     console.log('Created Transaction:', transaction.content.hash)
     transaction.announce()
