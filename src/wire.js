@@ -66,7 +66,7 @@ export default () => {
         for (const torrent of dict.torrents) {
           if (!transactions.includes(torrent)) {
             console.log('New transaction:', torrent)
-            this._glob._ = new Transaction(this._glob, { infohash: torrent })
+            this.addTransaction(new Transaction(this._glob, { infohash: torrent }))
           }
         }
       }
