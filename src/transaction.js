@@ -1,6 +1,7 @@
 import fs from 'fs'
 import ethUtil from 'ethereumjs-util'
 import Wire from './wire.js'
+import path from 'path'
 
 export default class Transaction {
   constructor (glob, { from, to, amount, message, hash, infohash, torrentPath, path }) {
@@ -78,7 +79,8 @@ export default class Transaction {
         {
           announce: this.glob.trackers,
           strategy: 'rarest',
-          alwaysChokeSeeders: false
+          alwaysChokeSeeders: false,
+          path: 'mempool'
         },
         torrent => {
           this.torrent = torrent
@@ -116,9 +118,7 @@ export default class Transaction {
             for (const file of files) {
               console.log(torrent.infoHash, 'File:', file.path)
 
-              this.txContentString = fs
-                .readFileSync(torrent.path + '/' + file.path)
-                .toString()
+              this.txContentString = fs.readFileSync(torrent.path + '/' + file.path).toString()
               this.content = JSON.parse(this.txContentString)
               console.log(this.content)
               this.hash = this.content.hash
@@ -146,7 +146,8 @@ export default class Transaction {
         {
           announce: this.glob.trackers,
           strategy: 'rarest',
-          alwaysChokeSeeders: false
+          alwaysChokeSeeders: false,
+          path: 'mempool'
         },
         torrent => {
           const glob = this.glob
