@@ -1,7 +1,12 @@
 # TorrentTX - The world's first Bittorrent Layer 2
+
 An experiment aiming to extend the capabilities of the Bittorrent protocol.
 
 TorrentTX aims to build on-top of the Bittorrent protocol by adding a new consensus-layer. The idea is, torrents are the perfect store of information. They are immutable, and stay online as long as ONE person cares to keep them online. Torrents allow for bitcoin-style certainty, with infinite scaling.
+
+Like my work? Please considering following me or starring this repo ❤️
+
+[![Follow on GitHub](https://img.shields.io/badge/Follow-%40QuixThe2nd-blue?style=social&logo=GitHub)](https://github.com/QuixThe2nd)
 
 ## The idea
 TLDR: What if the blockchain IS the mempool?
