@@ -4,12 +4,10 @@ import { initGlob } from './src/glob.js'
 import Wallet from './src/wallet.js'
 import Transaction from './src/transaction.js'
 import Transactions from './src/transactions.js'
-import Wire from './src/wire.js'
 import WebTorrent from 'webtorrent'
 import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'path'
 import QRCode from 'qrcode'
-import bencode from 'bencode'
 // import Mine from './src/mine.js'
 
 const currentDir = path.dirname(new URL(import.meta.url).pathname)
@@ -206,8 +204,6 @@ ipcMain.on('message-from-renderer', (event, message) => {
       message: data.message
     })
     glob.transactions.addTransaction(transaction)
-    glob.webtorrent.torrents.forEach(torrent => {
-    });
     console.log('Created Transaction:', transaction.content.hash)
     transaction.announce()
   }

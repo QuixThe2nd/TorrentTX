@@ -1,7 +1,7 @@
 import fs from 'fs'
+import bencode from 'bencode'
 import ethUtil from 'ethereumjs-util'
 import Wire from './wire.js'
-import path from 'path'
 
 export default class Transaction {
   constructor (glob, { from, to, amount, message, hash, infohash, torrentPath, path }) {
@@ -204,8 +204,14 @@ export default class Transaction {
   }
 
   announce () {
-    // fetch('https://ttx-dht.starfiles.co/' + this.infohash).then(response => response.text()).then(data => console.log("Announced transaction to DHT gateway"));
-    const wires = this.glob.webtorrent.torrents.map(torrent => torrent.wires).flat()
-    console.log(wires)
+    console.log('Announcing Transaction', this.hash)
+    this.glob.webtorrent.torrents.forEach(torrent => {
+      if (torrent.wire) {
+        console.log('aaaaa11111')
+        torrent.wire.extended('torrenttx', bencode.encode(JSON.stringify({ torrents: [torrent.infoHash], msg_type: 0 })))
+      } else {
+        console.log('aaaaa22222')
+      }
+    })
   }
 }
