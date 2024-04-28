@@ -90,15 +90,15 @@ export default class Transaction {
 
           const peers = fs.readFileSync('peers.txt').toString().split('\n')
           for (const peer of peers) {
-            if (!torrent.addPeer(peer)) console.verbose(torrent.infoHash, 'Failed to add peer', peer)
+            torrent.addPeer(peer)
           }
 
           torrent.on('metadata', () => console.log(torrent.infoHash, 'Metadata received'))
           torrent.on('ready', () => console.log(torrent.infoHash, 'Download ready'))
           torrent.on('warning', err => console.verbose(torrent.infoHash, err.message))
           torrent.on('error', err => console.error(torrent.infoHash, err.message))
-          torrent.on('download', bytes => console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes'))
-          torrent.on('upload', bytes => console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes'))
+          // torrent.on('download', bytes => console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes'))
+          // torrent.on('upload', bytes => console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes'))
           torrent.on('noPeers', (announceType) => torrent.done || console.verbose(torrent.infoHash, 'No peers found for', announceType))
           torrent.on('wire', (wire, addr) => {
             console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr)
@@ -158,15 +158,15 @@ export default class Transaction {
 
           const peers = fs.readFileSync('peers.txt').toString().split('\n')
           for (const peer of peers) {
-            if (!torrent.addPeer(peer)) console.verbose(torrent.infoHash, 'Failed to add peer', peer)
+            torrent.addPeer(peer)
           }
 
           torrent.on('metadata', () => console.log(torrent.infoHash, 'Metadata received'))
           torrent.on('ready', () => console.log(torrent.infoHash, 'Download ready'))
           torrent.on('warning', err => console.verbose(torrent.infoHash, err.message))
           torrent.on('error', err => console.error(torrent.infoHash, err.message))
-          torrent.on('download', bytes => console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes'))
-          torrent.on('upload', bytes => console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes'))
+          // torrent.on('download', bytes => console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes'))
+          // torrent.on('upload', bytes => console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes'))
           torrent.on('noPeers', (announceType) => torrent.done || console.verbose(torrent.infoHash, 'No peers found for', announceType))
           torrent.on('wire', (wire, addr) => {
             console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr)
