@@ -18,8 +18,6 @@ const base64encode = str => Buffer.from(str).toString('base64')
 
 const glob = initGlob()
 
-glob.webtorrent = new WebTorrent({ maxConns: 250 })
-
 function createWindow () {
   glob.browserWindow = new BrowserWindow({
     width: 1200,
@@ -47,6 +45,7 @@ function createWindow () {
 
   // WebTorrent
   if (!WebTorrent.WEBRTC_SUPPORT) console.error('WebRTC Not Supported')
+  glob.webtorrent = new WebTorrent({ maxConns: 250 })
   glob.webtorrent.on('error', console.error)
   glob.webtorrent.on('listening', () => console.info(`Torrent client listening 0.0.0.0:${(glob.webtorrent.address()).port}`))
 

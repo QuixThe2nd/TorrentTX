@@ -93,7 +93,7 @@ export default class Transaction {
           torrent.on('error', err => console.error(torrent.infoHash, err.message))
           // torrent.on('download', bytes => console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes'))
           // torrent.on('upload', bytes => console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes'))
-          torrent.on('noPeers', (announceType) => torrent.done || console.verbose(torrent.infoHash, 'No peers found for', announceType))
+          // torrent.on('noPeers', (announceType) => torrent.done || console.verbose(torrent.infoHash, 'No peers found for', announceType))
           torrent.on('wire', (wire, addr) => {
             console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr)
 
@@ -151,7 +151,7 @@ export default class Transaction {
           torrent.on('error', err => console.error(torrent.infoHash, err.message))
           // torrent.on('download', bytes => console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes'))
           // torrent.on('upload', bytes => console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes'))
-          torrent.on('noPeers', (announceType) => torrent.done || console.verbose(torrent.infoHash, 'No peers found for', announceType))
+          // torrent.on('noPeers', (announceType) => torrent.done || console.verbose(torrent.infoHash, 'No peers found for', announceType))
           torrent.on('wire', (wire, addr) => {
             console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr)
 
