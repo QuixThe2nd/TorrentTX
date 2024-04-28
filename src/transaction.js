@@ -1,5 +1,4 @@
 import fs from 'fs'
-import bencode from 'bencode'
 import ethUtil from 'ethereumjs-util'
 import Wire from './wire.js'
 
@@ -185,12 +184,10 @@ export default class Transaction {
   announce () {
     console.log('Announcing Transaction', this.hash)
     this.glob.webtorrent.torrents.forEach(torrent => {
-      if (torrent.wire) {
-        console.log('aaaaa11111')
-        torrent.wire.extended('torrenttx', bencode.encode(JSON.stringify({ torrents: [torrent.infoHash], msg_type: 0 })))
-      } else {
-        console.log('aaaaa22222')
-      }
+      torrent.wires.forEach(wire => {
+        console.log('Announcing to', wire.peerId, 'in', torrent.infoHash)
+        wire.torrenttx.send({ torrents: [torrent.infoHash], msg_type: 1 })
+      })
     })
   }
 }

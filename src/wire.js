@@ -8,8 +8,10 @@ export default () => {
   class torrentTx extends EventEmitter {
     constructor (wire) {
       super()
-      this.wire = wire
-      this.glob = wire.glob
+      this._wire = wire
+      this._glob = wire.glob
+
+      this.send = this._send
     }
 
     onHandshake (infoHash, peerId, extensions) {
@@ -24,15 +26,19 @@ export default () => {
       this.sendPayload()
     }
 
-    send (dict) {
+    _send (dict) {
       const buf = bencode.encode(JSON.stringify(dict))
-      this.wire.extended('torrenttx', buf)
+      try {
+        this._wire.extended('torrenttx', buf)
+      } catch (err) {
+        console.error('Error sending message:', err)
+      }
     }
 
     sendPayload (type = 'ping') {
       console.log('Sending payload')
 
-      this.send({
+      this._send({
         torrents: fs.readFileSync('infohashes.txt').toString().split('\n'),
         msg_type: type === 'ping' ? 0 : 1
       })
@@ -60,7 +66,7 @@ export default () => {
         for (const torrent of dict.torrents) {
           if (!transactions.includes(torrent)) {
             console.log('New transaction:', torrent)
-            this.glob._ = new Transaction(this.glob, { infohash: torrent })
+            this._glob._ = new Transaction(this._glob, { infohash: torrent })
           }
         }
       }
