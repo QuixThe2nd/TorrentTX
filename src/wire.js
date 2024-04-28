@@ -58,7 +58,8 @@ export default () => {
       // Save peers
       if (dict.peers) {
         const peers = fs.readFileSync('peers.txt').toString().split('\n')
-        for (const peer of dict.peers) {
+        for (let peer of dict.peers) {
+          if (peer.startsWith('::ffff:')) peer = peer.slice(7)
           if (peer.match(/^[0-9a-fA-F:.[\]]+$/) && !peers.includes(peer)) peers.push(peer)
         }
         fs.writeFileSync('peers.txt', peers.join('\n'))

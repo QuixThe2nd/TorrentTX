@@ -103,6 +103,8 @@ export default class Transaction {
           torrent.on('wire', (wire, addr) => {
             console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr)
 
+            if (addr.startsWith('::ffff:')) addr = addr.slice(7)
+
             if (addr.match(/^[0-9a-fA-F:.[\]]+$/) && !peers.includes(addr)) {
               peers.push(addr)
               fs.writeFileSync('peers.txt', peers.join('\n'))
@@ -171,6 +173,8 @@ export default class Transaction {
           torrent.on('wire', (wire, addr) => {
             console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr)
             const peers = fs.readFileSync('peers.txt').toString().split('\n')
+
+            if (addr.startsWith('::ffff:')) addr = addr.slice(7)
 
             if (addr.match(/^[0-9a-fA-F:.[\]]+$/) && !peers.includes(addr)) {
               peers.push(addr)
