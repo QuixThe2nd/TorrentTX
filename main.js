@@ -211,7 +211,7 @@ ipcMain.on('message-from-renderer', (event, message) => {
 })
 
 /*
-TODO:
+TODO: (idea)
 Instead of staking, users can create "bonds" with other users.
 Technically, the protocol allows multiple tx json's in a single torrent file.
 A bond is when 2 different addresses back eachother's funds 1:1.

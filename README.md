@@ -50,11 +50,13 @@ To create inflation/deflation, we can create a difficulty charge for transaction
 
 ~~TorrentTX is now fully built on the Bittorrent protocol. It is a "Bittorrent Layer 2". All communication is done folowing the Bittorrent spec. Essentially, the TorrentTX protocol "hijacks" the standard Bittorrent handshake. If the other client is a standard Bittorrent node, they can still leech/seed to eachother with no issues. But by specifying TorrentTX as an extension during the Bittorrent handshake, if both nodes specify that they're using TorrentTX, they can start communication directly with eachother. This communication is done via the Bittorrent protocol, following the Bittorrent protocol's specs. This means you no longer need to port forward. As for initial peer discovery, I've solved that. You can now export "proofs" by typing `p` in your node. A proof is just a torrent file for a transaction. This proof, allows you to issue a transaction on a node with 0 peers, and export that proof. Meaning you can send someone TTX via Email. I'm not joking. Just create a transaction, print a receipt (proof), and send. What this means, is we can include the genesis torrent file in the source code. When a node runs, on startup, it checks the proof dir for any torrents and starts downloading/seeding them. Using PeX, Bittorrent Trackers, DHT, and all the other fun things native to the Bittorrent protocol, we can start discovering TorrentTX clients, with nothing but a `.torrent` file and this piece of code. With no extra port forwarding or networking required, JUST the bittorrent protocol, so UDP/UTP/TCP, and now wrtc with the WebTorrent library. TTX trackers are no-longer required, they're actually commented by default now. As for next steps, we need to improve transactions discoverability. From there, consensus. It's worth noting, currently all torrents are stored on each node. Eventually when the blockchain becomes large, clients can be modified to just store what's needed.~~
 
-Now with GUI.
+~~Now with GUI.~~
 
-### Todo
+Transaction braodcasting is working, things are stable. Clients now send version numbers to eachother. Transaction discoverability is pretty decent now. The next steps are consensus. Essentially, I know what my client thinks is real. But if other clients disagree, I have no way of knowing. This means there could be a hard-fork and I have absolutely no idea. To solve this, we need some sort of block-height measure for nodes, so nodes can compare their states with eachother to confirm whether or not they're in sync with the network. I plan on doing this using cumulative weights, to give clients a rough idea of whether or not they're in sync, and if not, who's furthest ahead. From there, we need some sort of state identifier because 2 nodes may have the same cumulative weight, but they may be running different forks still. I need to research how this can be done. Essentially, we need something like a merkle-tree, that works for DAGs.
+
+### Rough Plan
 There is more todo than what has already been done so far. I'll keep adding things as I remember.
-- Allow for broadcasting transactions - Currently connections with peers are automatically closed once one side is done downloading, so if I want to broadcast a transaction, I can only send it when someone retreived a different torrent or I retreive a different torrent.
+- Route things through Tor by default
 - Ethereum/Metamask compatible RPCs
 - Archival Contracts (read todo in main.js)
 - ttx20 coins (anyone can mint, just like erc20)
@@ -62,18 +64,13 @@ There is more todo than what has already been done so far. I'll keep adding thin
 - On-chain-bridging - Bridge Bitcoin, Monero, Ethereum, erc20 tokens, and from layer 2s. Swap on-chain for TTX, or receive wXMR, wETH, wBTC, etc.
 - Make block explorer that showcases the states of transactions (mempool, unconfirmed, and confirmed).
 - Create sync confirmations - Some-sort of a block height measure for TorrentTX, to see who's further ahead of who. This way you can tell if you need more blocks
-
-### Rough Plan
-- Keep adding poking holes and adding checks to make it harder to lie
+- Do some sort of merkle-tree proof for validating you aren't on a different fork compared to other nodes.
+- Keep poking holes and adding checks to make it harder to lie
 - Make node more stable and add more QoL features and stuff
 - Start building system to handle modules, so new features can be added on by anyone, and nodes can opt in on "mining" each type of module individually
-- Build ttx20 module for custom coins
 - Build native liquidity pools and liquid swaps that remove the need for DEXes
 - Build an EVM module using a sandboxed javascript environemnt for smart contracts
 - Create framework for people to publish global javascript functions that others can reference in their smart contract
-- Eventually make a GUI
-- Make bridging layer from other blockchains
-- do some sort of merkle-tree proof for proving u have torrents
 
 Cross chain bridge:
 Through this paragraph, I will say "ethereum" a lot. When I say ethereum, that's just an example.
