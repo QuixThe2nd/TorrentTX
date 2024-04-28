@@ -10,7 +10,7 @@ import path from 'path'
 import QRCode from 'qrcode'
 // import Mine from './src/mine.js'
 
-const currentDir = path.dirname(new URL(import.meta.url).pathname)
+const currentPath = process.cwd()
 
 if (!fs.existsSync('infohashes.txt')) fs.writeFileSync('infohashes.txt', '')
 
@@ -24,7 +24,7 @@ function createWindow () {
   glob.browserWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    webPreferences: { preload: `${currentDir}/ui/preload.js` }
+    webPreferences: { preload: path.join(currentPath, 'ui', 'preload.js') }
   })
 
   glob.browserWindow.loadFile('ui/index.html')
