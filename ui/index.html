@@ -141,11 +141,13 @@
       window.electronAPI.handleMessage((event, message) => {
         const payload = JSON.parse(atob(message))
 
+        const connectionCount = payload.connections.map(c => c.isMe).filter(c => !c).length
+
         document.getElementById('address').textContent = payload.address
         document.getElementById('address_qrcode').src = payload.address + '.webp'
         document.getElementById('balance').textContent = payload.balances[payload.address] || 0
-        document.getElementById('connections').textContent = payload.connections
-        if (payload.connections > document.getElementById('peakConnections').textContent) document.getElementById('peakConnections').textContent = payload.connections
+        document.getElementById('connectionCount').textContent = connectionCount
+        if (connectionCount > document.getElementById('peakConnections').textContent) document.getElementById('peakConnections').textContent = connectionCount
 
         document.getElementById('peersCount').textContent = '(' + payload.peers.length + ')'
         const peersElement = document.getElementById('peers')

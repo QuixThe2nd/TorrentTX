@@ -147,6 +147,25 @@ function createWindow () {
 
   setInterval(() => {
     if (glob.browserWindow) {
+      const connections = glob.webtorrent.torrents.flatMap(torrent => {
+        const wires = torrent.wires.map(wire => {
+          return {
+            isMe: wire.peerId === glob.webtorrent.peerId,
+            peerId: wire.peerId,
+            address: `${wire.remoteAddress}:${wire.remotePort}`,
+            amChoking: wire.amChoking,
+            amInterested: wire.amInterested,
+            peerChoking: wire.peerChoking,
+            peerInterested: wire.peerInterested,
+            uploaded: wire.uploaded,
+            downloaded: wire.downloaded,
+            type: wire.type,
+            uploadSpeed: wire.uploadSpeed(),
+            downloadSpeed: wire.downloadSpeed()
+          }
+        })
+        return wires.length > 0 ? wires : []
+      })
       glob.browserWindow.webContents.send(
         'message',
         base64encode(
@@ -163,7 +182,7 @@ function createWindow () {
             ),
             infohashes: fs.readFileSync('infohashes.txt').toString().split('\n'),
             peers: fs.readFileSync('peers.txt').toString().split('\n'),
-            connections: glob.webtorrent.torrents.map(torrent => torrent.numPeers).reduce((a, b) => a + b, 0),
+            connections,
             seeding: glob.webtorrent.torrents.filter(torrent => torrent.done).map(torrent => torrent.infoHash),
             leeching: glob.webtorrent.torrents.filter(torrent => !torrent.done).map(torrent => torrent.infoHash),
             ratio: glob.webtorrent.ratio,
