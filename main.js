@@ -12,12 +12,13 @@ import QRCode from 'qrcode'
 
 const currentDir = path.dirname(new URL(import.meta.url).pathname)
 
-if (!fs.existsSync('peers.txt')) fs.writeFileSync('peers.txt', '')
 if (!fs.existsSync('infohashes.txt')) fs.writeFileSync('infohashes.txt', '')
 
 const base64encode = str => Buffer.from(str).toString('base64')
 
 const glob = initGlob()
+
+glob.webtorrent = new WebTorrent({ maxConns: 250 })
 
 function createWindow () {
   glob.browserWindow = new BrowserWindow({
@@ -46,7 +47,6 @@ function createWindow () {
 
   // WebTorrent
   if (!WebTorrent.WEBRTC_SUPPORT) console.error('WebRTC Not Supported')
-  glob.webtorrent = new WebTorrent({ maxConns: 250 })
   glob.webtorrent.on('error', console.error)
   glob.webtorrent.on('listening', () => console.info(`Torrent client listening 0.0.0.0:${(glob.webtorrent.address()).port}`))
 
@@ -139,7 +139,6 @@ function createWindow () {
               })
             ),
             infohashes: fs.readFileSync('infohashes.txt').toString().split('\n'),
-            peers: fs.readFileSync('peers.txt').toString().split('\n').length,
             connections,
             seeding: glob.webtorrent.torrents.filter(torrent => torrent.done).map(torrent => torrent.infoHash),
             leeching: glob.webtorrent.torrents.filter(torrent => !torrent.done).map(torrent => torrent.infoHash),

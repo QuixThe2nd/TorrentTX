@@ -88,11 +88,6 @@ export default class Transaction {
 
           console.log(torrent.infoHash, 'Added')
 
-          const peers = fs.readFileSync('peers.txt').toString().split('\n')
-          for (const peer of peers) {
-            torrent.addPeer(peer)
-          }
-
           torrent.on('metadata', () => console.log(torrent.infoHash, 'Metadata received'))
           torrent.on('ready', () => console.log(torrent.infoHash, 'Download ready'))
           torrent.on('warning', err => console.verbose(torrent.infoHash, err.message))
@@ -102,13 +97,6 @@ export default class Transaction {
           torrent.on('noPeers', (announceType) => torrent.done || console.verbose(torrent.infoHash, 'No peers found for', announceType))
           torrent.on('wire', (wire, addr) => {
             console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr)
-
-            if (addr.startsWith('::ffff:')) addr = addr.slice(7)
-
-            if (addr.match(/^[0-9a-fA-F:.[\]]+$/) && !peers.includes(addr)) {
-              peers.push(addr)
-              fs.writeFileSync('peers.txt', peers.join('\n'))
-            }
 
             wire.glob = glob
             wire.use(Wire())
@@ -158,11 +146,6 @@ export default class Transaction {
 
           console.log(torrent.infoHash, 'Seeding', torrent.files[0].path.replace('.json', ''))
 
-          const peers = fs.readFileSync('peers.txt').toString().split('\n')
-          for (const peer of peers) {
-            torrent.addPeer(peer)
-          }
-
           torrent.on('metadata', () => console.log(torrent.infoHash, 'Metadata received'))
           torrent.on('ready', () => console.log(torrent.infoHash, 'Download ready'))
           torrent.on('warning', err => console.verbose(torrent.infoHash, err.message))
@@ -172,14 +155,6 @@ export default class Transaction {
           torrent.on('noPeers', (announceType) => torrent.done || console.verbose(torrent.infoHash, 'No peers found for', announceType))
           torrent.on('wire', (wire, addr) => {
             console.log(torrent.infoHash, 'Connected to torrent peer: ' + addr)
-            const peers = fs.readFileSync('peers.txt').toString().split('\n')
-
-            if (addr.startsWith('::ffff:')) addr = addr.slice(7)
-
-            if (addr.match(/^[0-9a-fA-F:.[\]]+$/) && !peers.includes(addr)) {
-              peers.push(addr)
-              fs.writeFileSync('peers.txt', peers.join('\n'))
-            }
 
             wire.glob = glob
             wire.use(Wire())

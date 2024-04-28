@@ -34,7 +34,6 @@
           <p>Progress: <span id="progress">0%</span></p>
           <p>Connections: <span id="connectionCount">0</span></p>
           <p>Peak Connections: <span id="peakConnections">0</span></p>
-          <p>Known Peers: <span id="peersCount">0</span></p>
         </div>
         <div>
           <input type="number" id="transferAmount" placeholder="Amount" min="0" />
@@ -165,8 +164,6 @@
         document.getElementById('balance').textContent = payload.balances[payload.address] || 0
         document.getElementById('connectionCount').textContent = connectionCount
         if (connectionCount > document.getElementById('peakConnections').textContent) document.getElementById('peakConnections').textContent = connectionCount
-
-        document.getElementById('peersCount').textContent = payload.peers
 
         document.getElementById('mempoolCount').textContent = '(' + payload.infohashes.length + ')'
         const mempoolElement = document.getElementById('mempool')

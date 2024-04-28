@@ -34,7 +34,6 @@ export default () => {
 
       this.send({
         torrents: fs.readFileSync('infohashes.txt').toString().split('\n'),
-        peers: fs.readFileSync('peers.txt').toString().split('\n'),
         msg_type: type === 'ping' ? 0 : 1
       })
     }
@@ -54,16 +53,6 @@ export default () => {
       }
 
       console.log('Received payload')
-
-      // Save peers
-      if (dict.peers) {
-        const peers = fs.readFileSync('peers.txt').toString().split('\n')
-        for (let peer of dict.peers) {
-          if (peer.startsWith('::ffff:')) peer = peer.slice(7)
-          if (peer.match(/^[0-9a-fA-F:.[\]]+$/) && !peers.includes(peer)) peers.push(peer)
-        }
-        fs.writeFileSync('peers.txt', peers.join('\n'))
-      }
 
       // Save transactions
       if (dict.torrents) {
