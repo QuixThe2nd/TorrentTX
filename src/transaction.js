@@ -187,7 +187,7 @@ export default class Transaction {
     this.glob.webtorrent.torrents.forEach(torrent => {
       torrent.wires.forEach(wire => {
         console.log('Announcing to', wire.peerId, 'in', torrent.infoHash)
-        wire.torrenttx.send({ torrents: [torrent.infoHash], msg_type: 1 })
+        if (wire.torrenttx) wire.torrenttx.send({ torrents: [torrent.infoHash], msg_type: 1 })
       })
     })
   }
