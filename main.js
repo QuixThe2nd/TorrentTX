@@ -121,7 +121,7 @@ function createWindow () {
             type: wire.type,
             uploadSpeed: wire.uploadSpeed(),
             downloadSpeed: wire.downloadSpeed(),
-            version: wire.torrenttx.version
+            version: wire.torrenttx ? wire.torrenttx.version : 'L1 Client'
           }
         })
         return wires.length > 0 ? wires : []
