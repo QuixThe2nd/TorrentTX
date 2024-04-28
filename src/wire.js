@@ -11,6 +11,7 @@ export default () => {
       this._wire = wire
       this._glob = wire.glob
 
+      this.version = '0.0.1'
       this.send = this._send
     }
 
@@ -40,6 +41,7 @@ export default () => {
 
       this._send({
         torrents: fs.readFileSync('infohashes.txt').toString().split('\n'),
+        version: this._glob.version,
         msg_type: type === 'ping' ? 0 : 1
       })
     }
@@ -60,13 +62,15 @@ export default () => {
 
       console.log('Received payload')
 
+      this.version = dict.version || this.version
+
       // Save transactions
       if (dict.torrents) {
         const transactions = fs.readFileSync('infohashes.txt').toString().split('\n')
         for (const torrent of dict.torrents) {
           if (!transactions.includes(torrent)) {
             console.log('New transaction:', torrent)
-            this._ = new Transaction(this._glob, { infohash: torrent })
+            this.glob._ = new Transaction(this._glob, { infohash: torrent })
           }
         }
       }
