@@ -37,7 +37,7 @@
         </div>
         <div>
           <input type="number" id="transferAmount" placeholder="Amount" min="0" />
-          <input type="text" id="transferTo" placeholder="To" />
+          <input type="text" id="transferTo" placeholder="To" pattern="0x[0-9a-fA-F]{40}" />
           <input type="text" id="transferMessage" placeholder="Message" />
           <button onclick="window.electronAPI.sendMessageToMain(JSON.stringify({
                     type: 'transfer',

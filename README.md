@@ -59,6 +59,9 @@ To create inflation/deflation, we can create a difficulty charge for transaction
 
 Transaction braodcasting is working, things are stable. Clients now send version numbers to eachother. Transaction discoverability is pretty decent now. The next steps are consensus. Essentially, I know what my client thinks is real. But if other clients disagree, I have no way of knowing. This means there could be a hard-fork and I have absolutely no idea. To solve this, we need some sort of block-height measure for nodes, so nodes can compare their states with eachother to confirm whether or not they're in sync with the network. I plan on doing this using cumulative weights, to give clients a rough idea of whether or not they're in sync, and if not, who's furthest ahead. From there, we need some sort of state identifier because 2 nodes may have the same cumulative weight, but they may be running different forks still. I need to research how this can be done. Essentially, we need something like a merkle-tree, that works for DAGs.
 
+### Versioning
+While still in development, TorrentTX uses a modified version of Semver. Version numbers are incrememnted by 0.0.1 for validation changes where 2 versions will treat a transaction differently. Version numbers are incremented by 0.1 whenever a breaking change is pushed. The reason 0.0.1 is only for validation changes is because 2 nodes that use different validation mechanisms can still communicate, even if they can't form a consensus. Eventually when we're out of beta and validation changes won't be a frequent occurance, the versioning will be standardised.
+
 ### Rough Plan
 There is more todo than what has already been done so far. I'll keep adding things as I remember.
 - Route things through Tor by default

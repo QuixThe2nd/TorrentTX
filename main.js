@@ -18,7 +18,7 @@ const base64encode = str => Buffer.from(str).toString('base64')
 
 const glob = initGlob()
 
-glob.version = '0.0.2'
+glob.version = '0.0.3'
 
 function createWindow () {
   glob.browserWindow = new BrowserWindow({

@@ -59,6 +59,7 @@ export default class Transaction {
     if (this.body.amount < 0) return false
     if (!this.glob.transactions.balances[this.body.from] || this.glob.transactions.balances[this.body.from] < this.body.amount) return false
     if (!this.body.prev.length) return false
+    if (!ethUtil.isValidAddress(this.body.to)) return false
 
     for (const hash of this.body.prev) {
       if (!fs.existsSync(`transactions/${hash}.json`)) return false
