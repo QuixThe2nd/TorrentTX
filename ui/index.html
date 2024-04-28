@@ -34,6 +34,7 @@
           <p>Progress: <span id="progress">0%</span></p>
           <p>Connections: <span id="connectionCount">0</span></p>
           <p>Peak Connections: <span id="peakConnections">0</span></p>
+          <p>Circulating Supply: <span id="circulatingSupply">0</span></p>
         </div>
         <div>
           <input type="number" id="transferAmount" placeholder="Amount" min="0" />
@@ -163,6 +164,7 @@
         document.getElementById('address').textContent = payload.address
         document.getElementById('address_qrcode').src = payload.address + '.webp'
         document.getElementById('balance').textContent = payload.balances[payload.address] || 0
+        document.getElementById('circulatingSupply').textContent = Object.values(payload.balances).reduce((a, b) => a + b, 0)
         document.getElementById('connectionCount').textContent = connectionCount
         if (connectionCount > document.getElementById('peakConnections').textContent) document.getElementById('peakConnections').textContent = connectionCount
 
