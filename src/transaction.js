@@ -80,6 +80,7 @@ export default class Transaction {
     for (const hash of this.body.prev) {
       if (!this.glob.transactions.remaining_utxos[hash]) return false
       if (this.glob.transactions.remaining_utxos[hash] < this.body.amount) return false
+      if (!this.glob.transactions.transactions[hash]) return false
       if (this.glob.transactions.transactions[hash].body.to !== this.body.from) return false
     }
 
