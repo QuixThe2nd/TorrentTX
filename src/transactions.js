@@ -9,6 +9,7 @@ export default class Transactions {
     this.glob = glob
     this.transactions = {}
     this.balances = {}
+    this.remaining_utxos = {}
   }
 
   loadSavedTransactions () {
@@ -40,17 +41,16 @@ export default class Transactions {
   }
 
   updateBalances (transaction) {
-    // if (remaining_utxos[hash])
-    //     remaining_utxos[hash] += tx.amount;
-    // else
-    //     remaining_utxos[hash] = tx.amount;
-    // for (const i in tx.prev) {
-    //     const hash = tx.prev[i];
-    //     if (remaining_utxos[hash])
-    //         remaining_utxos[hash] -= tx.amount;
-    //     else
-    //         remaining_utxos[hash] = -tx.amount;
-    // }
+    const tx = transaction.body
+    const hash = transaction.hash
+
+    if (this.remaining_utxos[hash]) throw new Error('UTXO already set')
+
+    this.remaining_utxos[hash] = tx.amount
+
+    for (const hash of tx.prev) {
+      this.remaining_utxos[hash] -= tx.amount
+    }
 
     if (this.balances[transaction.body.to]) this.balances[transaction.body.to] += transaction.body.amount
     else this.balances[transaction.body.to] = transaction.body.amount
@@ -74,43 +74,12 @@ export default class Transactions {
     return state
   }
 
-  findUnusedUTXOs (address, amount) {
-    const UTXOs = []
-    const transactions = fs.readdirSync('transactions')
-    for (const file of transactions) {
-      if (file.substring(0, 1) === '.') continue
-      const data = JSON.parse(fs.readFileSync(`transactions/${file}`))
-      const { tx, signature, hash } = data
-      if (tx.to === address) UTXOs.push({ tx, signature, hash })
+  findUnusedUTXOs (address) {
+    const utxos = []
+    for (const hash in this.remaining_utxos) {
+      if (this.transactions[hash].body.to === address) utxos.push(hash)
     }
-
-    // sort UTXOs by amount, lowest first
-    UTXOs.sort((a, b) => a.tx.amount - b.tx.amount)
-
-    // Loop through UTXOs from smallest to largest till you find one bigger than amount
-    const selectedUTXOs = []
-    for (const UTXO of UTXOs) {
-      if (UTXO.tx.amount >= amount) {
-        selectedUTXOs.push(UTXO.hash)
-        break
-      }
-    }
-
-    if (selectedUTXOs.length === 0) {
-      // Sort UTXOs by amount, largest first
-      UTXOs.sort((a, b) => b.tx.amount - a.tx.amount)
-
-      let total = 0
-      for (const UTXO of UTXOs) {
-        selectedUTXOs.push(UTXO.hash)
-        total += UTXO.tx.amount
-        if (total >= amount) break
-      }
-    }
-
-    if (selectedUTXOs.length === 0) throw new Error("Can't find UTXO")
-
-    return selectedUTXOs
+    return utxos
   }
 
   search (glob, { query }) {

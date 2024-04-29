@@ -34,13 +34,29 @@ export default class Transaction {
 
       this.leech(torrentPath)
     } else if (from && to && amount) {
+      const unusedUTXOs = glob.transactions.findUnusedUTXOs(from)
+
+      const prev = []
+      let remaining = amount
+      for (const hash of unusedUTXOs) {
+        if (this.glob.transactions.remaining_utxos[hash] >= remaining) {
+          prev.length = 0
+          prev.push(hash)
+          break
+        } else {
+          prev.push(hash)
+          remaining -= this.glob.transactions.remaining_utxos[hash]
+          if (remaining <= 0) break
+        }
+      }
+
       this.body = {
         nonce: Math.random(),
         from,
         to,
         amount: amount / 1,
         message: message ?? '',
-        prev: /* isGenesis ? [] : */glob.transactions.findUnusedUTXOs(from, amount)
+        prev: /* isGenesis ? [] : */ prev
       }
 
       this.hash = ethUtil.sha256(Buffer.from(JSON.stringify(this.body))).toString('hex')
@@ -62,11 +78,10 @@ export default class Transaction {
     if (!ethUtil.isValidAddress(this.body.to)) return false
 
     for (const hash of this.body.prev) {
-      if (!fs.existsSync(`transactions/${hash}.json`)) return false
+      if (!this.glob.transactions.remaining_utxos[hash]) return false
+      if (this.glob.transactions.remaining_utxos[hash] < this.body.amount) return false
+      if (this.glob.transactions.transactions[hash].body.to !== this.body.from) return false
     }
-
-    // TODO: Make sure prev isn't overspent
-    // TODO: Make sure prev is sent to the person who's sending this transaction
 
     return this.glob.wallet.verifySignature(this.hash, this.signature, this.body.from)
   }
