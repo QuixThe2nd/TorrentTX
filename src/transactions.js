@@ -48,8 +48,11 @@ export default class Transactions {
 
     this.remaining_utxos[hash] = tx.amount
 
+    let remaining = tx.amount
     for (const hash of tx.prev) {
-      this.remaining_utxos[hash] -= tx.amount
+      const subtract = Math.min(this.remaining_utxos[hash], tx.amount, remaining)
+      remaining -= subtract
+      this.remaining_utxos[hash] -= subtract
     }
 
     if (this.balances[transaction.body.to]) this.balances[transaction.body.to] += transaction.body.amount
@@ -77,7 +80,7 @@ export default class Transactions {
   findUnusedUTXOs (address) {
     const utxos = []
     for (const hash in this.remaining_utxos) {
-      if (this.transactions[hash].body.to === address) utxos.push(hash)
+      if (this.transactions[hash].body.to === address && this.remaining_utxos[hash] > 0) utxos.push(hash)
     }
     return utxos
   }

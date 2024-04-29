@@ -39,16 +39,15 @@ export default class Transaction {
       const prev = []
       let remaining = amount
       for (const hash of unusedUTXOs) {
-        if (this.glob.transactions.remaining_utxos[hash] >= remaining) {
-          prev.length = 0
-          prev.push(hash)
-          break
-        } else {
-          prev.push(hash)
-          remaining -= this.glob.transactions.remaining_utxos[hash]
-          if (remaining <= 0) break
-        }
+        if (this.glob.transactions.remaining_utxos[hash] >= amount) prev.length = 0
+        remaining -= this.glob.transactions.remaining_utxos[hash]
+
+        prev.push(hash)
+
+        if (remaining <= 0) break
       }
+
+      if (remaining > 0) throw new Error('Not enough UTXOs')
 
       this.body = {
         nonce: Math.random(),
@@ -69,20 +68,28 @@ export default class Transaction {
     }
   }
 
+  handleInvalid (reason) {
+    console.error(reason)
+    return false
+  }
+
   isValid () {
     if (this.hash === this.glob.genesisHash) return true
-    if (isNaN(this.body.amount)) return false
-    if (this.body.amount < 0) return false
-    if (!this.glob.transactions.balances[this.body.from] || this.glob.transactions.balances[this.body.from] < this.body.amount) return false
-    if (!this.body.prev.length) return false
-    if (!ethUtil.isValidAddress(this.body.to)) return false
+    if (!this.body) return this.handleInvalid('No body')
+    if (isNaN(this.body.amount)) return this.handleInvalid('Amount is not a number')
+    if (this.body.amount < 0) return this.handleInvalid('Amount is negative')
+    if (!this.glob.transactions.balances[this.body.from] || this.glob.transactions.balances[this.body.from] < this.body.amount) return this.handleInvalid('Insufficient funds')
+    if (!this.body.prev.length) return this.handleInvalid('No previous transactions')
+    if (!ethUtil.isValidAddress(this.body.to)) return this.handleInvalid('Invalid to address')
 
+    let remaining = this.body.amount
     for (const hash of this.body.prev) {
-      if (!this.glob.transactions.remaining_utxos[hash]) return false
-      if (this.glob.transactions.remaining_utxos[hash] < this.body.amount) return false
-      if (!this.glob.transactions.transactions[hash]) return false
-      if (this.glob.transactions.transactions[hash].body.to !== this.body.from) return false
+      if (!this.glob.transactions.remaining_utxos[hash]) return this.handleInvalid('UTXO not found')
+      if (!this.glob.transactions.transactions[hash]) return this.handleInvalid('Transaction not found')
+      if (this.glob.transactions.transactions[hash].body.to !== this.body.from) return this.handleInvalid('Invalid previous transaction')
+      remaining -= this.glob.transactions.remaining_utxos[hash]
     }
+    if (remaining > 0) return this.handleInvalid('Insufficient previous transaction funds')
 
     return this.glob.wallet.verifySignature(this.hash, this.signature, this.body.from)
   }
