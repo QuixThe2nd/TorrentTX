@@ -218,12 +218,13 @@ ipcMain.on('message-from-renderer', (event, message) => {
   } else if (data.type === 'deploySmartContract') {
     const transaction = new Transaction(glob, {
       from: glob.wallet.address,
-      to: data.to,
-      amount: data.amount,
-      message: data.message,
+      to: glob.wallet.address,
+      amount: 1,
+      message: '',
       contract: data.code
     })
     glob.transactions.addTransaction(transaction)
+    console.log(transaction)
     console.log('Created Transaction:', transaction.content.hash)
     transaction.announce()
   }
