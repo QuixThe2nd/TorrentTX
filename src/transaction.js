@@ -3,7 +3,7 @@ import ethUtil from 'ethereumjs-util'
 import Wire from './wire.js'
 
 export default class Transaction {
-  constructor (glob, { from, to, amount, message, hash, infohash, torrentPath, path }) {
+  constructor (glob, { from, to, amount, message, contract, hash, infohash, torrentPath, path }) {
     this.glob = glob
 
     if (hash) {
@@ -57,6 +57,8 @@ export default class Transaction {
         message: message ?? '',
         prev: /* isGenesis ? [] : */ prev
       }
+
+      if (contract) this.body.contract = contract
 
       this.hash = ethUtil.sha256(Buffer.from(JSON.stringify(this.body))).toString('hex')
       this.signature = glob.wallet.signHash(this.hash)

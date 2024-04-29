@@ -9,6 +9,8 @@
     "ethereumjs-wallet": "^1.0.2",
     "node-fetch": "^3.3.2",
     "qrcode": "^1.5.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5",
     "webtorrent": "github:webtorrent/webtorrent#master"
   },
   "scripts": {
@@ -17,7 +19,7 @@
   },
   "license": "Unlicense",
   "devDependencies": {
-    "standard": "^17.1.0",
-    "prettier-standard": "^16.4.1"
+    "prettier-standard": "^16.4.1",
+    "standard": "^17.1.0"
   }
 }

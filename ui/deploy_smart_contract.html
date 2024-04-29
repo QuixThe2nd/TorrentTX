@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Deploy Smart Contract</title>
+
+    <style>
+      body {
+        background-color: #332f3d;
+        color: #fff;
+        font-family: Arial, sans-serif;
+      }
+      a {
+        color: #4d88ff;
+        text-decoration: none;
+        margin-bottom: 1rem;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Deploy Smart Contract</h1>
+    <a href="index.html">Back</a>
+    <textarea id="code" style="width: 100%; height: 50vh">const contract = (contractGateway: ContractGateway, instruction: Instruction) => {
+  if (instruction.method === 'deposit') {
+    if (!contractGateway.store[instruction.from]) contractGateway.store[instruction.from] = 0
+    contractGateway.store[instruction.from] += instruction.amount
+  } else if (instruction.method === 'withdraw') {
+    if (contractGateway.store[instruction.from] < instruction.amount) return console.error('Insufficient funds')
+    contractGateway.store[instruction.from] -= instruction.amount
+    contractGateway.send(instruction.from, instruction.amount)
+  } else console.error('Method not found')
+}
+</textarea>
+    <button id="deploy">Deploy</button>
+    <script>
+        document.getElementById('deploy').addEventListener('click', function (){
+            const code = document.getElementById('code').value
+            window.electronAPI.sendMessageToMain(
+                JSON.stringify({
+                    type: 'deploySmartContract',
+                    code: code
+                })
+            )
+        });
+    </script>
+  </body>
+</html>
