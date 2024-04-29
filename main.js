@@ -1,4 +1,5 @@
 import fs from 'fs'
+import ethUtil from 'ethereumjs-util'
 import readline from 'readline'
 import { initGlob } from './src/glob.js'
 import Wallet from './src/wallet.js'
@@ -64,7 +65,7 @@ function createWindow () {
   glob.genesisHash = fs.readFileSync('genesis.txt').toString().trim()
 
   // Wallet
-  glob.wallet = new Wallet(glob)
+  glob.wallet = new Wallet()
 
   // Transactions
   glob.transactions = new Transactions(glob)
