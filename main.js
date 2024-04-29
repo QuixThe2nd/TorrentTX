@@ -1,5 +1,4 @@
 import fs from 'fs'
-import ethUtil from 'ethereumjs-util'
 import readline from 'readline'
 import { initGlob } from './src/glob.js'
 import Wallet from './src/wallet.js'
