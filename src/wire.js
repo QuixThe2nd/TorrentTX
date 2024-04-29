@@ -22,14 +22,15 @@ export default () => {
     onExtendedHandshake (handshake) {
       console.log('Extended handshake with:', Object.keys(handshake.m).join(', '))
       if (!handshake.m || !handshake.m.torrenttx) return this.emit('warning', new Error('Peer does not support torrenttx'))
-      else console.log('Peer supports torrenttx')
+      console.log('Peer supports torrenttx')
+      this.peerUsesTorrentTx = true
 
       this.sendPayload()
     }
 
     _send (dict) {
       const buf = bencode.encode(JSON.stringify(dict))
-      if (this._wire.peerExtensions && this._wire.peerExtensions.torrenttx) this._wire.extended('torrenttx', buf)
+      if (this.peerUsesTorrentTx) this._wire.extended('torrenttx', buf)
     }
 
     sendPayload (type = 'ping') {
