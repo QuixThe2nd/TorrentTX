@@ -11,7 +11,7 @@ export default () => {
       this._wire = wire
       this._glob = wire.glob
 
-      this.version = '0.0.1'
+      this.version = 'L1 Client'
       this.send = this._send
     }
 
@@ -59,7 +59,7 @@ export default () => {
 
       console.log('Received payload')
 
-      this.version = dict.version || this.version
+      this.version = dict.version || '0.0.1'
 
       // Save transactions
       if (dict.torrents) {

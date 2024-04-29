@@ -53,7 +53,7 @@ function createWindow () {
 
   let wsTrackers = ''
   try {
-    wsTrackers = await (await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ws.txt')).text() 
+    wsTrackers = await (await fetch('https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ws.txt')).text()
   } catch (e) {}
   let bestTrackers = ''
   try {
