@@ -153,7 +153,8 @@ function createWindow () {
             ratio: glob.webtorrent.ratio,
             downloadSpeed: glob.webtorrent.downloadSpeed,
             uploadSpeed: glob.webtorrent.uploadSpeed,
-            progress: glob.webtorrent.progress
+            progress: glob.webtorrent.progress,
+            utxos: glob.transactions.remaining_utxos
           })
         )
       )

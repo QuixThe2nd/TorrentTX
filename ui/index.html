@@ -128,6 +128,14 @@
         </h3>
         <div id="balances" style="list-style: none; padding: 0"></div>
       </div>
+
+      <div>
+        <h3>
+          UTXOs
+          <span id="utxosCount" style="font-size: 0.8rem">(Loading)</span>
+        </h3>
+        <div id="utxos" style="list-style: none; padding: 0"></div>
+      </div>
     </div>
 
     <div>
@@ -220,6 +228,20 @@
           balanceElement.appendChild(addressLink)
           balanceElement.textContent += ': ' + payload.balances[address]
           balancesElement.appendChild(balanceElement)
+        }
+
+        document.getElementById('utxosCount').textContent = '(' + Object.keys(payload.utxos).length + ')'
+        const utxosElement = document.getElementById('utxos')
+        utxosElement.innerHTML = ''
+        for (const txId in payload.utxos) {
+          if (!payload.utxos[txId]) continue
+          const utxoElement = document.createElement('p')
+          const txIdLink = document.createElement('a')
+          txIdLink.textContent = txId
+          txIdLink.href = 'transaction.html#' + txId
+          utxoElement.appendChild(txIdLink)
+          utxoElement.textContent += ': ' + payload.utxos[txId]
+          utxosElement.appendChild(utxoElement)
         }
 
         document.getElementById('transactions').innerHTML = ''
