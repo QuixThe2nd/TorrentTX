@@ -29,11 +29,7 @@ export default () => {
 
     _send (dict) {
       const buf = bencode.encode(JSON.stringify(dict))
-      try {
-        this._wire.extended('torrenttx', buf)
-      } catch (err) {
-        console.error('Error sending message:', err)
-      }
+      if (this._wire.peerExtensions && this._wire.peerExtensions.torrenttx) this._wire.extended('torrenttx', buf)
     }
 
     sendPayload (type = 'ping') {
