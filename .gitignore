@@ -4,7 +4,6 @@ transactions/
 mempool/
 ui/*.webp
 
-yarn.lock
 node_modules
 .DS_Store
 package-lock.json
