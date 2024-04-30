@@ -199,14 +199,14 @@ export default class Transaction {
   }
 
   validateAndSaveTransaction () {
-    const prev = this.body.prev
+    // const prev = this.body.prev
     if (this.isValid()) {
       if (!fs.existsSync(`transactions/${this.hash}.json`)) fs.writeFileSync(`transactions/${this.hash}.json`, this.txContentString)
       this.seed()
     } else {
-      for (const hash of prev) {
-        if (!this.glob.transactions.transactions[hash]) this.glob.transactions.addTransaction(new Transaction(this.glob, { hash }))
-      }
+      // for (const hash of prev) {
+      //   if (!this.glob.transactions.transactions[hash]) this.glob.transactions.addTransaction(new Transaction(this.glob, { hash }))
+      // }
       console.verbose('Invalid Transaction')
     }
   }
