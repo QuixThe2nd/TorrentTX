@@ -104,7 +104,7 @@ export default class Transaction {
         {
           announce: this.glob.trackers,
           strategy: 'rarest',
-          alwaysChokeSeeders: false,
+          // alwaysChokeSeeders: false,
           path: 'mempool'
         },
         torrent => {
@@ -161,7 +161,7 @@ export default class Transaction {
         {
           announce: this.glob.trackers,
           strategy: 'rarest',
-          alwaysChokeSeeders: false,
+          // alwaysChokeSeeders: false,
           path: 'mempool'
         },
         torrent => {
