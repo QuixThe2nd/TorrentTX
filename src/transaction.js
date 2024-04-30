@@ -1,6 +1,7 @@
 import fs from 'fs'
 import ethUtil from 'ethereumjs-util'
 import Wire from './wire.js'
+import pathLib from 'path'
 
 const currentPath = process.cwd()
 
@@ -10,7 +11,7 @@ export default class Transaction {
 
     if (hash) {
       this.hash = hash
-      this.txContentString = fs.readFileSync(path.join(currentPath, 'transactions', `${hash}.json`)).toString()
+      this.txContentString = fs.readFileSync(pathLib.join(currentPath, 'transactions', `${hash}.json`)).toString()
       this.content = JSON.parse(this.txContentString)
       this.body = this.content.tx
       this.signature = this.content.signature
