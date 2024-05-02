@@ -104,9 +104,9 @@ export default class Transaction {
       console.log('Conflict due to double spending detected:')
       console.log('Transaction attempted: ', this.hash)
       console.log('Conflicting transactions: ', this.body.prev.filter(hash => this.glob.transactions.remaining_utxos[hash] < remaining))
-      return this.handleInvalid('Insufficient previous transaction funds')
+      return this.handleInvalid('Insufficient previous transaction funds') // This error happens in the case of double spending - TODO: Use the reference consensus mechanism to decide which transaction is to be accepted
     }
-    if (!this.glob.transactions.balances[this.body.from] || this.glob.transactions.balances[this.body.from] < this.body.amount) return this.handleInvalid('Insufficient funds')
+    if (!this.glob.transactions.balances[this.body.from] || this.glob.transactions.balances[this.body.from] < this.body.amount) return this.handleInvalid('Insufficient funds - if this error is thrown, something went real bad and should be investigated')
 
     return this.glob.wallet.verifySignature(this.hash, this.signature, this.body.from)
   }
