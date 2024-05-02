@@ -222,6 +222,7 @@ export default class Transaction {
   validateAndSaveTransaction (announce = false) {
     // const prev = this.body.prev
     if (this.isValid()) {
+      if (this.glob.transactions.transactions[this.hash]) return console.verbose('Transaction already exists')
       if (this.isGenesis) {
         this.glob.webtorrent.torrents.forEach(torrent => torrent.destroy())
         this.transactions = {}
@@ -234,7 +235,9 @@ export default class Transaction {
       for (const hash in this.body.ref) {
         this.references.push(this.glob.transactions.transactions[hash])
       }
-      this.glob.transactions.addTransaction(this)
+
+      this.glob.transactions.transactions[this.hash] = this
+      this.glob.transactions.updateBalances(this)
       this.glob.transactions.loadSavedTransactions()
       this.seed(announce)
     } else {

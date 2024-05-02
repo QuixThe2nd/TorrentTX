@@ -21,15 +21,6 @@ export default class Transactions {
     }
   }
 
-  addTransaction (transaction) {
-    if (transaction.isValid() && !this.transactions[transaction.hash]) {
-      this.transactions[transaction.hash] = transaction
-      this.updateBalances(transaction)
-      return true
-    }
-    return false
-  }
-
   updateBalances (transaction) {
     const tx = transaction.body
     const hash = transaction.hash
