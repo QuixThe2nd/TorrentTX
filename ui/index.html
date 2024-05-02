@@ -22,7 +22,7 @@
     </style>
   </head>
   <body>
-    <div style="position: sticky">
+    <div id="searchBar" style="position: sticky; display: none">
       <input id="search" type="text" placeholder="Search" />
       <button id="searchBtn">Search</button>
     </div>
@@ -355,6 +355,13 @@
         document.getElementById('uploadSpeed').textContent = payload.uploadSpeed + 'B/s'
         document.getElementById('progress').textContent = payload.progress + '%'
       })
+      
+      document.addEventListener('keydown', function(event) {
+        if ((event.ctrlKey || event.metaKey) && event.key === 'f') {
+          event.preventDefault();
+          document.getElementById('searchBar').style.display = 'initial'
+        }
+      });
 
       document.getElementById('searchBtn').addEventListener('click', function () {
         window.find(document.getElementById('search').value, false, false, true)
