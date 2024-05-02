@@ -59,7 +59,7 @@ export default () => {
         return
       }
 
-      console.log('Received payload')
+      console.log('Received payload', JSON.stringify(dict))
 
       this.version = dict.version || 'No version provided'
       this.state = dict.state
