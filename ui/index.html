@@ -22,7 +22,7 @@
     </style>
   </head>
   <body>
-    <div id="searchBar" style="position: sticky; display: none">
+    <div id="searchBar" style="position: sticky; display: none; top: 0; right: 0">
       <input id="search" type="text" placeholder="Search" />
       <button id="searchBtn">Search</button>
     </div>
@@ -366,6 +366,7 @@
         if ((event.ctrlKey || event.metaKey) && event.key === 'f') {
           event.preventDefault();
           document.getElementById('searchBar').style.display = 'initial'
+          document.getElementById('searchBar').focus()
         }
       });
 
