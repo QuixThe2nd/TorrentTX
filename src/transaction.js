@@ -8,6 +8,7 @@ const currentPath = process.cwd()
 export default class Transaction {
   constructor (glob, { from, to, amount, message, contract, hash, infohash, torrentPath, path }) {
     this.glob = glob
+    this.isGenesis = false
 
     if (hash) {
       this.hash = hash
@@ -50,7 +51,7 @@ export default class Transaction {
         if (remaining <= 0) break
       }
 
-      if (remaining > 0) throw new Error('Not enough UTXOs')
+      if (remaining > 0 && !this.isGenesis) throw new Error('Not enough UTXOs')
 
       this.body = {
         nonce: Math.random(),
@@ -58,7 +59,7 @@ export default class Transaction {
         to,
         amount: amount / 1,
         message: message ?? '',
-        prev: /* isGenesis ? [] : */ prev
+        prev: this.isGenesis ? [] : prev
       }
 
       if (contract) this.body.contract = contract
@@ -79,6 +80,7 @@ export default class Transaction {
   }
 
   isValid () {
+    if (this.isGenesis) return true
     if (this.hash === this.glob.genesisHash) return true
     if (!this.body) return this.handleInvalid('No body')
     if (isNaN(this.body.amount)) return this.handleInvalid('Amount is not a number')
@@ -172,6 +174,8 @@ export default class Transaction {
           this.torrent = torrent
           this.infohash = torrent.infoHash
 
+          if (this.isGenesis) fs.writeFileSync(`proofs/${this.hash}.torrent`, torrent.torrentFile)
+
           console.log(torrent.infoHash, 'Seeding', torrent.files[0].path.replace('.json', ''))
 
           torrent.on('metadata', () => console.log(torrent.infoHash, 'Metadata received'))
@@ -202,6 +206,10 @@ export default class Transaction {
     // const prev = this.body.prev
     if (this.isValid()) {
       if (!fs.existsSync(`transactions/${this.hash}.json`)) fs.writeFileSync(`transactions/${this.hash}.json`, this.txContentString)
+      if (this.isGenesis) {
+        fs.writeFileSync('genesis.txt', this.hash)
+        this.glob.genesisHash = this.hash
+      }
       this.seed()
     } else {
       // for (const hash of prev) {
