@@ -100,6 +100,13 @@ export default class Transaction {
       if (this.glob.transactions.transactions[hash].body.to !== this.body.from) return this.handleInvalid('Invalid previous transaction')
       remaining -= this.glob.transactions.remaining_utxos[hash]
     }
+    // if (remaining > 0) return this.handleInvalid('Insufficient previous transaction funds')
+    if (remaining > 0) {
+      console.log('Conflict due to double spending detected:')
+      console.log('Transaction attempted: ', this.hash)
+      console.log('Conflicting transactions: ', this.body.prev.filter(hash => this.glob.transactions.remaining_utxos[hash] < remaining))
+      return this.handleInvalid('Insufficient previous transaction funds')
+    }
 
     return this.glob.wallet.verifySignature(this.hash, this.signature, this.body.from)
   }
