@@ -173,10 +173,6 @@ function createWindow () {
       const torrent = await glob.transactions.search(glob, { query }).transactions.torrent
       console.info('Proof:', torrent.infoHash)
       fs.writeFileSync(`proofs/${query}.torrent`, torrent.torrentFile)
-    } else if (input === 'd') {
-      console.log('Deleting Dirs')
-      glob.webtorrent.destroy()
-      fs.rmdirSync('transactions', { recursive: true })
     }
     main()
   }

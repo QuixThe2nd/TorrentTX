@@ -66,10 +66,10 @@ export default class Transactions {
   }
 
   calculateBalanceState () {
-    const supply = Object.values(this.glob.transactions.balances).reduce((a, b) => a + b, 0)
-    const usedAddresses = Object.keys(this.glob.transactions.balances).length
-    const transactionCount = fs.readdirSync('transactions').length
-    const hash = ethUtil.sha256(Buffer.from(JSON.stringify(this.glob.transactions.balances, null, 4))).toString('hex')
+    const supply = Object.values(this.balances).reduce((a, b) => a + b, 0)
+    const usedAddresses = Object.keys(this.balances).length
+    const transactionCount = Object.keys(this.transactions).length
+    const hash = ethUtil.sha256(Buffer.from(JSON.stringify(this.balances, null, 4))).toString('hex')
     const cumulativeWeight = this.calculateCumulativeWeight()
     console.log('Supply', supply)
     console.log('Used Addresses', usedAddresses)

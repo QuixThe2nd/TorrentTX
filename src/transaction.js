@@ -38,7 +38,8 @@ export default class Transaction {
 
       this.leech(torrentPath)
     } else if (from && to && amount) {
-      const unusedUTXOs = glob.transactions.findUnusedUTXOs(from)
+      // this.isGenesis = true
+      const unusedUTXOs = this.glob.transactions.findUnusedUTXOs(from)
 
       const prev = []
       let remaining = amount
@@ -65,7 +66,7 @@ export default class Transaction {
       if (contract) this.body.contract = contract
 
       this.hash = ethUtil.sha256(Buffer.from(JSON.stringify(this.body))).toString('hex')
-      this.signature = glob.wallet.signHash(this.hash)
+      this.signature = this.glob.wallet.signHash(this.hash)
 
       this.content = { tx: this.body, signature: this.signature, hash: this.hash }
       this.txContentString = JSON.stringify(this.content, null, 4)
@@ -174,7 +175,21 @@ export default class Transaction {
           this.torrent = torrent
           this.infohash = torrent.infoHash
 
-          if (this.isGenesis) fs.writeFileSync(`proofs/${this.hash}.torrent`, torrent.torrentFile)
+          if (this.isGenesis) {
+            fs.writeFileSync('infohashes.txt', torrent.infoHash)
+            fs.rmSync('mempool', { recursive: true })
+            fs.mkdirSync('mempool')
+            fs.rmSync('proof', { recursive: true })
+            fs.mkdirSync('proof')
+            fs.writeFileSync(`proofs/${this.hash}.torrent`, torrent.torrentFile)
+            // TypeError [ERR_INVALID_ARG_TYPE]: The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received type number (1.795306465014838)
+            this.glob.webtorrent.seed(
+              Buffer.from(Math.random() + Math.random() + Math.random() + Math.random() + ''), {},
+              torrent => {
+                fs.writeFileSync('meetingPoint.torrent', torrent.torrentFile)
+              }
+            )
+          }
 
           console.log(torrent.infoHash, 'Seeding', torrent.files[0].path.replace('.json', ''))
 
@@ -205,11 +220,15 @@ export default class Transaction {
   validateAndSaveTransaction () {
     // const prev = this.body.prev
     if (this.isValid()) {
-      if (!fs.existsSync(`transactions/${this.hash}.json`)) fs.writeFileSync(`transactions/${this.hash}.json`, this.txContentString)
       if (this.isGenesis) {
+        this.glob.webtorrent.torrents.forEach(torrent => torrent.destroy())
+        this.transactions = {}
+        fs.rmSync('transactions', { recursive: true })
+        fs.mkdirSync('transactions')
         fs.writeFileSync('genesis.txt', this.hash)
         this.glob.genesisHash = this.hash
       }
+      if (!fs.existsSync(`transactions/${this.hash}.json`)) fs.writeFileSync(`transactions/${this.hash}.json`, this.txContentString)
       this.seed()
     } else {
       // for (const hash of prev) {
