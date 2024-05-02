@@ -9,6 +9,7 @@ export default class Transaction {
   constructor (glob, { from, to, amount, message, contract, hash, infohash, torrentPath, path }) {
     this.glob = glob
     this.isGenesis = false
+    this.references = []
 
     if (hash) {
       this.hash = hash
@@ -60,7 +61,8 @@ export default class Transaction {
         to,
         amount: amount / 1,
         message: message ?? '',
-        prev: this.isGenesis ? [] : prev
+        prev: this.isGenesis ? [] : prev,
+        ref: this.isGenesis ? [] : this.glob.transactions.transactions.sort(() => Math.random()).slice(0, 8).map(tx => tx.hash)
       }
 
       if (contract) this.body.contract = contract
@@ -89,6 +91,7 @@ export default class Transaction {
     if (!this.glob.transactions.balances[this.body.from] || this.glob.transactions.balances[this.body.from] < this.body.amount) return this.handleInvalid('Insufficient funds')
     if (!this.body.prev.length) return this.handleInvalid('No previous transactions')
     if (!ethUtil.isValidAddress(this.body.to)) return this.handleInvalid('Invalid to address')
+    // if (this.body.ref.length < 8) return this.handleInvalid('Not enough references')
 
     let remaining = this.body.amount
     for (const hash of this.body.prev) {
@@ -97,7 +100,6 @@ export default class Transaction {
       if (this.glob.transactions.transactions[hash].body.to !== this.body.from) return this.handleInvalid('Invalid previous transaction')
       remaining -= this.glob.transactions.remaining_utxos[hash]
     }
-    if (remaining > 0) return this.handleInvalid('Insufficient previous transaction funds')
 
     return this.glob.wallet.verifySignature(this.hash, this.signature, this.body.from)
   }
@@ -227,6 +229,10 @@ export default class Transaction {
         this.glob.genesisHash = this.hash
       }
       if (!fs.existsSync(`transactions/${this.hash}.json`)) fs.writeFileSync(`transactions/${this.hash}.json`, this.txContentString)
+      for (const hash in this.body.ref) {
+        const tx = this.glob.transactions.transactions[hash]
+        this.references.push(tx)
+      }
       this.seed(announce)
     } else {
       // for (const hash of prev) {
