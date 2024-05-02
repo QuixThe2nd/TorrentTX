@@ -174,6 +174,7 @@ export default class Transaction {
           const glob = this.glob
           this.torrent = torrent
           this.infohash = torrent.infoHash
+          this.announce()
 
           if (this.isGenesis) {
             fs.writeFileSync('infohashes.txt', torrent.infoHash)
@@ -240,7 +241,7 @@ export default class Transaction {
     this.glob.webtorrent.torrents.forEach(torrent => {
       torrent.wires.forEach(wire => {
         console.log('Announcing to', wire.peerId, 'in', torrent.infoHash)
-        if (wire.torrenttx) wire.torrenttx.send({ torrents: [torrent.infoHash], msg_type: 1 })
+        if (wire.torrenttx) wire.torrenttx.send({ torrents: [this.infoHash], msg_type: 1 })
       })
     })
   }
