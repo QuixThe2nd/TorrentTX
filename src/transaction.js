@@ -193,7 +193,7 @@ export default class Transaction {
             this.glob.webtorrent.seed(Buffer.from(Math.random() + Math.random() + Math.random() + Math.random() + ''), {}, torrent => fs.writeFileSync('proofs/meetingPoint.torrent', torrent.torrentFile))
           }
 
-          console.log(torrent.infoHash, 'Seeding', torrent.files[0].path.replace('.json', ''))
+          if (torrent.files[0]) console.log(torrent.infoHash, 'Seeding', torrent.files[0].path.replace('.json', ''))
 
           torrent.on('metadata', () => console.log(torrent.infoHash, 'Metadata received'))
           torrent.on('ready', () => console.log(torrent.infoHash, 'Download ready'))
