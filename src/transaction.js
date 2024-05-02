@@ -179,15 +179,12 @@ export default class Transaction {
             fs.writeFileSync('infohashes.txt', torrent.infoHash)
             fs.rmSync('mempool', { recursive: true })
             fs.mkdirSync('mempool')
-            fs.rmSync('proof', { recursive: true })
-            fs.mkdirSync('proof')
+            fs.rmSync('proofs', { recursive: true })
+            fs.mkdirSync('proofs')
             fs.writeFileSync(`proofs/${this.hash}.torrent`, torrent.torrentFile)
-            // TypeError [ERR_INVALID_ARG_TYPE]: The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received type number (1.795306465014838)
             this.glob.webtorrent.seed(
               Buffer.from(Math.random() + Math.random() + Math.random() + Math.random() + ''), {},
-              torrent => {
-                fs.writeFileSync('meetingPoint.torrent', torrent.torrentFile)
-              }
+              torrent => fs.writeFileSync('proofs/meetingPoint.torrent', torrent.torrentFile)
             )
           }
 
