@@ -42,8 +42,9 @@
       window.electronAPI.handleMessage((event, message) => {
         const payload = JSON.parse(atob(message))
 
-        document.getElementById('balance').textContent =
-          payload.balances[address]
+        document.getElementById('balance').textContent = payload.balances[address]
+
+        const infohashTable = {}
 
         document.getElementById('transactions').innerHTML = ''
         const transactions = JSON.parse(payload.transactions)
