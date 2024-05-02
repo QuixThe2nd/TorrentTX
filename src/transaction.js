@@ -71,7 +71,7 @@ export default class Transaction {
       this.content = { tx: this.body, signature: this.signature, hash: this.hash }
       this.txContentString = JSON.stringify(this.content, null, 4)
 
-      this.validateAndSaveTransaction()
+      this.validateAndSaveTransaction(true)
     }
   }
 
@@ -159,7 +159,7 @@ export default class Transaction {
     }
   }
 
-  async seed () {
+  async seed (announce = false) {
     if (!(await this.glob.webtorrent.get(this.hash))) {
       console.log('Seeding', this.hash)
       this.glob.webtorrent.seed(
@@ -174,7 +174,7 @@ export default class Transaction {
           const glob = this.glob
           this.torrent = torrent
           this.infohash = torrent.infoHash
-          this.announce()
+          if (announce) this.announce()
 
           if (this.isGenesis) {
             fs.writeFileSync('infohashes.txt', torrent.infoHash)
@@ -215,7 +215,7 @@ export default class Transaction {
     }
   }
 
-  validateAndSaveTransaction () {
+  validateAndSaveTransaction (announce = false) {
     // const prev = this.body.prev
     if (this.isValid()) {
       if (this.isGenesis) {
@@ -227,7 +227,7 @@ export default class Transaction {
         this.glob.genesisHash = this.hash
       }
       if (!fs.existsSync(`transactions/${this.hash}.json`)) fs.writeFileSync(`transactions/${this.hash}.json`, this.txContentString)
-      this.seed()
+      this.seed(announce)
     } else {
       // for (const hash of prev) {
       //   if (!this.glob.transactions.transactions[hash]) this.glob.transactions.addTransaction(new Transaction(this.glob, { hash }))
