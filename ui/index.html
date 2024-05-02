@@ -31,6 +31,7 @@
         <h1>TorrentTX Wallet</h1>
         <h2>Balance: <span id="balance">0</span></h2>
         <h2>Address: <span id="address">0x</span></h2>
+        <h2>State: <span id="state">N/A</span></h2>
         <div style="display: flex; gap: 1rem">
           <p>Ratio: <span id="ratio">0</span></p>
           <p>Download Speed: <span id="downloadSpeed">0B/s</span></p>
@@ -72,6 +73,7 @@
           <th>Peer Id</th>
           <th>Address</th>
           <th>Version</th>
+          <th>State</th>
           <th>Am Choking</th>
           <th>Am Interested</th>
           <th>Peer Choking</th>
@@ -179,6 +181,7 @@
         const connectionCount = payload.connections.map(c => c.isMe).filter(c => !c).length
 
         document.getElementById('address').textContent = payload.address
+        document.getElementById('state').textContent = payload.state
         document.getElementById('address_qrcode').src = payload.address + '.webp'
         document.getElementById('balance').textContent = payload.balances[payload.address] || 0
         document.getElementById('circulatingSupply').textContent = Object.values(payload.balances).reduce((a, b) => a + b, 0)
@@ -307,6 +310,7 @@
           const peerIdElement = document.createElement('td')
           const addressElement = document.createElement('td')
           const versionElement = document.createElement('td')
+          const stateElement = document.createElement('td')
           const amChokingElement = document.createElement('td')
           const amInterestedElement = document.createElement('td')
           const peerChokingElement = document.createElement('td')
@@ -321,6 +325,7 @@
           peerIdElement.textContent = connection.peerId
           addressElement.textContent = connection.address
           versionElement.textContent = connection.version
+          stateElement.textContent = connection.state
           amChokingElement.textContent = connection.amChoking
           amInterestedElement.textContent = connection.amInterested
           peerChokingElement.textContent = connection.peerChoking
@@ -337,6 +342,7 @@
           connectionElement.appendChild(peerIdElement)
           connectionElement.appendChild(addressElement)
           connectionElement.appendChild(versionElement)
+          connectionElement.appendChild(stateElement)
           connectionElement.appendChild(amChokingElement)
           connectionElement.appendChild(amInterestedElement)
           connectionElement.appendChild(peerChokingElement)

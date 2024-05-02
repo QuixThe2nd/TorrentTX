@@ -29,6 +29,7 @@ export default class Transactions {
       }
       if (!transactionFound) break
     }
+    console.log([], this.calculateBalanceState())
   }
 
   addTransaction (transaction) {
@@ -69,11 +70,13 @@ export default class Transactions {
     const usedAddresses = Object.keys(this.glob.transactions.balances).length
     const transactionCount = fs.readdirSync('transactions').length
     const hash = ethUtil.sha256(Buffer.from(JSON.stringify(this.glob.transactions.balances, null, 4))).toString('hex')
+    const cumulativeWeight = this.calculateCumulativeWeight()
     console.log('Supply', supply)
     console.log('Used Addresses', usedAddresses)
     console.log('Transaction Count', transactionCount)
     console.log('Hash', hash)
-    const state = `${hash}.${supply}.${usedAddresses}.${transactionCount}`
+    const state = `${hash}.${supply}.${cumulativeWeight}.${usedAddresses}.${transactionCount}`
+    this.balanceState = state
     return state
   }
 
@@ -103,5 +106,19 @@ export default class Transactions {
       results.transactions = glob.transactions.transactions[hash]
     }
     return results
+  }
+
+  calculateCumulativeWeight () {
+    let totalWeight = 0
+    for (const hash in this.transactions) {
+      const prev = this.transactions[hash].body.prev
+      const transaction = this.transactions[hash]
+      totalWeight += transaction.body.amount
+      for (const prevHash of prev) {
+        totalWeight += this.transactions[prevHash].body.amount
+      }
+    }
+    this.cumulativeWeight = totalWeight
+    return totalWeight
   }
 }

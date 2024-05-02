@@ -18,7 +18,7 @@ const base64encode = str => Buffer.from(str).toString('base64')
 
 const glob = initGlob()
 
-glob.version = '0.0.5'
+glob.version = '0.0.6'
 
 function createWindow () {
   glob.browserWindow = new BrowserWindow({
@@ -127,7 +127,8 @@ function createWindow () {
             type: wire.type,
             uploadSpeed: wire.uploadSpeed(),
             downloadSpeed: wire.downloadSpeed(),
-            version: wire.torrenttx ? wire.torrenttx.version : 'L1 Client'
+            version: wire.torrenttx ? wire.torrenttx.version : 'L1 Client',
+            state: wire.torrenttx ? wire.torrenttx.state : ''
           }
         })
         return wires.length > 0 ? wires : []
@@ -154,7 +155,8 @@ function createWindow () {
             downloadSpeed: glob.webtorrent.downloadSpeed,
             uploadSpeed: glob.webtorrent.uploadSpeed,
             progress: glob.webtorrent.progress,
-            utxos: glob.transactions.remaining_utxos
+            utxos: glob.transactions.remaining_utxos,
+            state: glob.transactions.balanceState
           })
         )
       )
