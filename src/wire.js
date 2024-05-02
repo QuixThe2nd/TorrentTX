@@ -39,7 +39,7 @@ export default () => {
 
       this._send({
         torrents: fs.readFileSync('infohashes.txt').toString().split('\n'),
-        version: this._glob.version,
+        version: this._glob.version || 'Cannot find version',
         state: this._glob.transactions.balanceState,
         msg_type: type === 'ping' ? 0 : 1
       })
@@ -61,7 +61,7 @@ export default () => {
 
       console.log('Received payload')
 
-      this.version = dict.version || '0.0.1'
+      this.version = dict.version || 'No version provided'
       this.state = dict.state
 
       // Save transactions
