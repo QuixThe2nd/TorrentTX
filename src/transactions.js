@@ -15,7 +15,6 @@ export default class Transactions {
   loadSavedTransactions () {
     const files = fs.readdirSync('transactions')
     for (const file of files) {
-      console.log('Loading:', file, [])
       if (file.substring(0, 1) === '.') continue
       if (this.transactions[file.replace('.json', '')]) continue
       this.glob._ = new Transaction(this.glob, { hash: file.replace('.json', '') })
