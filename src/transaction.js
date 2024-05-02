@@ -158,8 +158,6 @@ export default class Transaction {
 
               this.validateAndSaveTransaction()
 
-              this.glob.transactions.addTransaction(this)
-
               torrent.destroy()
             }
           })
@@ -236,13 +234,17 @@ export default class Transaction {
       for (const hash in this.body.ref) {
         this.references.push(this.glob.transactions.transactions[hash])
       }
+      this.glob.transactions.addTransaction(this)
+      this.glob.transactions.loadSavedTransactions()
       this.seed(announce)
     } else {
       // for (const hash of prev) {
-      //   if (!this.glob.transactions.transactions[hash]) this.glob.transactions.addTransaction(new Transaction(this.glob, { hash }))
+      //   if (!this.glob.transactions.transactions[hash]) new Transaction(this.glob, { hash })
       // }
       console.verbose('Invalid Transaction')
+      return false
     }
+    return true
   }
 
   announce () {

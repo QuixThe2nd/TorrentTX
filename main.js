@@ -209,7 +209,6 @@ ipcMain.on('message-from-renderer', (event, message) => {
       amount: data.amount,
       message: data.message
     })
-    glob.transactions.addTransaction(transaction)
     console.log('Created Transaction:', transaction.content.hash)
   } else if (data.type === 'deploySmartContract') {
     const transaction = new Transaction(glob, {
@@ -219,8 +218,6 @@ ipcMain.on('message-from-renderer', (event, message) => {
       message: '',
       contract: data.code
     })
-    glob.transactions.addTransaction(transaction)
-    console.log(transaction)
     console.log('Created Transaction:', transaction.content.hash)
   }
 })

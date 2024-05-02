@@ -13,21 +13,12 @@ export default class Transactions {
   }
 
   loadSavedTransactions () {
-    let transactionFound = true
-    const loadedTransactions = []
-    while (transactionFound) {
-      transactionFound = false
-      const files = fs.readdirSync('transactions')
-      for (const file of files) {
-        if (file.substring(0, 1) === '.') continue
-        if (loadedTransactions.includes(file)) continue
-        const transaction = new Transaction(this.glob, { hash: file.replace('.json', '') })
-        if (!this.transactions[transaction.hash] && this.addTransaction(transaction)) {
-          loadedTransactions.push(file)
-          transactionFound = true
-        }
-      }
-      if (!transactionFound) break
+    const files = fs.readdirSync('transactions')
+    for (const file of files) {
+      console.log('Loading:', file, [])
+      if (file.substring(0, 1) === '.') continue
+      if (this.transactions[file.replace('.json', '')]) continue
+      this.glob._ = new Transaction(this.glob, { hash: file.replace('.json', '') })
     }
   }
 
