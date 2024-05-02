@@ -29,7 +29,6 @@ export default class Transactions {
       }
       if (!transactionFound) break
     }
-    console.log([], this.calculateBalanceState())
   }
 
   addTransaction (transaction) {
@@ -63,6 +62,8 @@ export default class Transactions {
       if (this.balances[transaction.body.from]) this.balances[transaction.body.from] -= transaction.body.amount
       else this.balances[transaction.body.from] = -transaction.body.amount
     }
+
+    this.calculateBalanceState()
   }
 
   calculateBalanceState () {
@@ -95,15 +96,15 @@ export default class Transactions {
     }
 
     if (query.startsWith('0x')) {
-      for (const hash in glob.transactions.transactions) {
-        const transaction = glob.transactions.transactions[hash]
+      for (const hash in this.transactions) {
+        const transaction = this.transactions[hash]
         if (transaction.body.from === query || transaction.body.to === query) results.transactions.push(transaction)
       }
-      results.balances[query] = glob.transactions.balances[query]
+      results.balances[query] = this.balances[query]
     }
 
-    for (const hash in glob.transactions.transactions) {
-      results.transactions = glob.transactions.transactions[hash]
+    for (const hash in this.transactions) {
+      results.transactions = this.transactions[hash]
     }
     return results
   }
