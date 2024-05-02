@@ -72,10 +72,6 @@ export default class Transactions {
     const transactionCount = Object.keys(this.transactions).length
     const hash = ethUtil.sha256(Buffer.from(JSON.stringify(this.balances, null, 4))).toString('hex')
     const cumulativeWeight = this.calculateCumulativeWeight()
-    console.log('Supply', supply)
-    console.log('Used Addresses', usedAddresses)
-    console.log('Transaction Count', transactionCount)
-    console.log('Hash', hash)
     const state = `${hash}.${supply}.${cumulativeWeight}.${usedAddresses}.${transactionCount}`
     this.balanceState = state
     return state
