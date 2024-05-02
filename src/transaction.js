@@ -88,7 +88,6 @@ export default class Transaction {
     if (!this.body) return this.handleInvalid('No body')
     if (isNaN(this.body.amount)) return this.handleInvalid('Amount is not a number')
     if (this.body.amount < 0) return this.handleInvalid('Amount is negative')
-    if (!this.glob.transactions.balances[this.body.from] || this.glob.transactions.balances[this.body.from] < this.body.amount) return this.handleInvalid('Insufficient funds')
     if (!this.body.prev.length) return this.handleInvalid('No previous transactions')
     if (!ethUtil.isValidAddress(this.body.to)) return this.handleInvalid('Invalid to address')
     // if (this.body.ref.length < 8) return this.handleInvalid('Not enough references')
@@ -107,6 +106,7 @@ export default class Transaction {
       console.log('Conflicting transactions: ', this.body.prev.filter(hash => this.glob.transactions.remaining_utxos[hash] < remaining))
       return this.handleInvalid('Insufficient previous transaction funds')
     }
+    if (!this.glob.transactions.balances[this.body.from] || this.glob.transactions.balances[this.body.from] < this.body.amount) return this.handleInvalid('Insufficient funds')
 
     return this.glob.wallet.verifySignature(this.hash, this.signature, this.body.from)
   }
@@ -192,10 +192,7 @@ export default class Transaction {
             fs.rmSync('proofs', { recursive: true })
             fs.mkdirSync('proofs')
             fs.writeFileSync(`proofs/${this.hash}.torrent`, torrent.torrentFile)
-            this.glob.webtorrent.seed(
-              Buffer.from(Math.random() + Math.random() + Math.random() + Math.random() + ''), {},
-              torrent => fs.writeFileSync('proofs/meetingPoint.torrent', torrent.torrentFile)
-            )
+            this.glob.webtorrent.seed(Buffer.from(Math.random() + Math.random() + Math.random() + Math.random() + ''), {}, torrent => fs.writeFileSync('proofs/meetingPoint.torrent', torrent.torrentFile))
           }
 
           console.log(torrent.infoHash, 'Seeding', torrent.files[0].path.replace('.json', ''))
@@ -237,8 +234,7 @@ export default class Transaction {
       }
       if (!fs.existsSync(`transactions/${this.hash}.json`)) fs.writeFileSync(`transactions/${this.hash}.json`, this.txContentString)
       for (const hash in this.body.ref) {
-        const tx = this.glob.transactions.transactions[hash]
-        this.references.push(tx)
+        this.references.push(this.glob.transactions.transactions[hash])
       }
       this.seed(announce)
     } else {
