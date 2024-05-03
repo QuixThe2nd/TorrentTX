@@ -55,7 +55,6 @@ export default class Transaction {
 
       if (remaining > 0 && !this.isGenesis) throw new Error('Not enough UTXOs')
 
-      console.log(this.glob.transactions.transactions, [])
       this.body = {
         nonce: Math.random(),
         from,
