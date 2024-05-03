@@ -91,6 +91,8 @@ export default class Transaction {
     if (!this.body.prev.length) return this.handleInvalid('No previous transactions')
     if (!ethUtil.isValidAddress(this.body.to)) return this.handleInvalid('Invalid to address')
     // if (this.body.ref.length < 8) return this.handleInvalid('Not enough references')
+    // if any of the references are not valid, return false
+    if (this.body.ref && this.body.ref.some(hash => !this.glob.transactions.transactions[hash])) return this.handleInvalid('Invalid reference')
 
     let remaining = this.body.amount
     for (const hash of this.body.prev) {
