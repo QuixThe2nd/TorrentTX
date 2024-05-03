@@ -98,6 +98,7 @@
           <th>To</th>
           <th>Amount</th>
           <th>Message</th>
+          <th>References</th>
         </tr>
       </thead>
       <tbody id="transactions"></tbody>
@@ -262,6 +263,7 @@
           const toElement = document.createElement('td')
           const amountElement = document.createElement('td')
           const messageElement = document.createElement('td')
+          const referencesElement = document.createElement('td')
 
           txIdLink = document.createElement('a')
           txIdLink.textContent = transaction.hash
@@ -289,6 +291,7 @@
 
           amountElement.textContent = transaction.tx.amount
           messageElement.textContent = transaction.tx.message
+          referencesElement.textContent = (transaction.references || []).length
 
           if (transaction.tx.from === payload.address) fromElement.classList.add('highlight-cell')
           if (transaction.tx.to === payload.address) toElement.classList.add('highlight-cell')
@@ -299,6 +302,7 @@
           transactionElement.appendChild(toElement)
           transactionElement.appendChild(amountElement)
           transactionElement.appendChild(messageElement)
+          transactionElement.appendChild(referencesElement)
 
           document.getElementById('transactions').appendChild(transactionElement)
         }

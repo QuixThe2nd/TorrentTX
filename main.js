@@ -143,7 +143,8 @@ function createWindow () {
               Object.values(glob.transactions.transactions).map(tx => {
                 return {
                   ...tx.content,
-                  infohash: tx.torrent?.infoHash ?? ''
+                  infohash: tx.torrent?.infoHash ?? '',
+                  references: tx.references.map(ref => ref.hash)
                 }
               })
             ),

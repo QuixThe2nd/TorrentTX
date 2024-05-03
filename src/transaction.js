@@ -62,7 +62,7 @@ export default class Transaction {
         amount: amount / 1,
         message: message ?? '',
         prev: this.isGenesis ? [] : prev,
-        ref: this.isGenesis ? [] : Object.keys(this.glob.transactions.transactions).sort(() => Math.random()).slice(0, 8)
+        ref: Object.keys(this.glob.transactions.transactions).sort(() => 0.5 - Math.random()).slice(0, 8)
       }
 
       if (contract) this.body.contract = contract
@@ -105,7 +105,7 @@ export default class Transaction {
     if (remaining > 0) {
       console.log('Conflict due to double spending detected:')
       console.log('Transaction attempted: ', this.hash)
-      console.log('Conflicting transactions: ', this.body.prev.filter(hash => this.glob.transactions.remaining_utxos[hash] < remaining))
+      console.log('Conflicting transactions (Possible Fork): ', this.body.prev.filter(hash => this.glob.transactions.remaining_utxos[hash] < remaining))
       return this.handleInvalid('Insufficient previous transaction funds') // This error happens in the case of double spending - TODO: Use the reference consensus mechanism to decide which transaction is to be accepted
     }
     if (!this.glob.transactions.balances[this.body.from] || this.glob.transactions.balances[this.body.from] < this.body.amount) return this.handleInvalid('Insufficient funds - if this error is thrown, something went real bad and should be investigated')
@@ -234,8 +234,10 @@ export default class Transaction {
         this.glob.genesisHash = this.hash
       }
       if (!fs.existsSync(`transactions/${this.hash}.json`)) fs.writeFileSync(`transactions/${this.hash}.json`, this.txContentString)
-      for (const hash in this.body.ref) {
-        this.references.push(this.glob.transactions.transactions[hash])
+      if (this.body.ref) {
+        for (const hash of this.body.ref) {
+          this.glob.transactions.transactions[hash].references.push(this)
+        }
       }
 
       this.glob.transactions.transactions[this.hash] = this
