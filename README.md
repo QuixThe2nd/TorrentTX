@@ -81,6 +81,7 @@ There is more todo than what has already been done so far. I'll keep adding thin
 - Build native liquidity pools and liquid swaps that remove the need for DEXes
 - Build an EVM module using a sandboxed javascript environemnt for smart contracts
 - Create framework for people to publish global javascript functions that others can reference in their smart contract
+- Eventually we need unit tests
 
 Cross chain bridge:
 Through this paragraph, I will say "ethereum" a lot. When I say ethereum, that's just an example.
