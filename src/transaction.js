@@ -62,7 +62,7 @@ export default class Transaction {
         amount: amount / 1,
         message: message ?? '',
         prev: this.isGenesis ? [] : prev,
-        ref: this.isGenesis ? [] : Object.keys(this.glob.transactions.transactions).sort(() => Math.random()).slice(0, 8).map(tx => tx.hash)
+        ref: this.isGenesis ? [] : Object.keys(this.glob.transactions.transactions).sort(() => Math.random()).slice(0, 8)
       }
 
       if (contract) this.body.contract = contract
