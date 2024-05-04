@@ -29,19 +29,36 @@ export default class Transactions {
 
     this.remaining_utxos[hash] = tx.amount
 
-    let remaining = tx.amount
+    let amount = tx.amount
+    if (tx.instructions) {
+      for (const instruction of tx.instructions) {
+        console.error([], instruction)
+        if (instruction.method === 'deposit') amount += instruction.amount
+      }
+    }
+
+    let remaining = amount
     for (const hash of tx.prev) {
-      const subtract = Math.min(this.remaining_utxos[hash], tx.amount, remaining)
+      const subtract = Math.min(this.remaining_utxos[hash], amount, remaining)
       remaining -= subtract
       this.remaining_utxos[hash] -= subtract
     }
 
-    if (this.balances[transaction.body.to]) this.balances[transaction.body.to] += transaction.body.amount
-    else this.balances[transaction.body.to] = transaction.body.amount
+    if (tx.instructions) {
+      for (const instruction of tx.instructions) {
+        if (instruction.method === 'deposit') {
+          if (this.balances[instruction.contract]) this.balances[instruction.to] += instruction.amount
+          else this.balances[instruction.contract] = instruction.amount
+        }
+      }
+    }
+
+    if (this.balances[tx.to]) this.balances[tx.to] += tx.amount
+    else this.balances[tx.to] = tx.amount
 
     if (transaction.hash !== this.glob.genesisHash) {
-      if (this.balances[transaction.body.from]) this.balances[transaction.body.from] -= transaction.body.amount
-      else this.balances[transaction.body.from] = -transaction.body.amount
+      if (this.balances[tx.from]) this.balances[tx.from] -= amount
+      else this.balances[tx.from] = -amount
     }
 
     this.calculateBalanceState()
