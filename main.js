@@ -220,7 +220,16 @@ ipcMain.on('message-from-renderer', (event, message) => {
       contract: data.code
     })
     console.log('Created Transaction:', transaction.content.hash)
-  }
+  } else if (data.type === 'submitInstructions') {
+    const transaction = new Transaction(glob, {
+      from: glob.wallet.address,
+      to: glob.wallet.address,
+      amount: 1,
+      message: '',
+      instructions: data.instructions
+    })
+    console.log('Created Transaction:', transaction.content.hash)
+  } else console.error('Invalid Message', data)
 })
 
 /*

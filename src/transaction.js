@@ -6,7 +6,7 @@ import pathLib from 'path'
 const currentPath = process.cwd()
 
 export default class Transaction {
-  constructor (glob, { from, to, amount, message, contract, hash, infohash, torrentPath, path }) {
+  constructor (glob, { from, to, amount, message, contract, instructions, hash, infohash, torrentPath, path }) {
     this.glob = glob
     this.isGenesis = false
     this.references = []
@@ -44,6 +44,11 @@ export default class Transaction {
 
       const prev = []
       let remaining = amount
+      if (instructions) {
+        for (const instruction of instructions) {
+          if (instruction.method === 'deposit') remaining += instruction.amount
+        }
+      }
       for (const hash of unusedUTXOs) {
         if (this.glob.transactions.remaining_utxos[hash] >= amount) prev.length = 0
         remaining -= this.glob.transactions.remaining_utxos[hash]
@@ -66,6 +71,7 @@ export default class Transaction {
       }
 
       if (contract) this.body.contract = contract
+      if (instructions) this.body.instructions = instructions
 
       this.hash = ethUtil.sha256(Buffer.from(JSON.stringify(this.body))).toString('hex')
       this.signature = this.glob.wallet.signHash(this.hash)
@@ -94,7 +100,17 @@ export default class Transaction {
     // if any of the references are not valid, return false
     if (this.body.ref && this.body.ref.some(hash => !this.glob.transactions.transactions[hash])) return this.handleInvalid('Invalid reference')
 
-    let remaining = this.body.amount
+    let amount = this.body.amount
+    if (this.body.instructions) {
+      for (const instruction of this.body.instructions) {
+        if (!instruction.contract) return this.handleInvalid('Contract not set')
+        if (!this.glob.transactions.transactions[instruction.contract]) return this.handleInvalid('Contract not found')
+        if (instruction.method === 'deposit') amount += instruction.amount
+        if (!/^[0-9A-Fa-f]{64}$/.test(instruction.contract)) return this.handleInvalid('Invalid contract hash')
+      }
+    }
+
+    let remaining = amount
     for (const hash of this.body.prev) {
       if (!this.glob.transactions.remaining_utxos[hash]) return this.handleInvalid('UTXO not found')
       if (!this.glob.transactions.transactions[hash]) return this.handleInvalid('Transaction not found')
