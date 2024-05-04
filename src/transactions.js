@@ -1,6 +1,7 @@
 import fs from 'fs'
 import ethUtil from 'ethereumjs-util'
 import Transaction from './transaction.js'
+import vm from 'vm'
 
 export default class Transactions {
   constructor (glob) {
@@ -50,6 +51,29 @@ export default class Transactions {
           if (this.balances[instruction.contract]) this.balances[instruction.to] += instruction.amount
           else this.balances[instruction.contract] = instruction.amount
         }
+        const send = (to, amount) => {
+          if (!this.balances[instruction.contract] || this.balances[instruction.contract] < amount) throw new Error('Contract balance too low')
+          if (!this.balances[to]) this.balances[to] = 0
+          this.balances[to] += amount
+          this.balances[instruction.contract] -= amount
+        }
+        const sendWrapper = (to, amount) => { // We wrap so the VM can't access the send function directly
+          return send(to, amount)
+        }
+        if (!this.glob.contractStore[instruction.contract]) this.glob.contractStore[instruction.contract] = {}
+        const context = {
+          instruction: {
+            method: instruction.method,
+            amount: instruction.amount,
+            from: tx.from
+          },
+          store: this.glob.contractStore[instruction.contract],
+          send: sendWrapper
+        }
+        vm.createContext(context)
+        vm.runInContext(`${this.transactions[instruction.contract].body.contract};contract(instruction)`, context)
+        console.log(context, this.balances, 'aaaa', hash, this.glob.contractStore)
+        // process.exit()
       }
     }
 

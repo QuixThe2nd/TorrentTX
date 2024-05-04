@@ -20,17 +20,19 @@
   <body>
     <h1>Deploy Smart Contract</h1>
     <a href="index.html">Back</a>
-    <textarea id="code" style="width: 100%; height: 50vh">const contract = (contractGateway: ContractGateway, instruction: Instruction) => {
+    <textarea id="code" style="width: 100%; height: 50vh">const contract = (instruction) => {
   if (instruction.method === 'deposit') {
-    if (!contractGateway.store[instruction.from]) contractGateway.store[instruction.from] = 0
-    contractGateway.store[instruction.from] += instruction.amount
+    if (!store[instruction.from])
+      store[instruction.from] = 0;
+    store[instruction.from] += instruction.amount;
   } else if (instruction.method === 'withdraw') {
-    if (contractGateway.store[instruction.from] < instruction.amount) return console.error('Insufficient funds')
-    contractGateway.store[instruction.from] -= instruction.amount
-    contractGateway.send(instruction.from, instruction.amount)
-  } else console.error('Method not found')
-}
-</textarea>
+    if (store[instruction.from] < instruction.amount)
+      return console.error('Insufficient funds');
+      store[instruction.from] -= instruction.amount;
+      send(instruction.from, instruction.amount);
+    } else {console.error('Method not found');
+  }
+}</textarea>
     <button id="deploy">Deploy</button>
     <script>
         document.getElementById('deploy').addEventListener('click', function (){
