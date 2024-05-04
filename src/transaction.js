@@ -148,7 +148,7 @@ export default class Transaction {
 
           torrent.on('metadata', () => console.log(torrent.infoHash, 'Metadata received'))
           torrent.on('ready', () => console.log(torrent.infoHash, 'Download ready'))
-          torrent.on('warning', err => console.verbose(torrent.infoHash, err.message))
+          // torrent.on('warning', err => console.verbose(torrent.infoHash, err.message))
           torrent.on('error', err => console.error(torrent.infoHash, err.message))
           // torrent.on('download', bytes => console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes'))
           // torrent.on('upload', bytes => console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes'))
@@ -215,7 +215,7 @@ export default class Transaction {
 
           torrent.on('metadata', () => console.log(torrent.infoHash, 'Metadata received'))
           torrent.on('ready', () => console.log(torrent.infoHash, 'Download ready'))
-          torrent.on('warning', err => console.verbose(torrent.infoHash, err.message))
+          // torrent.on('warning', err => console.verbose(torrent.infoHash, err.message))
           torrent.on('error', err => console.error(torrent.infoHash, err.message))
           // torrent.on('download', bytes => console.verbose(torrent.infoHash, 'Downloaded', bytes + ' bytes'))
           // torrent.on('upload', bytes => console.verbose(torrent.infoHash, 'Uploaded', bytes + ' bytes'))
