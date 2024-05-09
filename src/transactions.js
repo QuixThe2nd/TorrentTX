@@ -37,6 +37,9 @@ export default class Transactions {
         if (instruction.method === 'deposit') amount += instruction.amount
       }
     }
+    const bytes = Buffer.from(JSON.stringify(tx)).length
+    const burn = bytes * tx.burn
+    amount += burn
 
     let remaining = amount
     for (const hash of tx.prev) {

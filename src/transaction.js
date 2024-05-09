@@ -67,7 +67,8 @@ export default class Transaction {
         amount: amount / 1,
         message: message ?? '',
         prev: this.isGenesis ? [] : prev,
-        ref: Object.keys(this.glob.transactions.transactions).sort(() => 0.5 - Math.random()).slice(0, 8)
+        ref: Object.keys(this.glob.transactions.transactions).sort(() => 0.5 - Math.random()).slice(0, 8),
+        burn: 0.001
       }
 
       if (contract) this.body.contract = contract
@@ -99,6 +100,7 @@ export default class Transaction {
     // if (this.body.ref.length < 8) return this.handleInvalid('Not enough references')
     // if any of the references are not valid, return false
     if (this.body.ref && this.body.ref.some(hash => !this.glob.transactions.transactions[hash])) return this.handleInvalid('Invalid reference')
+    if (!this.body.burn || this.body.burn < 0.001) return this.handleInvalid('Burn is too low')
 
     let amount = this.body.amount
     if (this.body.instructions) {
@@ -117,6 +119,11 @@ export default class Transaction {
       if (this.glob.transactions.transactions[hash].body.to !== this.body.from) return this.handleInvalid('Invalid previous transaction')
       remaining -= this.glob.transactions.remaining_utxos[hash]
     }
+
+    const bytes = Buffer.from(this.txContentString).length
+    const burn = bytes * this.body.burn
+    amount += burn
+
     // if (remaining > 0) return this.handleInvalid('Insufficient previous transaction funds')
     if (remaining > 0) {
       console.log('Conflict due to double spending detected:')
