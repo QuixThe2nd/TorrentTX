@@ -55,7 +55,7 @@ export default class Transactions {
           else this.balances[instruction.contract] = instruction.amount
         }
         const send = (to, amount) => {
-          if (!this.balances[instruction.contract] || this.balances[instruction.contract] < amount) throw new Error('Contract balance too low')
+          if (!this.balances[instruction.contract] || this.balances[instruction.contract] < amount) console.error('Contract balance too low') // TODO: catch this in isvalid
           if (!this.balances[to]) this.balances[to] = 0
           this.balances[to] += amount
           this.balances[instruction.contract] -= amount
@@ -64,6 +64,11 @@ export default class Transactions {
           return send(to, amount)
         }
         if (!this.glob.contractStore[instruction.contract]) this.glob.contractStore[instruction.contract] = {}
+
+        const mathProxy = new Proxy(Math, {
+          get: (target, prop) => prop === 'random' ? 0.5 : target[prop] // Prevent Math.random() from being called
+        })
+
         const context = {
           instruction: {
             method: instruction.method,
@@ -71,7 +76,8 @@ export default class Transactions {
             from: tx.from
           },
           store: this.glob.contractStore[instruction.contract],
-          send: sendWrapper
+          send: sendWrapper,
+          Math: mathProxy
         }
         vm.createContext(context)
         vm.runInContext(`${this.transactions[instruction.contract].body.contract};contract(instruction)`, context)
