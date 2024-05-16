@@ -75,16 +75,15 @@ export default async function Mine (glob) {
     const sortedTxs = transactions.sort((a, b) => b.references.length - a.references.length) // TODO: Filter out transactions that are already in a block
     const transactionHashes = sortedTxs.map((tx) => tx.hash)
     const { block, signature } = await findBlock(glob, transactionHashes)
-    console.log('Found Block: ', signature)
     const signedBlock = {
       from: address,
       to: address,
-      amount: 1,
+      amount: 0,
       block: { block, signature }
     }
 
-    new Transaction(glob, signedBlock)
+    const transaction = new Transaction(glob, signedBlock)
 
-    // console.log('Transaction:', transaction)
+    // console.log('Found Block:', transaction)
   }
 }
