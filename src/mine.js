@@ -27,7 +27,7 @@ async function findBlock (glob, transactions) {
       return { block, signature }
     }
 
-    if (i % 1000 === 0) {
+    if (i % 5000 === 0) {
       const hashrate = i / ((Date.now() - startTime) / 1000)
       console.log('Running for', Math.round((Date.now() - startTime) / 1000), 'seconds')
       console.log('Hashrate:', Math.round(hashrate), 'H/s')
@@ -84,7 +84,7 @@ export default async function Mine (glob) {
       block: { block, signature }
     }
 
-    const transaction = new Transaction(glob, signedBlock)
+    new Transaction(glob, signedBlock)
 
     // console.log('Transaction:', transaction)
   }
