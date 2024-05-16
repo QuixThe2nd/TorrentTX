@@ -18,6 +18,11 @@ export default () => {
 
     onHandshake (infoHash, peerId, extensions) {
       console.log(infoHash, 'New handshake with:', peerId)
+
+      if (this._glob.webtorrent.peerId === peerId) {
+        console.log('Cannot connect to self')
+        this._wire.emit('close')
+      }
     }
 
     onExtendedHandshake (handshake) {
