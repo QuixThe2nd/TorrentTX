@@ -310,7 +310,6 @@
 
         document.getElementById('connections').innerHTML = ''
         for (const connection of payload.connections) {
-          console.log(connection.version, payload.version)
           if (connection.version > payload.version && connection.version !== 'L1 Client') document.getElementById('update_required_warning').style.display = 'initial'
 
           const connectionElement = document.createElement('tr')
