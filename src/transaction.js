@@ -38,7 +38,7 @@ export default class Transaction {
       console.info('Bootstrapping transaction from torrent file', torrentPath)
 
       this.leech(torrentPath)
-    } else if (from && to && amount) {
+    } else if (typeof from !== 'undefined' && typeof to !== 'undefined' && typeof amount !== 'undefined') {
       // this.isGenesis = true
       const unusedUTXOs = this.glob.transactions.findUnusedUTXOs(from)
 
@@ -96,12 +96,10 @@ export default class Transaction {
     if (!this.body) return this.handleInvalid('No body')
     if (isNaN(this.body.amount)) return this.handleInvalid('Amount is not a number')
     if (this.body.amount < 0) return this.handleInvalid('Amount is negative')
-    if (!this.body.prev.length) return this.handleInvalid('No previous transactions')
     if (!ethUtil.isValidAddress(this.body.to)) return this.handleInvalid('Invalid to address')
     // if (this.body.ref.length < 8) return this.handleInvalid('Not enough references')
     // if any of the references are not valid, return false
     if (this.body.ref && this.body.ref.some(hash => !this.glob.transactions.transactions[hash])) return this.handleInvalid('Invalid reference')
-    if (!this.body.burn || this.body.burn < 0.001) return this.handleInvalid('Burn is too low')
     if (this.body.block) {
       console.log('Block:', this.body.block)
       const firstChars = this.body.block.signature.slice(0, 2 + this.glob.difficulty)
@@ -113,6 +111,9 @@ export default class Transaction {
       }
       // TODO: Validate block time greater than last block time
       // TODO: Save transactions to verifiedTransactions
+    } else {
+      if (!this.body.prev.length) return this.handleInvalid('No previous transactions')
+      if (!this.body.burn || this.body.burn < 0.001) return this.handleInvalid('Burn is too low')
     }
 
     let amount = this.body.amount
@@ -144,7 +145,7 @@ export default class Transaction {
       console.log('Conflicting transactions (Possible Fork): ', this.body.prev.filter(hash => this.glob.transactions.remaining_utxos[hash] < remaining))
       return this.handleInvalid('Insufficient previous transaction funds') // This error happens in the case of double spending - TODO: Use the reference consensus mechanism to decide which transaction is to be accepted
     }
-    if (!this.glob.transactions.balances[this.body.from] || this.glob.transactions.balances[this.body.from] < this.body.amount) return this.handleInvalid('Insufficient funds - if this error is thrown, something went real bad and should be investigated')
+    if ((!this.glob.transactions.balances[this.body.from] || this.glob.transactions.balances[this.body.from] < this.body.amount) && !this.body.block) return this.handleInvalid('Insufficient funds - if this error is thrown, something went real bad and should be investigated')
 
     return this.glob.wallet.verifySignature(this.hash, this.signature, this.body.from)
   }
