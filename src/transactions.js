@@ -38,9 +38,11 @@ export default class Transactions {
         if (instruction.method === 'deposit') amount += instruction.amount
       }
     }
-    const bytes = Buffer.from(JSON.stringify(tx)).length
-    const burn = bytes * tx.burn
-    amount += burn
+    if (!tx.block) {
+      const bytes = Buffer.from(JSON.stringify(tx)).length
+      const burn = bytes * tx.burn
+      amount += burn
+    }
 
     let remaining = amount
     for (const hash of tx.prev) {
@@ -89,6 +91,11 @@ export default class Transactions {
 
     if (this.balances[tx.to]) this.balances[tx.to] += tx.amount
     else this.balances[tx.to] = tx.amount
+
+    if (tx.block) {
+      if (this.balances[tx.from]) this.balances[tx.to] += tx.amount
+      else this.balances[tx.from] = tx.amount
+    }
 
     if (transaction.hash !== this.glob.genesisHash) {
       if (this.balances[tx.from]) this.balances[tx.from] -= amount
