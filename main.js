@@ -160,7 +160,8 @@ function createWindow () {
             uploadSpeed: glob.webtorrent.uploadSpeed,
             progress: glob.webtorrent.progress,
             utxos: glob.transactions.remaining_utxos,
-            state: glob.transactions.balanceState
+            state: glob.transactions.balanceState,
+            version: glob.version
           })
         )
       )
