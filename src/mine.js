@@ -30,8 +30,7 @@ async function findBlock (glob, transactions) {
     if (i % 5000 === 0) {
       const hashrate = i / ((Date.now() - startTime) / 1000)
       console.log('Running for', Math.round((Date.now() - startTime) / 1000), 'seconds')
-      console.log('Hashrate:', Math.round(hashrate), 'H/s')
-      console.log('Checked', i, 'hashes')
+      console.log('Hashrate:', Math.round(hashrate), `H/s (${i} total)`)
 
       // probability of finding block for each hash
       const p = Math.pow(16, -difficulty)
@@ -43,12 +42,12 @@ async function findBlock (glob, transactions) {
       const qi = Math.pow(q, hashrate)
 
       // probability of finding block in 1 second
-      const pi = 1 - qi
+      // const pi = 1 - qi
 
       // On average how many seconds to find a block
-      const blockTime = 1 / pi
+      // const blockTime = 1 / pi
 
-      console.log('Will find block every', blockTime, 'seconds')
+      // console.log('Will find block every', blockTime, 'seconds')
 
       // seconds needed for x% probability of finding block
       // const t10 = Math.log(1 - 0.1) / Math.log(qi)
