@@ -11,6 +11,7 @@ export default class Transactions {
     this.transactions = {}
     this.balances = {}
     this.remaining_utxos = {}
+    this.verifiedTransactions = []
   }
 
   loadSavedTransactions () {

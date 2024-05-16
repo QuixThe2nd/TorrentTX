@@ -8,7 +8,7 @@ import WebTorrent from 'webtorrent'
 import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'path'
 import QRCode from 'qrcode'
-// import Mine from './src/mine.js'
+import Mine from './src/mine.js'
 
 const currentPath = process.cwd()
 
@@ -18,8 +18,10 @@ const base64encode = str => Buffer.from(str).toString('base64')
 
 const glob = initGlob()
 
-glob.version = '0.0.8'
+glob.version = '0.0.9'
 glob.contractStore = {}
+glob.difficulty = 5
+glob.prevBlock = 'Genesis'
 
 function createWindow () {
   glob.browserWindow = new BrowserWindow({
@@ -109,7 +111,7 @@ function createWindow () {
     })
   }
 
-  // Mine(glob, glob.wallet.wallet.getPrivateKey(), glob.wallet.address)
+  Mine(glob)
 
   setInterval(() => {
     if (glob.browserWindow) {

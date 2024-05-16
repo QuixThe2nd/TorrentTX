@@ -6,7 +6,7 @@ import pathLib from 'path'
 const currentPath = process.cwd()
 
 export default class Transaction {
-  constructor (glob, { from, to, amount, message, contract, instructions, hash, infohash, torrentPath, path }) {
+  constructor (glob, { from, to, amount, message, contract, instructions, hash, infohash, torrentPath, path, block }) {
     this.glob = glob
     this.isGenesis = false
     this.references = []
@@ -73,6 +73,7 @@ export default class Transaction {
 
       if (contract) this.body.contract = contract
       if (instructions) this.body.instructions = instructions
+      if (block) this.body.block = block
 
       this.hash = ethUtil.sha256(Buffer.from(JSON.stringify(this.body))).toString('hex')
       this.signature = this.glob.wallet.signHash(this.hash)
@@ -101,6 +102,18 @@ export default class Transaction {
     // if any of the references are not valid, return false
     if (this.body.ref && this.body.ref.some(hash => !this.glob.transactions.transactions[hash])) return this.handleInvalid('Invalid reference')
     if (!this.body.burn || this.body.burn < 0.001) return this.handleInvalid('Burn is too low')
+    if (this.body.block) {
+      console.log('Block:', this.body.block)
+      const firstChars = this.body.block.signature.slice(0, 2 + this.glob.difficulty)
+      if (firstChars !== '0x' + '0'.repeat(this.glob.difficulty)) return this.handleInvalid('Block does not meet difficulty requirements')
+      if (!this.glob.wallet.verifySignature(JSON.stringify(this.body.block.block), this.body.block.signature, this.body.from)) return this.handleInvalid('Invalid block signature')
+      if (this.glob.prevBlock !== this.body.block.block.prev) return this.handleInvalid('Invalid previous block')
+      for (const transaction of this.body.block.block.transactions) {
+        if (!this.glob.transactions.transactions[transaction]) return this.handleInvalid('Invalid transaction in block') // TODO: Make sure transaction isn't in a previous block
+      }
+      // TODO: Validate block time greater than last block time
+      // TODO: Save transactions to verifiedTransactions
+    }
 
     let amount = this.body.amount
     if (this.body.instructions) {
@@ -144,7 +157,7 @@ export default class Transaction {
         {
           announce: this.glob.trackers,
           strategy: 'rarest',
-          alwaysChokeSeeders: false,
+          // alwaysChokeSeeders: false,
           path: 'mempool'
         },
         torrent => {
@@ -199,7 +212,7 @@ export default class Transaction {
         {
           announce: this.glob.trackers,
           strategy: 'rarest',
-          alwaysChokeSeeders: false,
+          // alwaysChokeSeeders: false,
           path: 'mempool'
         },
         torrent => {
@@ -263,6 +276,7 @@ export default class Transaction {
         }
       }
 
+      if (this.body.block) this.glob.prevBlock = this.hash
       this.glob.transactions.transactions[this.hash] = this
       this.glob.transactions.updateBalances(this)
       this.glob.transactions.loadSavedTransactions()
