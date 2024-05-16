@@ -93,8 +93,8 @@ export default class Transactions {
     else this.balances[tx.to] = tx.amount
 
     if (tx.block) {
-      if (this.balances[tx.from]) this.balances[tx.to] += tx.amount
-      else this.balances[tx.from] = tx.amount
+      if (this.balances[tx.from]) this.balances[tx.to] += 1
+      else this.balances[tx.from] = 1
     }
 
     if (transaction.hash !== this.glob.genesisHash) {
