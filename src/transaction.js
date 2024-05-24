@@ -107,10 +107,10 @@ export default class Transaction {
       if (!this.glob.wallet.verifySignature(JSON.stringify(this.body.block.block), this.body.block.signature, this.body.from)) return this.handleInvalid('Invalid block signature')
       if (this.glob.prevBlock !== this.body.block.block.prev) return this.handleInvalid('Invalid previous block')
       for (const transaction of this.body.block.block.transactions) {
-        if (!this.glob.transactions.transactions[transaction]) return this.handleInvalid('Invalid transaction in block') // TODO: Make sure transaction isn't in a previous block
+        if (!this.glob.transactions.transactions[transaction]) return this.handleInvalid('Invalid transaction in block')
+        if (this.glob.transactions.verifiedTransactions.includes(transaction)) return this.handleInvalid('Transaction already in block')
       }
       // TODO: Validate block time greater than last block time
-      // TODO: Save transactions to verifiedTransactions
     } else {
       if (!this.body.prev.length) return this.handleInvalid('No previous transactions')
       if (!this.body.burn || this.body.burn < 0.001) return this.handleInvalid('Burn is too low')

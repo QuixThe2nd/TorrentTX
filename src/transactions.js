@@ -42,8 +42,6 @@ export default class Transactions {
       const bytes = Buffer.from(JSON.stringify(tx)).length
       const burn = bytes * tx.burn
       amount += burn
-    } else {
-      this.remaining_utxos[hash] += 1
     }
 
     let remaining = amount
@@ -97,6 +95,12 @@ export default class Transactions {
     if (tx.block) {
       if (this.balances[tx.from]) this.balances[tx.to] += 1
       else this.balances[tx.from] = 1
+      this.remaining_utxos[hash] += 1
+
+      const transactions = tx.block.block.transactions
+      for (const transaction of transactions) {
+        this.verifiedTransactions.push(transaction)
+      }
     }
 
     if (transaction.hash !== this.glob.genesisHash) {
