@@ -310,7 +310,12 @@
 
         document.getElementById('connections').innerHTML = ''
         for (const connection of payload.connections) {
-          if (connection.version > payload.version && connection.version !== 'L1 Client' && connection.version != 'No version provided') document.getElementById('update_required_warning').style.display = 'initial'
+          if (connection.version !== 'L1 Client' && connection.version != 'No version provided') {
+            const splitVersion = connection.version.split('.')
+            const splitPayloadVersion = payload.version.split('.')
+            if (splitVersion[0] > splitPayloadVersion[0] || splitVersion[1] > splitPayloadVersion[1] || splitVersion[2] > splitPayloadVersion[2])
+              document.getElementById('update_required_warning').style.display = 'initial'
+          }
 
           const connectionElement = document.createElement('tr')
           const isMeElement = document.createElement('td')
