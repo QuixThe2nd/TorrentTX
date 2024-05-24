@@ -18,7 +18,7 @@ const base64encode = str => Buffer.from(str).toString('base64')
 
 const glob = initGlob()
 
-glob.version = '0.0.9'
+glob.version = '0.0.10'
 glob.contractStore = {}
 glob.difficulty = 5
 glob.prevBlock = 'Genesis'

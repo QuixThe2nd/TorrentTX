@@ -42,6 +42,8 @@ export default class Transactions {
       const bytes = Buffer.from(JSON.stringify(tx)).length
       const burn = bytes * tx.burn
       amount += burn
+    } else {
+      this.remaining_utxos[hash] += 1
     }
 
     let remaining = amount
