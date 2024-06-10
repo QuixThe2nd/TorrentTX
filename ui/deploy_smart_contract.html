@@ -84,7 +84,7 @@ const contract = (instruction) => {
   } else {
     console.error('Method not found');
   }
-}
+};
 
 const meta = {
   ticker: "DOGGY",
@@ -97,19 +97,19 @@ const meta = {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/closebrackets.min.js"></script>
     <script>
-      const editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+      const editorCode = CodeMirror.fromTextArea(document.getElementById('code'), {
         lineNumbers: true,
         mode: 'javascript',
         theme: 'material-darker',
         autoCloseBrackets: true
       });
-      const editor2 = CodeMirror.fromTextArea(document.getElementById('instruction'), {
+      const editorInstruction = CodeMirror.fromTextArea(document.getElementById('instruction'), {
         lineNumbers: true,
         mode: 'json',
         theme: 'material-darker',
         autoCloseBrackets: true,
       });
-      const editor3 = CodeMirror.fromTextArea(document.getElementById('store'), {
+      const editorStore = CodeMirror.fromTextArea(document.getElementById('store'), {
         lineNumbers: true,
         mode: 'json',
         theme: 'material-darker',
@@ -135,9 +135,9 @@ const meta = {
         });
         editor.getDoc().setValue(JSON.stringify(
           eval(`
-            const store = ${document.getElementById('store').value};
-            ${document.getElementById('code').value};
-            contract(${document.getElementById('instruction').value});
+            const store = ${editorStore.getValue()};
+            ${editorCode.getValue()};
+            contract(${editorInstruction.getValue()});
             store
           `)
         , null, 2));
