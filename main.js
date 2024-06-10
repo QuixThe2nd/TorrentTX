@@ -20,6 +20,7 @@ const glob = initGlob()
 
 glob.version = '0.0.10'
 glob.contractStore = {}
+glob.contractMeta = {}
 glob.difficulty = 5
 glob.prevBlock = 'Genesis'
 
@@ -161,7 +162,9 @@ function createWindow () {
             progress: glob.webtorrent.progress,
             utxos: glob.transactions.remaining_utxos,
             state: glob.transactions.balanceState,
-            version: glob.version
+            version: glob.version,
+            contractMeta: glob.contractMeta,
+            contractStore: glob.contractStore
           })
         )
       )
