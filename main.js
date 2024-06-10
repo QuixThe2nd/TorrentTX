@@ -164,7 +164,8 @@ function createWindow () {
             state: glob.transactions.balanceState,
             version: glob.version,
             contractMeta: glob.contractMeta,
-            contractStore: glob.contractStore
+            contractStore: glob.contractStore,
+            miner: glob.miner
           })
         )
       )

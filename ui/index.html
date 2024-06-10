@@ -42,6 +42,7 @@
           <p>Connections: <span id="connectionCount">0</span></p>
           <p>Peak Connections: <span id="peakConnections">0</span></p>
           <p>Circulating Supply: <span id="circulatingSupply">0</span></p>
+          <p>50% Block Chance in: <span id="t50block">0s</span></p>
         </div>
         <a href="deploy_smart_contract.html">Deploy Smart Contract</a>
         <div>
@@ -68,7 +69,7 @@
     <br />
 
     <h3>Connections</h3>
-    <table>
+    <table style="width:max-content">
       <thead>
         <tr>
           <th>Is Me</th>
@@ -189,6 +190,7 @@
 
       window.electronAPI.handleMessage((event, message) => {
         const payload = JSON.parse(atob(message))
+        document.getElementById('t50block').innerHTML = Math.round(payload.miner.t50/6)/10 + 'm'
         const tokens = Object.keys(payload.contractMeta).filter(key => payload.contractMeta[key].type === "Token");
 
         document.getElementById('tokenHoldings').innerHTML = "<h2>Token Holdings</h2>" + Object.entries(Object.fromEntries(Object.entries(payload.contractStore).map(([k, v]) => [k, v[payload.address]]))).map(([key, value]) => `<a href="transaction.html#${key}">${payload.contractMeta[key].name} (${payload.contractMeta[key].ticker}): ${value}</a>`).join('')
