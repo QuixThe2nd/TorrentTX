@@ -28,9 +28,10 @@ async function findBlock (glob, transactions) {
     }
 
     if (i % 5000 === 0) {
+      // await sleep(1)
       const hashrate = i / ((Date.now() - startTime) / 1000)
-      console.log('Running for', Math.round((Date.now() - startTime) / 1000), 'seconds')
-      console.log('Hashrate:', Math.round(hashrate), `H/s (${i} total)`)
+      // console.log('Running for', Math.round((Date.now() - startTime) / 1000), 'seconds')
+      // console.log('Hashrate:', Math.round(hashrate), `H/s (${i} total)`)
 
       // probability of finding block for each hash
       const p = Math.pow(16, -difficulty)
@@ -59,7 +60,8 @@ async function findBlock (glob, transactions) {
 
       // console.log('10% chance of block in', Math.round(t10), 'seconds')
       // console.log('25% chance of block in', Math.round(t25), 'seconds')
-      console.log('50% chance of block in', Math.round(t50), 'seconds')
+      // console.log('50% chance of block in', Math.round(t50), 'seconds')
+      glob.miner = { hashrate, t50 }
       // console.log('75% chance of block in', Math.round(t75), 'seconds')
       // console.log('90% chance of block in', Math.round(t90), 'seconds')
       // console.log('99% chance of block in', Math.round(t99), 'seconds')
