@@ -71,7 +71,7 @@ export default class Transaction {
         message: message ?? '',
         prev: this.isGenesis ? [] : prev,
         ref: Object.keys(this.glob.transactions.transactions).sort(() => 0.5 - Math.random()).slice(0, 8),
-        burn: 0.001
+        burn: 0.0001
       }
 
       if (contract) this.body.contract = contract
@@ -116,7 +116,7 @@ export default class Transaction {
       // TODO: Validate block time greater than last block time
     } else {
       if (!this.body.prev.length) return this.handleInvalid('No previous transactions')
-      if (!this.body.burn || this.body.burn < 0.001) return this.handleInvalid('Burn is too low')
+      if (!this.body.burn || this.body.burn < 0.0001) return this.handleInvalid('Burn is too low')
     }
 
     let amount = this.body.amount
