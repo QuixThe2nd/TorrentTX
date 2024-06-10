@@ -88,7 +88,7 @@ export default class Transactions {
           get: (target, prop) => prop === 'random' ? 0.5 : target[prop] // Prevent Math.random() from being called
         })
 
-        const context = {
+        const context = { // TODO: Flexi TorrentTX's swap feature doesnt work
           instruction: {
             ...instruction,
             from: tx.from
