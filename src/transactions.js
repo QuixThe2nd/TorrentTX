@@ -27,10 +27,10 @@ export default class Transactions {
     const tx = transaction.body
     const hash = transaction.hash
 
-    if (this.remaining_utxos[hash]) throw new Error('UTXO already set')
-
+    if (this.remaining_utxos[hash]) return
     this.remaining_utxos[hash] = tx.amount
 
+    // Subtract Amount
     let amount = tx.amount
     if (tx.instructions) {
       for (const instruction of tx.instructions) {
@@ -46,6 +46,7 @@ export default class Transactions {
       amount += burn
     }
 
+    // Subtract from UTXOs
     let remaining = amount
     for (const hash of tx.prev) {
       const subtract = Math.min(this.remaining_utxos[hash], amount, remaining)
@@ -53,6 +54,7 @@ export default class Transactions {
       this.remaining_utxos[hash] -= subtract
     }
 
+    // Smart Contract Execution
     if (tx.instructions) {
       for (const instruction of tx.instructions) {
         if (instruction.method === 'deposit') {
@@ -86,7 +88,6 @@ export default class Transactions {
           get: (target, prop) => prop === 'random' ? 0.5 : target[prop] // Prevent Math.random() from being called
         })
 
-        // remove "contract" key from instruction obj
         const context = {
           instruction: {
             ...instruction,
@@ -104,13 +105,13 @@ export default class Transactions {
       }
     }
 
-    if (this.balances[tx.to]) this.balances[tx.to] += tx.amount
-    else this.balances[tx.to] = tx.amount
+    if (!this.balances[tx.to]) this.balances[tx.to] = 0
+    this.balances[tx.to] += tx.amount
 
     if (tx.block) {
-      if (this.balances[tx.from]) this.balances[tx.to] += 1
-      else this.balances[tx.from] = 1
-      this.remaining_utxos[hash] += 1
+      if (!this.balances[tx.from]) this.balances[tx.from] = 0
+      this.balances[tx.from] += 10
+      this.remaining_utxos[hash] += 10
 
       const transactions = tx.block.block.transactions
       for (const transaction of transactions) {
@@ -118,10 +119,7 @@ export default class Transactions {
       }
     }
 
-    if (transaction.hash !== this.glob.genesisHash) {
-      if (this.balances[tx.from]) this.balances[tx.from] -= amount
-      else this.balances[tx.from] = -amount
-    }
+    if (transaction.hash !== this.glob.genesisHash) this.balances[tx.from] -= amount
 
     this.calculateBalanceState()
   }
