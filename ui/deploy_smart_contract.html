@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <title>Deploy Smart Contract</title>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/material-darker.min.css">
     <style>
       body {
         background-color: #332f3d;
@@ -15,12 +16,15 @@
         margin-bottom: 1rem;
         display: block;
       }
+      .CodeMirror {
+        height: 50vh;
+      }
     </style>
   </head>
   <body>
     <h1>Deploy Smart Contract</h1>
     <a href="index.html">Back</a>
-    <textarea id="code" style="width: 100%; height: 50vh">const contract = (instruction) => {
+    <textarea id="code" name="code">const contract = (instruction) => {
   if (instruction.method === 'deposit') {
     if (!store[instruction.from])
       store[instruction.from] = 0;
@@ -28,22 +32,68 @@
   } else if (instruction.method === 'withdraw') {
     if (store[instruction.from] < instruction.amount)
       return console.error('Insufficient funds');
-      store[instruction.from] -= instruction.amount;
-      send(instruction.from, instruction.amount);
-    } else {console.error('Method not found');
+    store[instruction.from] -= instruction.amount;
+    send(instruction.from, instruction.amount);
+  } else {
+    console.error('Method not found');
   }
 }</textarea>
     <button id="deploy">Deploy</button>
+    <h2>Examples:</h2>
+    <p>Token:</p>
+    <pre>
+      <code>
+const contract = (instruction) => {
+  const mintRatio = 1000; // 1 TTX = 1000 Doggy
+  const burnDiscount = 2; // 1000 Doggy = 1/2 TTX
+
+  if (instruction.method === 'transfer') {
+    if(instruction.amount > store[instruction.from]) return;
+    store[instruction.from] -= instruction.amount;
+    if(!store[instruction.to]) store[instruction.to] = 0;
+    store[instruction.to] += instruction.amount;
+
+  } else if (instruction.method === 'deposit') { // Mint
+    if(!store[instruction.from]) store[instruction.from] = 0;
+    store[instruction.from] += instruction.amount * 1000;
+
+  } else if (instruction.method === 'burn') {
+    if(instruction.amount > store[instruction.from]) return;
+    store[instruction.from] -= instruction.amount;
+    send(instruction.from, instruction.amount / mintRatio / burnDiscount);
+
+  } else {
+    console.error('Method not found');
+  }
+}
+
+const meta = {
+  ticker: "DOGGY",
+  name: "Doggy",
+  type: "Token"
+};
+      </code>
+    </pre>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/closebrackets.min.js"></script>
     <script>
-        document.getElementById('deploy').addEventListener('click', function (){
-            const code = document.getElementById('code').value
-            window.electronAPI.sendMessageToMain(
-                JSON.stringify({
-                    type: 'deploySmartContract',
-                    code: code
-                })
-            )
-        });
+      const editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+        lineNumbers: true,
+        mode: 'javascript',
+        theme: 'material-darker',
+        autoCloseBrackets: true
+      });
+
+      document.getElementById('deploy').addEventListener('click', function () {
+        const code = editor.getValue();
+        window.electronAPI.sendMessageToMain(
+          JSON.stringify({
+            type: 'deploySmartContract',
+            code: code
+          })
+        );
+      });
     </script>
   </body>
 </html>
