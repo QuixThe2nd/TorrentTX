@@ -39,6 +39,25 @@
   }
 }</textarea>
     <button id="deploy">Deploy</button>
+    <button id="test">Test</button>
+    <h2>Test Instruction</h2>
+    <div style="height: 200px;overflow: hidden;">
+    <textarea id="instruction" name="instruction">
+{
+  "from": "0x",
+  "contract": "${this}",
+  "method": "deposit",
+  "amount": 2
+}
+</textarea>
+  </div>
+  <h2>Store</h2>
+  <div style="height: 200px;overflow: hidden;">
+    <textarea id="store" name="store">
+{
+}
+</textarea>
+  </div>
     <h2>Examples:</h2>
     <p>Token:</p>
     <pre>
@@ -84,6 +103,18 @@ const meta = {
         theme: 'material-darker',
         autoCloseBrackets: true
       });
+      const editor2 = CodeMirror.fromTextArea(document.getElementById('instruction'), {
+        lineNumbers: true,
+        mode: 'json',
+        theme: 'material-darker',
+        autoCloseBrackets: true,
+      });
+      const editor3 = CodeMirror.fromTextArea(document.getElementById('store'), {
+        lineNumbers: true,
+        mode: 'json',
+        theme: 'material-darker',
+        autoCloseBrackets: true,
+      });
 
       document.getElementById('deploy').addEventListener('click', function () {
         const code = editor.getValue();
@@ -93,6 +124,23 @@ const meta = {
             code: code
           })
         );
+      });
+
+      document.getElementById('test').addEventListener('click', function () {
+        var editor = CodeMirror.fromTextArea(document.getElementById('store'), {
+          lineNumbers: true,
+          mode: 'json',
+          theme: 'material-darker',
+          autoCloseBrackets: true,
+        });
+        editor.getDoc().setValue(JSON.stringify(
+          eval(`
+            const store = ${document.getElementById('store').value};
+            ${document.getElementById('code').value};
+            contract(${document.getElementById('instruction').value});
+            store
+          `)
+        , null, 2));
       });
     </script>
   </body>
