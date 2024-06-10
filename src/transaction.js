@@ -284,8 +284,8 @@ export default class Transaction {
       if (this.body.contract) {
         const context = {}
         vm.createContext(context)
-        vm.runInContext(`${this.body.contract};metadata=meta;`, context)
-        this.glob.contractMeta[this.hash] = context.metadata
+        vm.runInContext(`${this.body.contract};metadata=meta || false;`, context)
+        if (context.metadata) this.glob.contractMeta[this.hash] = context.metadata
       }
 
       if (this.body.block) this.glob.prevBlock = this.hash
