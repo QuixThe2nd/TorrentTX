@@ -33,6 +33,7 @@
         <h2>Balance: <span id="balance">0</span></h2>
         <h2>Address: <span id="address">0x</span></h2>
         <h2>State: <span id="state">N/A</span></h2>
+        <div id="tokenHoldings"></div>
         <div style="display: flex; gap: 1rem">
           <p>Ratio: <span id="ratio">0</span></p>
           <p>Download Speed: <span id="downloadSpeed">0B/s</span></p>
@@ -90,9 +91,10 @@
     </table>
 
     <h3>Transactions</h3>
-    <table>
+    <table style="width:max-content">
       <thead>
         <tr>
+          <th>Action</th>
           <th>Transaction ID</th>
           <th>Infohash</th>
           <th>From</th>
@@ -140,6 +142,14 @@
 
       <div>
         <h3>
+          Tokens
+          <span id="tokensCount" style="font-size: 0.8rem">(Loading)</span>
+        </h3>
+        <div id="tokens" style="list-style: none; padding: 0"></div>
+      </div>
+
+      <div>
+        <h3>
           UTXOs
           <span id="utxosCount" style="font-size: 0.8rem">(Loading)</span>
         </h3>
@@ -179,6 +189,9 @@
 
       window.electronAPI.handleMessage((event, message) => {
         const payload = JSON.parse(atob(message))
+        const tokens = Object.keys(payload.contractMeta).filter(key => payload.contractMeta[key].type === "Token");
+
+        document.getElementById('tokenHoldings').innerHTML = "<h2>Token Holdings</h2>" + Object.entries(Object.fromEntries(Object.entries(payload.contractStore).map(([k, v]) => [k, v[payload.address]]))).map(([key, value]) => `<a href="transaction.html#${key}">${payload.contractMeta[key].name} (${payload.contractMeta[key].ticker}): ${value}</a>`).join('')
 
         const connectionCount = payload.connections.map(c => c.isMe).filter(c => !c).length
 
@@ -240,6 +253,16 @@
           balancesElement.appendChild(balanceElement)
         }
 
+        document.getElementById('tokensCount').textContent = '(' + tokens.length + ')'
+        const tokensElement = document.getElementById('tokens')
+        tokensElement.innerHTML = ''
+        for (const tokenAddress of tokens) {
+          const tokenEl = document.createElement('a')
+          tokenEl.innerHTML = payload.contractMeta[tokenAddress].name + ' (' + payload.contractMeta[tokenAddress].ticker + ')<br>' + tokenAddress
+          tokenEl.href = 'transaction.html#' + tokenAddress;
+          tokensElement.appendChild(tokenEl)
+        }
+
         document.getElementById('utxosCount').textContent = '(' + Object.keys(payload.utxos).length + ')'
         const utxosElement = document.getElementById('utxos')
         utxosElement.innerHTML = ''
@@ -258,6 +281,7 @@
         const transactions = JSON.parse(payload.transactions)
         for (const transaction of transactions) {
           const transactionElement = document.createElement('tr')
+          const actionElement = document.createElement('td')
           const txIdElement = document.createElement('td')
           const infohashElement = document.createElement('td')
           const fromElement = document.createElement('td')
@@ -265,6 +289,19 @@
           const amountElement = document.createElement('td')
           const messageElement = document.createElement('td')
           const referencesElement = document.createElement('td')
+
+          if (tokens.includes(transaction.hash)) {
+            actionElement.textContent = 'Mint Token'
+          } else if (tokens.includes(transaction.tx.contract)) {
+            actionElement.textContent = 'Issue Contract'
+          } else if (transaction.tx.instructions) {
+            actionElement.textContent = 'Contract Interaction'
+          } else if (transaction.tx.block) {
+            actionElement.textContent = 'Block Created'
+          } else {
+            actionElement.textContent = 'Transfer'
+          }
+          actionElement.style.width = 'max-content'
 
           txIdLink = document.createElement('a')
           txIdLink.textContent = transaction.hash
@@ -297,6 +334,7 @@
           if (transaction.tx.from === payload.address) fromElement.classList.add('highlight-cell')
           if (transaction.tx.to === payload.address) toElement.classList.add('highlight-cell')
 
+          transactionElement.appendChild(actionElement)
           transactionElement.appendChild(txIdElement)
           transactionElement.appendChild(infohashElement)
           transactionElement.appendChild(fromElement)
