@@ -20,6 +20,9 @@
   <body>
     <h1>Transaction Viewer</h1>
     <a href="index.html">Back</a>
+    <div id="metadata"></div>
+    <div id="tokenBalances"></div>
+    <h2>Transaction</h2>
     <pre id="transaction"></pre>
     <div id="contract" style="display:none">
       <pre id="contractcode"></pre>
@@ -51,6 +54,13 @@
 
       window.electronAPI.handleMessage((event, message) => {
         const payload = JSON.parse(atob(message))
+        if(payload.contractMeta){
+          const metadata = payload.contractMeta[hash];
+          document.getElementById('metadata').textContent = JSON.stringify(metadata, null, 2)
+          if(metadata.type === 'Token'){
+            document.getElementById('tokenBalances').innerHTML = "<h2>Token Balances</h2>" + Object.entries(payload.contractStore[hash]).map(([key, value]) => `<p>${key}: ${value}</p>`).join('')
+          }
+        }
         if (payload.hash === hash) {
           document.getElementById('transaction').textContent = JSON.stringify(payload, null, 2)
           if (payload.tx.contract) {
