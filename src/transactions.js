@@ -34,7 +34,10 @@ export default class Transactions {
     let amount = tx.amount
     if (tx.instructions) {
       for (const instruction of tx.instructions) {
-        if (instruction.method === 'deposit') amount += instruction.amount
+        if (instruction.method === 'deposit') {
+          if (!instruction.token) amount += instruction.amount
+          else this.glob.contractStore[instruction.token][tx.from] -= instruction.amount
+        }
       }
     }
     if (!tx.block) {
@@ -53,17 +56,29 @@ export default class Transactions {
     if (tx.instructions) {
       for (const instruction of tx.instructions) {
         if (instruction.method === 'deposit') {
-          if (this.balances[instruction.contract]) this.balances[instruction.to] += instruction.amount
-          else this.balances[instruction.contract] = instruction.amount
+          if (!instruction.token) {
+            if (!this.balances[instruction.contract]) this.balances[instruction.contract] = 0
+            this.balances[instruction.contract] += instruction.amount
+          } else {
+            if (!this.glob.contractStore[instruction.token][instruction.contract]) this.glob.contractStore[instruction.token][instruction.contract] = 0
+            this.glob.contractStore[instruction.token][instruction.contract] += instruction.amount
+          }
         }
-        const send = (to, amount) => {
-          if (!this.balances[instruction.contract] || this.balances[instruction.contract] < amount) console.error('Contract balance too low') // TODO: catch this in isvalid
-          if (!this.balances[to]) this.balances[to] = 0
-          this.balances[to] += amount
-          this.balances[instruction.contract] -= amount
+        const send = (to, amount, token = false) => {
+          if (token) {
+            if (!this.glob.contractStore[token][instruction.contract]) console.error('Contract balance too low') // TODO: catch this in isvalid
+            this.glob.contractStore[token][instruction.contract] -= amount
+            if (!this.glob.contractStore[token][to]) this.glob.contractStore[token][to] = 0
+            this.glob.contractStore[token][to] += amount
+          } else {
+            if (this.balances[instruction.contract] < amount) console.error('Contract balance too low') // TODO: catch this in isvalid
+            if (!this.balances[to]) this.balances[to] = 0
+            this.balances[to] += amount
+            this.balances[instruction.contract] -= amount
+          }
         }
-        const sendWrapper = (to, amount) => { // We wrap so the VM can't access the send function directly
-          return send(to, amount)
+        const sendWrapper = (to, amount, token = false) => { // We wrap so the VM can't access the send function directly
+          return send(to, amount, token)
         }
         if (!this.glob.contractStore[instruction.contract]) this.glob.contractStore[instruction.contract] = {}
 
@@ -79,7 +94,10 @@ export default class Transactions {
           },
           store: this.glob.contractStore[instruction.contract],
           send: sendWrapper,
-          Math: mathProxy
+          Math: mathProxy,
+          contracts: {
+            meta: this.glob.contractStore
+          }
         }
         vm.createContext(context)
         vm.runInContext(`${this.transactions[instruction.contract].body.contract};contract(instruction)`, context)

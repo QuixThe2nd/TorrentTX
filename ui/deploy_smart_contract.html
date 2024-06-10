@@ -45,7 +45,6 @@
     <textarea id="instruction" name="instruction">
 {
   "from": "0x",
-  "contract": "${this}",
   "method": "deposit",
   "amount": 2
 }
@@ -109,39 +108,81 @@ const meta = {
         theme: 'material-darker',
         autoCloseBrackets: true,
       });
-      const editorStore = CodeMirror.fromTextArea(document.getElementById('store'), {
+      const store = document.getElementById('store');
+      const editorStore = CodeMirror.fromTextArea(store, {
         lineNumbers: true,
         mode: 'json',
         theme: 'material-darker',
         autoCloseBrackets: true,
       });
 
-      document.getElementById('deploy').addEventListener('click', function () {
-        const code = editor.getValue();
-        window.electronAPI.sendMessageToMain(
-          JSON.stringify({
-            type: 'deploySmartContract',
-            code: code
-          })
-        );
-      });
-
       document.getElementById('test').addEventListener('click', function () {
-        var editor = CodeMirror.fromTextArea(document.getElementById('store'), {
-          lineNumbers: true,
-          mode: 'json',
-          theme: 'material-darker',
-          autoCloseBrackets: true,
-        });
-        editor.getDoc().setValue(JSON.stringify(
+        editorStore.getDoc().setValue(JSON.stringify(
           eval(`
             const store = ${editorStore.getValue()};
+            const contracts = {
+              store: ${JSON.stringify(window.contractStore)},
+              meta: ${JSON.stringify(window.contractMeta)},
+            };
             ${editorCode.getValue()};
             contract(${editorInstruction.getValue()});
             store
           `)
         , null, 2));
       });
+
+      document.getElementById('deploy').addEventListener('click', function () {
+        window.electronAPI.sendMessageToMain(
+          JSON.stringify({
+            type: 'deploySmartContract',
+            code: editorCode.getValue()
+          })
+        );
+      });
+
+      window.electronAPI.handleMessage((event, message) => {
+        window.contractStore = JSON.parse(atob(message)).contractStore;
+        window.contractMeta = JSON.parse(atob(message)).contractMeta;
+      });
     </script>
   </body>
 </html>
+
+<!-- Liquidity Pool
+const contract = (instruction) => {
+  if (!store.liquidity) store.liquidity = {'0e2a67ccccc6c1791d28daab2d95312eb5870469ad2331d8aa6d696181aab150': 0};
+
+  if (instruction.method === 'transfer') {
+    if(instruction.amount > store[instruction.from]) return;
+    store[instruction.from] -= instruction.amount;
+    if(!store[instruction.to]) store[instruction.to] = 0;
+    store[instruction.to] += instruction.amount;
+
+  } else if (instruction.method === 'deposit') {
+    if (!store.liquidity[instruction.token]) store.liquidity[instruction.token] = 0;
+    store.liquidity[instruction.token] += instruction.amount;
+    
+    if (!store[instruction.from]) store[instruction.from] = 0
+    store[instruction.from] += instruction.amount * store.liquidity['0e2a67ccccc6c1791d28daab2d95312eb5870469ad2331d8aa6d696181aab150'] / store.liquidity[instruction.token]
+
+  } else if (instruction.method === 'swap') {
+    if(!store.liquidity[instruction.sell] || !store.liquidity[instruction.buy]) return;
+    
+    store.liquidity[instruction.sell] += instruction.amount
+    const payout = instruction.amount * 0.99 * (store.liquidity[instruction.buy] / store.liquidity[instruction.sell])
+
+    store.liquidity[instruction.buy] -= payout
+    
+    send(instruction.from, payout, instruction.buy)
+  }
+  
+  const tokens = Object.keys(contracts.meta).filter(key => contracts.meta[key].type === "Token");
+  console.log(tokens)
+}
+
+const meta = {
+  name: 'Flexi TorrentTX',
+  ticker: 'flTTX',
+  type: 'Token'
+};
+ -->

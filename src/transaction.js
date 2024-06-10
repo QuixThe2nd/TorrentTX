@@ -47,7 +47,13 @@ export default class Transaction {
       let remaining = amount
       if (instructions) {
         for (const instruction of instructions) {
-          if (instruction.method === 'deposit') remaining += instruction.amount
+          if (instruction.method === 'deposit') {
+            if (instruction.token) {
+              if (this.glob.contractStore[instruction.token][from] < instruction.amount) throw new Error('Insufficient funds')
+            } else {
+              remaining += instruction.amount
+            }
+          }
         }
       }
 
@@ -125,7 +131,13 @@ export default class Transaction {
         if (!this.glob.transactions.transactions[instruction.contract]) return this.handleInvalid('Contract not found')
         if (instruction.to && !ethUtil.isValidAddress(instruction.to)) return this.handleInvalid('Invalid to address in instruction')
         if (!/^[0-9A-Fa-f]{64}$/.test(instruction.contract)) return this.handleInvalid('Invalid contract hash')
-        if (instruction.method === 'deposit') amount += instruction.amount
+        if (instruction.method === 'deposit') {
+          if (instruction.token) {
+            if (this.glob.contractStore[instruction.token][this.body.from] < instruction.amount) return this.handleInvalid('Insufficient funds')
+          } else {
+            amount += instruction.amount
+          }
+        }
       }
     }
 
