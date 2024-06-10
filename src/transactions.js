@@ -39,7 +39,7 @@ export default class Transactions {
       }
     }
     if (!tx.block) {
-      const bytes = Buffer.from(JSON.stringify(tx)).length
+      const bytes = Buffer.from(transaction.txContentString).length
       const burn = bytes * tx.burn
       amount += burn
     }

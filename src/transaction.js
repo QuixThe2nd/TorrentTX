@@ -138,9 +138,13 @@ export default class Transaction {
       remaining -= this.glob.transactions.remaining_utxos[hash]
     }
 
-    const bytes = Buffer.from(this.txContentString).length
-    const burn = bytes * this.body.burn
-    amount += burn
+    if (!this.body.block) {
+      const bytes = Buffer.from(this.txContentString).length
+      const burn = bytes * this.body.burn
+      amount += burn
+    }
+
+    if (amount > this.glob.transactions.balances[this.body.from]) return this.handleInvalid('Insufficient funds')
 
     // if (remaining > 0) return this.handleInvalid('Insufficient previous transaction funds')
     if (remaining > 0) {
