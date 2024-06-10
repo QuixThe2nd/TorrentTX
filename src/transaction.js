@@ -2,6 +2,7 @@ import fs from 'fs'
 import ethUtil from 'ethereumjs-util'
 import Wire from './wire.js'
 import pathLib from 'path'
+import vm from 'vm'
 
 const currentPath = process.cwd()
 
@@ -278,6 +279,13 @@ export default class Transaction {
         for (const hash of this.body.ref) {
           this.glob.transactions.transactions[hash].references.push(this)
         }
+      }
+
+      if (this.body.contract) {
+        const context = {}
+        vm.createContext(context)
+        vm.runInContext(`${this.body.contract};metadata=meta;`, context)
+        this.glob.contractMeta[this.hash] = context.metadata
       }
 
       if (this.body.block) this.glob.prevBlock = this.hash
