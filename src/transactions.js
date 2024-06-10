@@ -72,10 +72,10 @@ export default class Transactions {
           get: (target, prop) => prop === 'random' ? 0.5 : target[prop] // Prevent Math.random() from being called
         })
 
+        // remove "contract" key from instruction obj
         const context = {
           instruction: {
-            method: instruction.method,
-            amount: instruction.amount,
+            ...instruction,
             from: tx.from
           },
           store: this.glob.contractStore[instruction.contract],
