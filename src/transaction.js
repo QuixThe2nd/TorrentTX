@@ -284,7 +284,7 @@ export default class Transaction {
       if (this.body.contract) {
         const context = {}
         vm.createContext(context)
-        vm.runInContext(`${this.body.contract};metadata=meta || false;`, context)
+        vm.runInContext(`${this.body.contract};metadata=typeof meta === 'undefined' ? false : meta;`, context)
         if (context.metadata) this.glob.contractMeta[this.hash] = context.metadata
       }
 
