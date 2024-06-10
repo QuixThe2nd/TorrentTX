@@ -49,8 +49,10 @@ export default class Transaction {
           if (instruction.method === 'deposit') remaining += instruction.amount
         }
       }
+
+      const origRemaining = remaining
       for (const hash of unusedUTXOs) {
-        if (this.glob.transactions.remaining_utxos[hash] >= amount) prev.length = 0
+        if (this.glob.transactions.remaining_utxos[hash] >= origRemaining) prev.length = 0
         remaining -= this.glob.transactions.remaining_utxos[hash]
 
         prev.push(hash)
@@ -142,7 +144,7 @@ export default class Transaction {
     if (remaining > 0) {
       console.log('Conflict due to double spending detected:')
       console.log('Transaction attempted: ', this.hash)
-      console.log('Conflicting transactions (Possible Fork): ', this.body.prev.filter(hash => this.glob.transactions.remaining_utxos[hash] < remaining))
+      console.log('Conflicting transactions (Possible Fork): ', this.body.prev.filter(hash => this.glob.transactions.remaining_utxos[hash] < remaining).join(', '))
       return this.handleInvalid('Insufficient previous transaction funds') // This error happens in the case of double spending - TODO: Use the reference consensus mechanism to decide which transaction is to be accepted
     }
     if ((!this.glob.transactions.balances[this.body.from] || this.glob.transactions.balances[this.body.from] < this.body.amount) && !this.body.block) return this.handleInvalid('Insufficient funds - if this error is thrown, something went real bad and should be investigated')
