@@ -123,8 +123,9 @@ export default class Transaction {
       for (const instruction of this.body.instructions) {
         if (!instruction.contract) return this.handleInvalid('Contract not set')
         if (!this.glob.transactions.transactions[instruction.contract]) return this.handleInvalid('Contract not found')
-        if (instruction.method === 'deposit') amount += instruction.amount
+        if (instruction.to && !ethUtil.isValidAddress(instruction.to)) return this.handleInvalid('Invalid to address in instruction')
         if (!/^[0-9A-Fa-f]{64}$/.test(instruction.contract)) return this.handleInvalid('Invalid contract hash')
+        if (instruction.method === 'deposit') amount += instruction.amount
       }
     }
 
