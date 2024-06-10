@@ -34,7 +34,6 @@ export default class Transactions {
     let amount = tx.amount
     if (tx.instructions) {
       for (const instruction of tx.instructions) {
-        console.error([], instruction)
         if (instruction.method === 'deposit') amount += instruction.amount
       }
     }
@@ -84,8 +83,6 @@ export default class Transactions {
         }
         vm.createContext(context)
         vm.runInContext(`${this.transactions[instruction.contract].body.contract};contract(instruction)`, context)
-        console.log(context, this.balances, 'aaaa', hash, this.glob.contractStore)
-        // process.exit()
       }
     }
 

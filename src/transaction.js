@@ -104,7 +104,6 @@ export default class Transaction {
     // if any of the references are not valid, return false
     if (this.body.ref && this.body.ref.some(hash => !this.glob.transactions.transactions[hash])) return this.handleInvalid('Invalid reference')
     if (this.body.block) {
-      console.log('Block:', this.body.block)
       const firstChars = this.body.block.signature.slice(0, 2 + this.glob.difficulty)
       if (firstChars !== '0x' + '0'.repeat(this.glob.difficulty)) return this.handleInvalid('Block does not meet difficulty requirements')
       if (!this.glob.wallet.verifySignature(JSON.stringify(this.body.block.block), this.body.block.signature, this.body.from)) return this.handleInvalid('Invalid block signature')
@@ -301,7 +300,6 @@ export default class Transaction {
       // for (const hash of prev) {
       //   if (!this.glob.transactions.transactions[hash]) new Transaction(this.glob, { hash })
       // }
-      console.verbose('Invalid Transaction')
       return false
     }
     return true
